@@ -27,7 +27,7 @@ class Random
 public:
 	static int NextInt()
 	{
-		std::uniform_int_distribution<int> distribution(0, std::numeric_limits<int>::max());
+		std::uniform_int_distribution<int> distribution(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
 		return distribution(s_generator);
 	}
 	static int NextInt(int minInclusive, int maxExclusive)
@@ -158,10 +158,13 @@ public:
 	std::vector<float> Evaluate(const std::vector<float>& inputs) const
 	{
 		// assert inputs.size() == numInputs
-		std::vector<float> scratch1 = inputs;
-		std::vector<float> scratch2;
+		static std::vector<float> scratch1;
+		static std::vector<float> scratch2;
 		std::vector<float>* l1 = &scratch1;
 		std::vector<float>* l2 = &scratch2;
+
+		scratch1 = inputs;
+		scratch2.clear();
 		
 		for (int levelIndex = 1; levelIndex < levels.size(); levelIndex++)
 		{
@@ -364,10 +367,11 @@ void TrainForCircle(const int maxPopulation, const float topKeepPercent = 0.2f, 
 		(*population)[population->size() - 1].Randomize();
 	}
 
+	std::vector<std::pair<int, float>> indexToScore;
 	while (bestScore < 80.0f)
 	{
 		// 2. Score each network
-		std::vector<std::pair<int, float>> indexToScore;
+		indexToScore.clear();
 		for (auto& entry : *population)
 		{
 			float computedScore = 0.0f;
