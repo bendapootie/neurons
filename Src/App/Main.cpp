@@ -7,6 +7,10 @@
 
 #include <SFML/Graphics.hpp>
 
+// TODO: These are just included for testing. Remove them when not needed anymore.
+#include "NeuronBall/NeuronBall.h"
+#include "NeuronBall/NeuronBallDisplay.h"
+
 class App
 {
 public:
@@ -48,16 +52,13 @@ private:
 
 	void Draw()
 	{
-		sf::View view(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(800.0f, 600.0f));
+		sf::View view(sf::Vector2f(40.0f, 50.0f), sf::Vector2f(200.0f, 150.0f));
 		window.setView(view);
 		window.clear(sf::Color(0, 0, 32, 255));
 		
-		sf::RectangleShape rect;
-		rect.setSize(sf::Vector2f(100.0f, 50.0f));
-		rect.setOutlineColor(sf::Color::Red);
-		rect.setOutlineThickness(5.0f);
-		rect.setPosition(100.0f, 200.0f);
-		window.draw(rect);
+		static NeuronBall game;
+		NeuronBallDisplay gameDisplay(game);
+		gameDisplay.Draw(window);
 
 		window.display();
 	}

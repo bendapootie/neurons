@@ -8,6 +8,9 @@
     <Filter Include="Src\App">
       <UniqueIdentifier>{78cd4889-c9ab-495c-93c7-a80496d77254}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\NeuronBall">
+      <UniqueIdentifier>{d78c1900-b126-4123-a565-435ae79da693}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="neurons.cpp">
@@ -16,5 +19,19 @@
     <ClCompile Include="App\Main.cpp">
       <Filter>Src\App</Filter>
     </ClCompile>
+    <ClCompile Include="NeuronBall\NeuronBall.cpp">
+      <Filter>Src\NeuronBall</Filter>
+    </ClCompile>
+    <ClCompile Include="NeuronBall\NeuronBallDisplay.cpp">
+      <Filter>Src\NeuronBall</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="NeuronBall\NeuronBall.h">
+      <Filter>Src\NeuronBall</Filter>
+    </ClInclude>
+    <ClInclude Include="NeuronBall\NeuronBallDisplay.h">
+      <Filter>Src\NeuronBall</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
