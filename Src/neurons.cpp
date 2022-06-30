@@ -158,6 +158,8 @@ public:
 	std::vector<float> Evaluate(const std::vector<float>& inputs) const
 	{
 		// assert inputs.size() == numInputs
+		// Static vectors are a nice optimization for single-threaded, but won't work multi-threaded
+		// TODO: Make these thread local if this optimization is needed for multi-threading
 		static std::vector<float> scratch1;
 		static std::vector<float> scratch2;
 		std::vector<float>* l1 = &scratch1;
