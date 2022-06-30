@@ -435,9 +435,10 @@ void TrainForCircle(const int maxPopulation, const float topKeepPercent = 0.2f, 
 	}
 }
 
-int main(int argc, char *argv[])
+int oldmain(int argc, char *argv[])
 {
-	TrainForCircle(100, 0.15f, 0.05f);
+
+//	TrainForCircle(100, 0.15f, 0.05f);
 /*
 	Network test({ 2, 1 });
 	test.Randomize();
@@ -463,4 +464,5 @@ int main(int argc, char *argv[])
 		test.Mutate();
 	}
 	*/
+	return 0;
 }
