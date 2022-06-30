@@ -1,0 +1,56 @@
+# Visual Studio user files and folders
+*.vcxproj.user
+.vs/
+# Not sure if .filters files should be excluded
+# *.vcxproj.filters
+
+# Ignore blender backup files
+*.blend1
+
+# Build output folders
+/Build
+/Src/x64
+
+# ImGui local config file
+data/imgui.ini
+
+
+###############################################################################
+## Removed all other global ignores.                                         ##
+## They can be turned back on as needed, but I'd rather manage things by     ##
+## grouping intermediate and temporary files into easy to ignore folders     3#
+###############################################################################
+
+
+# Prerequisites
+#*.d
+
+# Compiled Object files
+#*.slo
+#*.lo
+#*.o
+#*.obj
+
+# Precompiled Headers
+#*.gch
+#*.pch
+
+# Compiled Dynamic libraries
+#*.so
+#*.dylib
+#*.dll
+
+# Fortran module files
+#*.mod
+#*.smod
+
+# Compiled Static libraries
+#*.lai
+#*.la
+#*.a
+#*.lib
+
+# Executables
+#*.exe
+#*.out
+#*.app
