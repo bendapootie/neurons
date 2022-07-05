@@ -20,6 +20,7 @@ public:
 	void Initialize()
 	{
 		window.create(sf::VideoMode(800, 600), "Neurons");
+		window.setVerticalSyncEnabled(true);
 	}
 
 	int Run()
