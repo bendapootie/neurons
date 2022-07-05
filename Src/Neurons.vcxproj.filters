@@ -19,18 +19,18 @@
     <ClCompile Include="App\Main.cpp">
       <Filter>Src\App</Filter>
     </ClCompile>
-    <ClCompile Include="NeuronBall\NeuronBall.cpp">
+    <ClCompile Include="NeuronBall\NeuronGameDisplay.cpp">
       <Filter>Src\NeuronBall</Filter>
     </ClCompile>
-    <ClCompile Include="NeuronBall\NeuronBallDisplay.cpp">
+    <ClCompile Include="NeuronBall\NeuronGame.cpp">
       <Filter>Src\NeuronBall</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="NeuronBall\NeuronBall.h">
+    <ClInclude Include="NeuronBall\NeuronGameDisplay.h">
       <Filter>Src\NeuronBall</Filter>
     </ClInclude>
-    <ClInclude Include="NeuronBall\NeuronBallDisplay.h">
+    <ClInclude Include="NeuronBall\NeuronGame.h">
       <Filter>Src\NeuronBall</Filter>
     </ClInclude>
   </ItemGroup>

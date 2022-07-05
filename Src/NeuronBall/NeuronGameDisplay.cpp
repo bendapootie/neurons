@@ -1,12 +1,12 @@
-#include "NeuronBallDisplay.h"
-#include "NeuronBall.h"
+#include "NeuronGameDisplay.h"
+#include "NeuronGame.h"
 #include <SFML/Graphics.hpp>
 
-void NeuronBallDisplay::Draw(sf::RenderWindow& window)
+void NeuronGameDisplay::Draw(sf::RenderWindow& window) const
 {
-	const float width = m_neuronBall.GetFieldWidth();
-	const float length = m_neuronBall.GetFieldLength();
-	const float goalWidth = m_neuronBall.GetGoalWidth();
+	const float width = m_neuronGame.GetFieldWidth();
+	const float length = m_neuronGame.GetFieldLength();
+	const float goalWidth = m_neuronGame.GetGoalWidth();
 	const float goalDepth = goalWidth * 0.2f;	// Goal depth is only visual, so it's not tracked by NeuronBallGame
 	const float outlineThickness = 1.0f;
 

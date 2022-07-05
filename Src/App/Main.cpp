@@ -8,8 +8,8 @@
 #include <SFML/Graphics.hpp>
 
 // TODO: These are just included for testing. Remove them when not needed anymore.
-#include "NeuronBall/NeuronBall.h"
-#include "NeuronBall/NeuronBallDisplay.h"
+#include "NeuronBall/NeuronGame.h"
+#include "NeuronBall/NeuronGameDisplay.h"
 
 class App
 {
@@ -56,8 +56,8 @@ private:
 		window.setView(view);
 		window.clear(sf::Color(0, 0, 32, 255));
 		
-		static NeuronBall game;
-		NeuronBallDisplay gameDisplay(game);
+		static NeuronGame game;
+		NeuronGameDisplay gameDisplay(game);
 		gameDisplay.Draw(window);
 
 		window.display();

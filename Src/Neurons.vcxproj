@@ -160,13 +160,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App\Main.cpp" />
-    <ClCompile Include="NeuronBall\NeuronBall.cpp" />
-    <ClCompile Include="NeuronBall\NeuronBallDisplay.cpp" />
+    <ClCompile Include="NeuronBall\NeuronGame.cpp" />
+    <ClCompile Include="NeuronBall\NeuronGameDisplay.cpp" />
     <ClCompile Include="neurons.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="NeuronBall\NeuronBall.h" />
-    <ClInclude Include="NeuronBall\NeuronBallDisplay.h" />
+    <ClInclude Include="NeuronBall\NeuronGame.h" />
+    <ClInclude Include="NeuronBall\NeuronGameDisplay.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
