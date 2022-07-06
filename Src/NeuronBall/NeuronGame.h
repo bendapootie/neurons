@@ -1,3 +1,15 @@
+#pragma  once
+#include "Util/Constants.h"
+
+class NeuronPlayerInput
+{
+public:
+	// Values outside this range will get clamped
+	// -1.0 <= turn full left; 0.0 = straight; 1.0 >= turn full right
+	float m_steering = 0.0f;
+	// -1.0 <= full reverse; 0.0 = stop; 1.0 >= full forward
+	float m_speed = 0.0f;
+};
 
 class NeuronPlayer
 {
@@ -9,7 +21,7 @@ public:
 		m_facingRadians(facing)
 	{}
 
-	float GetRotationDegrees() const { return m_facingRadians * (180.0f / 3.1415926535f); }
+	float GetRotationDegrees() const { return RadToDeg(m_facingRadians); }
 
 public:
 	float m_x = 0.0f;
@@ -44,21 +56,27 @@ class NeuronGame
 {
 public:
 	NeuronGame() :
-		m_player1(m_fieldWidth * 0.5f, m_fieldLength * 0.1f, 3.14159f * 0.0f),
-		m_player2(m_fieldWidth * 0.5f, m_fieldLength * 0.9f, 3.14159f * 1.0f),
+		m_player0(m_fieldWidth * 0.5f, m_fieldLength * 0.1f, DegToRad( 90.0f)),
+		m_player1(m_fieldWidth * 0.5f, m_fieldLength * 0.9f, DegToRad(270.0f)),
 		m_ball(m_fieldWidth * 0.5f, m_fieldLength * 0.5f)
 	{}
+
+	void Update(const NeuronPlayerInput& p0, const NeuronPlayerInput& p1);
 
 	float GetFieldWidth() const { return m_fieldWidth; }
 	float GetFieldLength() const { return m_fieldLength; }
 	float GetGoalWidth() const { return m_fieldLength * 0.25f; }
 	int GetNumPlayers() const { return 2; }
-	const NeuronPlayer& GetPlayer(const int index) const { return (index == 0) ? m_player1 : m_player2; }
+	const NeuronPlayer& GetPlayer(const int index) const { return (index == 0) ? m_player0 : m_player1; }
 	const NeuronBall& GetBall() const { return m_ball; }
+
 private:
-	float m_fieldWidth = 80.0f;
-	float m_fieldLength = 100.0f;
+	static void ApplyInputToPlayer(NeuronPlayer& outPlayer, const NeuronPlayerInput& input);
+
+private:
+	const float m_fieldWidth = 80.0f;
+	const float m_fieldLength = 100.0f;
+	NeuronPlayer m_player0;
 	NeuronPlayer m_player1;
-	NeuronPlayer m_player2;
 	NeuronBall m_ball;
 };

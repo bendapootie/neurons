@@ -19,25 +19,25 @@ public:
 
 	void Initialize()
 	{
-		window.create(sf::VideoMode(800, 600), "Neurons");
-		window.setVerticalSyncEnabled(true);
+		m_window.create(sf::VideoMode(800, 600), "Neurons");
+		m_window.setVerticalSyncEnabled(true);
 	}
 
 	int Run()
 	{
 		int returnCode = 0;
-		while (window.isOpen())
+		while (m_window.isOpen())
 		{
 			sf::Event event;
-			while (window.pollEvent(event))
+			while (m_window.pollEvent(event))
 			{
 				if (event.type == sf::Event::Closed)
 				{
-					window.close();
+					m_window.close();
 				}
 			}
 
-			if (window.isOpen())
+			if (m_window.isOpen())
 			{
 				Update();
 				Draw();
@@ -49,23 +49,36 @@ public:
 private:
 	void Update()
 	{
+		NeuronPlayerInput i0;
+		NeuronPlayerInput i1;
+
+		// Sample Input
+		if (sf::Joystick::isConnected(0))
+		{
+			float x = std::clamp(sf::Joystick::getAxisPosition(0, sf::Joystick::X) * 0.01f, -1.0f, 1.0f);
+			i0.m_steering = (x * x) *((x >= 0.0f) ? 1.0f : -1.0f);
+			i0.m_speed = -sf::Joystick::getAxisPosition(0, sf::Joystick::Z) * 0.01f;
+		}
+
+		// Update game with input
+		m_testGame.Update(i0, i1);
 	}
 
 	void Draw()
 	{
 		sf::View view(sf::Vector2f(40.0f, 50.0f), sf::Vector2f(200.0f, 150.0f));
-		window.setView(view);
-		window.clear(sf::Color(0, 0, 32, 255));
+		m_window.setView(view);
+		m_window.clear(sf::Color(0, 0, 32, 255));
 		
-		static NeuronGame game;
-		NeuronGameDisplay gameDisplay(game);
-		gameDisplay.Draw(window);
+		NeuronGameDisplay gameDisplay(m_testGame);
+		gameDisplay.Draw(m_window);
 
-		window.display();
+		m_window.display();
 	}
 
 private:
-	sf::RenderWindow window;
+	sf::RenderWindow m_window;
+	NeuronGame m_testGame;
 };
 
 int WinMain(const int argc, const char** argv)
