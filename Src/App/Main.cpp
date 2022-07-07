@@ -49,19 +49,21 @@ public:
 private:
 	void Update()
 	{
-		NeuronPlayerInput i0;
-		NeuronPlayerInput i1;
+		NeuronPlayerInput input[2];
 
-		// Sample Input
-		if (sf::Joystick::isConnected(0))
+		for (int i = 0; i < 2; i++)
 		{
-			float x = std::clamp(sf::Joystick::getAxisPosition(0, sf::Joystick::X) * 0.01f, -1.0f, 1.0f);
-			i0.m_steering = (x * x) *((x >= 0.0f) ? 1.0f : -1.0f);
-			i0.m_speed = -sf::Joystick::getAxisPosition(0, sf::Joystick::Z) * 0.01f;
+			// Sample Input
+			if (sf::Joystick::isConnected(i))
+			{
+				float x = std::clamp(sf::Joystick::getAxisPosition(i, sf::Joystick::X) * 0.01f, -1.0f, 1.0f);
+				input[i].m_steering = (x * x) * ((x >= 0.0f) ? 1.0f : -1.0f);
+				input[i].m_speed = -sf::Joystick::getAxisPosition(i, sf::Joystick::Z) * 0.01f;
+			}
 		}
 
 		// Update game with input
-		m_testGame.Update(i0, i1);
+		m_testGame.Update(input[0], input[1]);
 	}
 
 	void Draw()

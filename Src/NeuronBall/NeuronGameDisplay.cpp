@@ -68,7 +68,7 @@ void NeuronGameDisplay::Draw(sf::RenderWindow& window) const
 		player.setFillColor((i == 0) ? playerColor1 : playerColor2);
 		player.setOutlineColor(playerOutlineColor);
 		player.setOutlineThickness(playerOutlineThickness);
-		player.setPosition(neuronPlayer.m_x, neuronPlayer.m_y);
+		player.setPosition(neuronPlayer.m_pos.x, neuronPlayer.m_pos.y);
 		player.setRotation(neuronPlayer.GetRotationDegrees() + 90.0f);
 		window.draw(player);
 	}
@@ -81,6 +81,6 @@ void NeuronGameDisplay::Draw(sf::RenderWindow& window) const
 	ball.setFillColor(ballFillColor);
 	ball.setOutlineColor(ballOutlineColor);
 	ball.setOutlineThickness(ballOutlineThickness);
-	ball.setPosition(neuronBall.m_x, neuronBall.m_y);
+	ball.setPosition(neuronBall.m_pos.x, neuronBall.m_pos.y);
 	window.draw(ball);
 }

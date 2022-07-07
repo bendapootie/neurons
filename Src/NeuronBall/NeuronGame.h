@@ -1,5 +1,6 @@
 #pragma  once
 #include "Util/Constants.h"
+#include "Util/Vector.h"
 
 class NeuronPlayerInput
 {
@@ -15,37 +16,32 @@ class NeuronPlayer
 {
 public:
 	NeuronPlayer() {}
-	NeuronPlayer(const float x, const float y, const float facing) :
-		m_x(x),
-		m_y(y),
+	NeuronPlayer(const Vector2 pos, const float facing) :
+		m_pos(pos),
 		m_facingRadians(facing)
 	{}
 
 	float GetRotationDegrees() const { return RadToDeg(m_facingRadians); }
+	Vector2 ComputeForward() const { return Vector2(Math::Cos(m_facingRadians), Math::Sin(m_facingRadians)); }
 
 public:
-	float m_x = 0.0f;
-	float m_y = 0.0f;
+	Vector2 m_pos = Vector2::Zero;
+	Vector2 m_velocity = Vector2::Zero;
 	float m_facingRadians = 0.0f;
-	float m_vx = 0.0f;
-	float m_vy = 0.0f;
 };
 
 class NeuronBall
 {
 public:
 	NeuronBall() {}
-	NeuronBall(const float x, const float y) :
-		m_x(x),
-		m_y(y)
+	NeuronBall(const Vector2 pos) :
+		m_pos(pos)
 	{}
 	float GetRadius() const { return 2.0f; }
 
 public:
-	float m_x = 0.0f;
-	float m_y = 0.0f;
-	float m_vx = 0.0f;
-	float m_vy = 0.0f;
+	Vector2 m_pos = Vector2::Zero;
+	Vector2 m_velocity = Vector2::Zero;
 };
 
 // Instance of a simple 1v1 soccer-like game
@@ -56,9 +52,9 @@ class NeuronGame
 {
 public:
 	NeuronGame() :
-		m_player0(m_fieldWidth * 0.5f, m_fieldLength * 0.1f, DegToRad( 90.0f)),
-		m_player1(m_fieldWidth * 0.5f, m_fieldLength * 0.9f, DegToRad(270.0f)),
-		m_ball(m_fieldWidth * 0.5f, m_fieldLength * 0.5f)
+		m_player0(Vector2(m_fieldWidth * 0.5f, m_fieldLength * 0.1f), DegToRad( 90.0f)),
+		m_player1(Vector2(m_fieldWidth * 0.5f, m_fieldLength * 0.9f), DegToRad(270.0f)),
+		m_ball(Vector2(m_fieldWidth * 0.5f, m_fieldLength * 0.5f))
 	{}
 
 	void Update(const NeuronPlayerInput& p0, const NeuronPlayerInput& p1);
