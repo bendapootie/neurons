@@ -16,6 +16,8 @@ void NeuronGame::Update(const NeuronPlayerInput& p0, const NeuronPlayerInput& p1
 {
 	ApplyInputToPlayer(m_player0, p0);
 	ApplyInputToPlayer(m_player1, p1);
+	UpdateBall();
+	ProcessCollisions();
 }
 
 // static
@@ -56,4 +58,53 @@ void NeuronGame::ApplyInputToPlayer(NeuronPlayer& outPlayer, const NeuronPlayerI
 	const float newFacing = outPlayer.m_facingRadians + deltaAngle;
 	// Always keep facing in the range of [0..2pi]
 	outPlayer.m_facingRadians = remainderf(newFacing, k_2pi);
+}
+
+void NeuronGame::UpdateBall()
+{
+	// Update ball position based on velocity and velocity based on friction
+	m_ball.m_pos += m_ball.m_velocity * k_timePerTick;
+	m_ball.m_velocity *= (1.0f - (m_ball.GetRollingFriction() * k_timePerTick));
+
+	// Collide ball against bounds of the field
+	const Vector2 minBound(m_ball.GetRadius(), m_ball.GetRadius());
+	const Vector2 maxBound(GetFieldWidth() - m_ball.GetRadius(), GetFieldLength() - m_ball.GetRadius());
+
+	if ((m_ball.m_pos.x < minBound.x) || (m_ball.m_pos.x > maxBound.x))
+	{
+		m_ball.m_pos.x = Math::Clamp(m_ball.m_pos.x, minBound.x, maxBound.x);
+		m_ball.m_velocity.x = -m_ball.m_velocity.x;
+	}
+	if ((m_ball.m_pos.y < minBound.y) || (m_ball.m_pos.y > maxBound.y))
+	{
+		m_ball.m_pos.y = Math::Clamp(m_ball.m_pos.y, minBound.y, maxBound.y);
+		m_ball.m_velocity.y = -m_ball.m_velocity.y;
+	}
+}
+
+void NeuronGame::ProcessCollisions()
+{
+	// Check for ball vs car collisions
+	for (int i = 0; i < GetNumPlayers(); i++)
+	{
+		const NeuronPlayer& player = GetPlayer(i);
+		const Vector2 playerToBall = m_ball.m_pos - player.m_pos;
+		float distance;
+		const Vector2 playerToBallNormal = playerToBall.GetSafeNormalized(distance);
+		// TODO: Compute player radius correctly
+		// TODO: Treat player shape as a rectangle, not a circle
+		const float minDistanceAllowed = m_ball.GetRadius() + player.GetPlayerWidth();
+		if (distance < minDistanceAllowed)
+		{
+			// Ball collided with car and needs to move away
+			m_ball.m_pos = player.m_pos + (playerToBallNormal * minDistanceAllowed);
+
+			// TODO: This isn't the right way to apply velocity to the ball
+			const float velocityDot = playerToBallNormal.Dot(player.m_velocity.GetSafeNormalized());
+			if (velocityDot > 0.0f)
+			{
+				m_ball.m_velocity = player.m_velocity * velocityDot;
+			}
+		}
+	}
 }

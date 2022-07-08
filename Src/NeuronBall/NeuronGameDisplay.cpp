@@ -9,8 +9,8 @@ void NeuronGameDisplay::Draw(sf::RenderWindow& window) const
 	const float goalWidth = m_neuronGame.GetGoalWidth();
 	const float goalDepth = goalWidth * 0.2f;	// Goal depth is only visual, so it's not tracked by NeuronBallGame
 	const float fieldOutlineThickness = 1.0f;
-	const float playerWidth = 4.0f;
-	const float playerLength = playerWidth * 1.8f;
+	const float playerWidth = NeuronPlayer::GetPlayerWidth();
+	const float playerLength = NeuronPlayer::GetPlayerLength();
 	const float playerOutlineThickness = 0.25f;
 
 	const sf::Color goalColor1(128, 0, 0);

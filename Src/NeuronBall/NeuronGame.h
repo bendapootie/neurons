@@ -24,6 +24,9 @@ public:
 	float GetRotationDegrees() const { return RadToDeg(m_facingRadians); }
 	Vector2 ComputeForward() const { return Vector2(Math::Cos(m_facingRadians), Math::Sin(m_facingRadians)); }
 
+	static constexpr float GetPlayerWidth() { return 4.0f; }
+	static constexpr float GetPlayerLength() { return GetPlayerWidth() * 1.8f; }
+
 public:
 	Vector2 m_pos = Vector2::Zero;
 	Vector2 m_velocity = Vector2::Zero;
@@ -37,7 +40,10 @@ public:
 	NeuronBall(const Vector2 pos) :
 		m_pos(pos)
 	{}
-	float GetRadius() const { return 2.0f; }
+
+	static constexpr float GetRadius() { return 2.0f; }
+	// Roughly what percentage of velocity is lost per second while rolling
+	static constexpr float GetRollingFriction() { return 0.2f; }
 
 public:
 	Vector2 m_pos = Vector2::Zero;
@@ -62,12 +68,14 @@ public:
 	float GetFieldWidth() const { return m_fieldWidth; }
 	float GetFieldLength() const { return m_fieldLength; }
 	float GetGoalWidth() const { return m_fieldLength * 0.25f; }
-	int GetNumPlayers() const { return 2; }
+	static constexpr int GetNumPlayers() { return 2; }
 	const NeuronPlayer& GetPlayer(const int index) const { return (index == 0) ? m_player0 : m_player1; }
 	const NeuronBall& GetBall() const { return m_ball; }
 
 private:
 	static void ApplyInputToPlayer(NeuronPlayer& outPlayer, const NeuronPlayerInput& input);
+	void UpdateBall();
+	void ProcessCollisions();
 
 private:
 	const float m_fieldWidth = 80.0f;
