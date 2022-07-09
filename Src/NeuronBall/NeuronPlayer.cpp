@@ -14,6 +14,7 @@ void NeuronPlayer::CollideWithField(const NeuronGame& game)
 	const Vector2 halfLengthVector = halfForward * GetPlayerLength();
 	const Vector2 halfWidthVector = halfRight * GetPlayerWidth();
 
+	// Figure out where all the corners are and check if any of them are out of bounds
 	Vector2 corners[4];
 	corners[0] = Vector2(m_pos + halfLengthVector + halfWidthVector);
 	corners[1] = Vector2(m_pos + halfLengthVector - halfWidthVector);
@@ -43,5 +44,6 @@ void NeuronPlayer::CollideWithField(const NeuronGame& game)
 		}
 	}
 
+	// Move the player back by how much it was over the line
 	m_pos += pushDistance;
 }
