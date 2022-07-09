@@ -172,6 +172,7 @@
     <ClInclude Include="NeuronBall\NeuronGame.h" />
     <ClInclude Include="NeuronBall\NeuronGameDisplay.h" />
     <ClInclude Include="NeuronBall\NeuronPlayer.h" />
+    <ClInclude Include="Util\Array.h" />
     <ClInclude Include="Util\Constants.h" />
     <ClInclude Include="Util\Math.h" />
     <ClInclude Include="Util\Vector.h" />

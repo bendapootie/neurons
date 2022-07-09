@@ -60,5 +60,8 @@
     <ClInclude Include="NeuronBall\NeuronBall.h">
       <Filter>Src\NeuronBall</Filter>
     </ClInclude>
+    <ClInclude Include="Util\Array.h">
+      <Filter>Src\Util</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

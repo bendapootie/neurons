@@ -1,4 +1,5 @@
 #include "NeuronGame.h"
+
 #include <algorithm>
 #include "Util/Constants.h"
 
@@ -26,7 +27,7 @@ void NeuronGame::ApplyInputToPlayer(NeuronPlayer& outPlayer, const NeuronPlayerI
 	// Determine target speed
 	const float clampedThrottle = (Math::Abs(input.m_speed) <= k_throttleDeadZone) ? 0.0f : Math::Clamp(input.m_speed, -1.0f, 1.0f);
 	const float targetSpeed = clampedThrottle * ((clampedThrottle >= 0.0f) ? k_maxForwardSpeed : k_maxReverseSpeed);
-	const Vector2 oldForward = outPlayer.ComputeForward();
+	const Vector2 oldForward = outPlayer.GetForward();
 	const Vector2 targetVelocity = oldForward * targetSpeed;
 	const Vector2 desiredDeltaVelocity = targetVelocity - outPlayer.m_velocity;
 	const float desiredDeltaVelocitySquared = desiredDeltaVelocity.GetLengthSquared();
@@ -93,8 +94,8 @@ void NeuronGame::ProcessCollisions()
 	// 4. Check player vs ball (move player)
 	// 5. Check player vs player (move both)
 
+	// TODO: Alternate order players are processed each frame to maintain fairness? Would that matter?
 	bool anyCollision = false;
-
 	// 1. Check player vs field (move player)
 	for (int i = 0; i < GetNumPlayers(); i++)
 	{
@@ -115,4 +116,7 @@ void NeuronGame::ProcessCollisions()
 	{
 		anyCollision |= GetPlayer(i).CollideWithBall(m_ball);
 	}
+
+	// 5. Check player vs player (move both)
+	anyCollision |= NeuronPlayer::CollidePlayers(GetPlayer(0), GetPlayer(1));
 }
