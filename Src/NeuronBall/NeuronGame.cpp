@@ -66,6 +66,7 @@ void NeuronGame::UpdateBall()
 	m_ball.m_pos += m_ball.m_velocity * k_timePerTick;
 	m_ball.m_velocity *= (1.0f - (m_ball.GetRollingFriction() * k_timePerTick));
 
+	// TODO: These checks are mostley duplicated in NeuronBall::CollideWithField. Should they be merged?
 	// Collide ball against bounds of the field
 	const Vector2 minBound(m_ball.GetRadius(), m_ball.GetRadius());
 	const Vector2 maxBound(GetFieldWidth() - m_ball.GetRadius(), GetFieldLength() - m_ball.GetRadius());
@@ -97,27 +98,12 @@ void NeuronGame::ProcessCollisions()
 		GetPlayer(i).CollideWithField(*this);
 	}
 
-	// Check for ball vs car collisions
+	// 2. Check ball vs player (move ball)
 	for (int i = 0; i < GetNumPlayers(); i++)
 	{
-		const NeuronPlayer& player = GetPlayer(i);
-		const Vector2 playerToBall = m_ball.m_pos - player.m_pos;
-		float distance;
-		const Vector2 playerToBallNormal = playerToBall.GetSafeNormalized(distance);
-		// TODO: Compute player radius correctly
-		// TODO: Treat player shape as a rectangle, not a circle
-		const float minDistanceAllowed = m_ball.GetRadius() + player.GetPlayerWidth();
-		if (distance < minDistanceAllowed)
-		{
-			// Ball collided with car and needs to move away
-			m_ball.m_pos = player.m_pos + (playerToBallNormal * minDistanceAllowed);
-
-			// TODO: This isn't the right way to apply velocity to the ball
-			const float velocityDot = playerToBallNormal.Dot(player.m_velocity.GetSafeNormalized());
-			if (velocityDot > 0.0f)
-			{
-				m_ball.m_velocity = player.m_velocity * velocityDot;
-			}
-		}
+		m_ball.CollideWithPlayer(GetPlayer(i));
 	}
+
+	// 3. Check ball vs field (move ball)
+	m_ball.CollideWithField(*this);
 }

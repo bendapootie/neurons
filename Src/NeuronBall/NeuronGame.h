@@ -1,27 +1,11 @@
 #pragma  once
+#include "NeuronBall.h"
 #include "NeuronPlayer.h"
 #include "Util/Constants.h"
 #include "Util/Vector.h"
 
 class NeuronPlayerInput;
 class NeuronPlayer;
-
-class NeuronBall
-{
-public:
-	NeuronBall() {}
-	NeuronBall(const Vector2 pos) :
-		m_pos(pos)
-	{}
-
-	static constexpr float GetRadius() { return 2.0f; }
-	// Roughly what percentage of velocity is lost per second while rolling
-	static constexpr float GetRollingFriction() { return 0.2f; }
-
-public:
-	Vector2 m_pos = Vector2::Zero;
-	Vector2 m_velocity = Vector2::Zero;
-};
 
 // Instance of a simple 1v1 soccer-like game
 // Player = 1.4m long
