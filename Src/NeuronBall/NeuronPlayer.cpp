@@ -2,7 +2,7 @@
 
 #include "NeuronGame.h"
 
-void NeuronPlayer::CollideWithField(const NeuronGame& game)
+bool NeuronPlayer::CollideWithField(const NeuronGame& game)
 {
 	// Perf: Early-out if player is clearly not close to the walls
 	const float fieldWidth = game.GetFieldWidth();
@@ -46,4 +46,28 @@ void NeuronPlayer::CollideWithField(const NeuronGame& game)
 
 	// Move the player back by how much it was over the line
 	m_pos += pushDistance;
+
+	// If pushDistance isn't zero, there was a collision
+	return pushDistance != Vector2::Zero;
+}
+
+bool NeuronPlayer::CollideWithBall(const NeuronBall& ball)
+{
+	// TODO: Treat player shape as a rectangle, not a circle
+	// TODO: Fix this and NeuronBall::CollideWithPlayer (merge the two functions?)
+	bool wasCollision = false;
+
+	const Vector2 ballToPlayer = m_pos - ball.m_pos;
+	float distance;
+	const Vector2 ballToPlayerNormal = ballToPlayer.GetSafeNormalized(distance);
+	const float minDistanceAllowed = ball.GetRadius() + GetPlayerWidth();
+	if (distance < minDistanceAllowed)
+	{
+		// Car collided with ball and needs to move away
+		m_pos = ball.m_pos + (ballToPlayerNormal * minDistanceAllowed);
+		wasCollision = true;
+	}
+	// TODO: Should velocities change here?
+
+	return wasCollision;
 }

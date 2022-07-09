@@ -1,6 +1,7 @@
 #pragma  once
 #include "Util/Vector.h"
 
+class NeuronBall;
 class NeuronGame;
 
 class NeuronPlayerInput
@@ -25,7 +26,8 @@ public:
 	float GetRotationDegrees() const { return RadToDeg(m_facingRadians); }
 	Vector2 ComputeForward() const { return Vector2(Math::Cos(m_facingRadians), Math::Sin(m_facingRadians)); }
 
-	void CollideWithField(const NeuronGame& game);
+	bool CollideWithField(const NeuronGame& game);
+	bool CollideWithBall(const NeuronBall& ball);
 
 	static constexpr float GetPlayerWidth() { return 4.0f; }
 	static constexpr float GetPlayerLength() { return GetPlayerWidth() * 1.8f; }

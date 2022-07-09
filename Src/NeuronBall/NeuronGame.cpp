@@ -91,19 +91,28 @@ void NeuronGame::ProcessCollisions()
 	// 2. Check ball vs player (move ball)
 	// 3. Check ball vs field (move ball)
 	// 4. Check player vs ball (move player)
+	// 5. Check player vs player (move both)
+
+	bool anyCollision = false;
 
 	// 1. Check player vs field (move player)
 	for (int i = 0; i < GetNumPlayers(); i++)
 	{
-		GetPlayer(i).CollideWithField(*this);
+		anyCollision |= GetPlayer(i).CollideWithField(*this);
 	}
 
 	// 2. Check ball vs player (move ball)
 	for (int i = 0; i < GetNumPlayers(); i++)
 	{
-		m_ball.CollideWithPlayer(GetPlayer(i));
+		anyCollision |= m_ball.CollideWithPlayer(GetPlayer(i));
 	}
 
 	// 3. Check ball vs field (move ball)
-	m_ball.CollideWithField(*this);
+	anyCollision |= m_ball.CollideWithField(*this);
+
+	// 4. Check player vs ball (move player)
+	for (int i = 0; i < GetNumPlayers(); i++)
+	{
+		anyCollision |= GetPlayer(i).CollideWithBall(m_ball);
+	}
 }

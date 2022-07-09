@@ -12,8 +12,8 @@ public:
 		m_pos(pos)
 	{}
 
-	void CollideWithPlayer(const NeuronPlayer& player);
-	void CollideWithField(const NeuronGame& game);
+	bool CollideWithPlayer(const NeuronPlayer& player);
+	bool CollideWithField(const NeuronGame& game);
 
 	static constexpr float GetRadius() { return 2.0f; }
 	// Roughly what percentage of velocity is lost per second while rolling
