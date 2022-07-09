@@ -162,12 +162,14 @@
     <ClCompile Include="App\Main.cpp" />
     <ClCompile Include="NeuronBall\NeuronGame.cpp" />
     <ClCompile Include="NeuronBall\NeuronGameDisplay.cpp" />
+    <ClCompile Include="NeuronBall\NeuronPlayer.cpp" />
     <ClCompile Include="neurons.cpp" />
     <ClCompile Include="Util\Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NeuronBall\NeuronGame.h" />
     <ClInclude Include="NeuronBall\NeuronGameDisplay.h" />
+    <ClInclude Include="NeuronBall\NeuronPlayer.h" />
     <ClInclude Include="Util\Constants.h" />
     <ClInclude Include="Util\Math.h" />
     <ClInclude Include="Util\Vector.h" />

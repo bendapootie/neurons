@@ -31,6 +31,9 @@
     <ClCompile Include="Util\Vector.cpp">
       <Filter>Src\Util</Filter>
     </ClCompile>
+    <ClCompile Include="NeuronBall\NeuronPlayer.cpp">
+      <Filter>Src\NeuronBall</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NeuronBall\NeuronGameDisplay.h">
@@ -47,6 +50,9 @@
     </ClInclude>
     <ClInclude Include="Util\Math.h">
       <Filter>Src\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="NeuronBall\NeuronPlayer.h">
+      <Filter>Src\NeuronBall</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

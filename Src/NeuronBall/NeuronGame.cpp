@@ -84,6 +84,19 @@ void NeuronGame::UpdateBall()
 
 void NeuronGame::ProcessCollisions()
 {
+	// Objects - Players, ball, field, goals (do goals later)
+	// Iterative solver
+	// 1. Check player vs field (move player)
+	// 2. Check ball vs player (move ball)
+	// 3. Check ball vs field (move ball)
+	// 4. Check player vs ball (move player)
+
+	// 1. Check player vs field (move player)
+	for (int i = 0; i < GetNumPlayers(); i++)
+	{
+		GetPlayer(i).CollideWithField(*this);
+	}
+
 	// Check for ball vs car collisions
 	for (int i = 0; i < GetNumPlayers(); i++)
 	{
