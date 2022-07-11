@@ -63,6 +63,9 @@ public:
 	float GetDistance(const Vector2& point) const;
 	float GetDistanceSquared(const Vector2& point) const;
 
+	Vector2 RotateAroundOrigin(const float radians) const;
+	Vector2 RotateAroundPoint(const float radians, const Vector2& centerOfRotation) const;
+
 	// Other vector functions
 	Vector2 PerElementMultiply(const Vector2& rhs) const;
 	Vector2 PerElementDivide(const Vector2& rhs) const;

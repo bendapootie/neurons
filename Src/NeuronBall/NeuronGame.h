@@ -35,6 +35,8 @@ private:
 	void UpdateBall();
 	void ProcessCollisions();
 
+	static bool CollideBallWithPlayer(NeuronBall& ball, NeuronPlayer& player);
+
 private:
 	const float m_fieldWidth = 80.0f;
 	const float m_fieldLength = 100.0f;

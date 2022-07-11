@@ -102,21 +102,73 @@ void NeuronGame::ProcessCollisions()
 		anyCollision |= GetPlayer(i).CollideWithField(*this);
 	}
 
-	// 2. Check ball vs player (move ball)
+	// 2. Check ball vs player
 	for (int i = 0; i < GetNumPlayers(); i++)
 	{
-		anyCollision |= m_ball.CollideWithPlayer(GetPlayer(i));
+		anyCollision |= CollideBallWithPlayer(m_ball, GetPlayer(i));
+		//anyCollision |= m_ball.CollideWithPlayer(GetPlayer(i));
 	}
 
 	// 3. Check ball vs field (move ball)
 	anyCollision |= m_ball.CollideWithField(*this);
 
-	// 4. Check player vs ball (move player)
-	for (int i = 0; i < GetNumPlayers(); i++)
-	{
-		anyCollision |= GetPlayer(i).CollideWithBall(m_ball);
-	}
-
 	// 5. Check player vs player (move both)
 	anyCollision |= NeuronPlayer::CollidePlayers(GetPlayer(0), GetPlayer(1));
+}
+
+// static
+bool NeuronGame::CollideBallWithPlayer(NeuronBall& ball, NeuronPlayer& player)
+{
+	// Transform circle into player's space so collision detection is done centered and axis-aligned
+	const Vector2 transformedBallPos = (ball.m_pos - player.m_pos).RotateAroundOrigin(-player.m_facingRadians);
+
+	// Determine whether circle should be tested against width, length, or the corner and compute penetration vector
+	Vector2 absTransformedPenetrationVector = Vector2::Zero;
+	// Do all computations in positive quadrant to avoid duplicating checks
+	const Vector2 absTransformedBallPos(Math::Abs(transformedBallPos.x), Math::Abs(transformedBallPos.y));
+	// Note: Facing of 0 is facing right, going down the x-axis
+	if (absTransformedBallPos.x < player.GetPlayerHalfLength())
+	{
+		// Only need to check collision with top of box
+		const float yAxisPenetration = player.GetPlayerHalfWidth() - (absTransformedBallPos.y - ball.GetRadius());
+		// Negative penetration means there was no collision, so penetration is clamped to zero
+		absTransformedPenetrationVector.y = Math::Max(yAxisPenetration, 0.0f);
+	}
+	else if(absTransformedBallPos.y < player.GetPlayerHalfWidth())
+	{
+		// Only need to check collision with side of box
+		const float xAxisPenetration = player.GetPlayerHalfLength() - (absTransformedBallPos.x - ball.GetRadius());
+		// Negative penetration means there was no collision, so penetration is clamped to zero
+		absTransformedPenetrationVector.x = Math::Max(xAxisPenetration, 0.0f);
+	}
+	else
+	{
+		// Ball is closest to corner point is closest to ball
+		const Vector2 absTransformedCornerToBall = absTransformedBallPos - Vector2(player.GetPlayerHalfLength(), player.GetPlayerHalfWidth());
+		float distanceFromCornerToCenterOfBall;
+		const Vector2 cornerToBallNormal = absTransformedCornerToBall.GetSafeNormalized(distanceFromCornerToCenterOfBall);
+		const float penetrationDepth = ball.GetRadius() - distanceFromCornerToCenterOfBall;
+		if (penetrationDepth > 0.0f)
+		{
+			absTransformedPenetrationVector = cornerToBallNormal * penetrationDepth;
+		}
+	}
+
+	const Vector2 transformedPenetrationVector(
+		Math::Sign(transformedBallPos.x) * absTransformedPenetrationVector.x,
+		Math::Sign(transformedBallPos.y) * absTransformedPenetrationVector.y
+	);
+
+	if (transformedPenetrationVector == Vector2::Zero)
+	{
+		// Zero penetration vector means there was no collision
+		return false;
+	}
+	else
+	{
+		const Vector2 penetrationVector = transformedPenetrationVector.RotateAroundOrigin(player.m_facingRadians);
+		ball.m_pos += penetrationVector;
+
+		return true;
+	}
 }

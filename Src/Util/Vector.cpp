@@ -92,6 +92,24 @@ float Vector2::GetDistanceSquared(const Vector2& point) const
 	return ((*this) - point).GetLengthSquared();
 }
 
+Vector2 Vector2::RotateAroundOrigin(const float radians) const
+{
+	float sin;
+	float cos;
+	Math::SinCos(radians, sin, cos);
+	return Vector2((x * cos) - (y * sin), (y * cos) + (x * sin));
+}
+
+Vector2 Vector2::RotateAroundPoint(const float radians, const Vector2& centerOfRotation) const
+{
+	Vector2 workingPoint = (*this);
+	workingPoint = workingPoint - centerOfRotation;
+	workingPoint = RotateAroundOrigin(radians);
+	workingPoint = workingPoint + centerOfRotation;
+	return workingPoint;
+}
+
+
 Vector2 Vector2::PerElementMultiply(const Vector2& rhs) const
 {
 	return Vector2(x * rhs.x, y * rhs.y);

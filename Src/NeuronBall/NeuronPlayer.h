@@ -34,7 +34,9 @@ public:
 
 	static constexpr float GetPlayerWidth() { return 4.0f; }
 	static constexpr float GetPlayerLength() { return GetPlayerWidth() * 1.8f; }
-	static float GetPlayerRadius() { return Math::Sqrt(Math::Sqr(GetPlayerWidth() * 0.5f) + Math::Sqr(GetPlayerLength() * 0.5f)); }
+	static constexpr float GetPlayerHalfWidth() { return GetPlayerWidth() * 0.5f; }
+	static constexpr float GetPlayerHalfLength() { return GetPlayerLength() * 0.5f; }
+	static float GetPlayerRadius() { return Math::Sqrt(Math::Sqr(GetPlayerHalfWidth()) + Math::Sqr(GetPlayerHalfLength())); }
 
 public:
 	Vector2 m_pos = Vector2::Zero;
