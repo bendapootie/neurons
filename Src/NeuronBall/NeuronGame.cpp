@@ -127,6 +127,7 @@ bool NeuronGame::CollideBallWithPlayer(NeuronBall& ball, NeuronPlayer& player)
 	// Do all computations in positive quadrant to avoid duplicating checks
 	const Vector2 absTransformedBallPos(Math::Abs(transformedBallPos.x), Math::Abs(transformedBallPos.y));
 	// Note: Facing of 0 is facing right, going down the x-axis
+	// https://github.com/bendapootie/neurons/issues/4 - If ball is fully within rectangle, the wrong axis may be chosen to calculate penetration vector
 	if (absTransformedBallPos.x < player.GetPlayerHalfLength())
 	{
 		// Only need to check collision with top of box
