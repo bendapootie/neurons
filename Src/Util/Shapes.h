@@ -14,6 +14,7 @@ public:
 	Vector2 m_velocity = Vector2::Zero;
 	float m_facing = 0.0f;
 	float m_radialVelocity = 0.0f;
+	float m_mass = 1.0f;
 };
 
 class Circle : public ShapeBase

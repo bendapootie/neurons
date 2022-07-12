@@ -66,19 +66,45 @@ void CollisionResponse::ApplyResponse(Circle& c0, Circle& c1) const
 	// 1. Resolve penetration
 	c1.m_pos += m_penetrationVector;
 
-	// 2. Use c0 as frame of reference for velocities
-	const Vector2 c1RelativeVel = c1.m_velocity - c0.m_velocity;
+	constexpr bool k_ignoreMass = false;
+	if constexpr (k_ignoreMass)
+	{
+		// 2. Use c0 as frame of reference for velocities
+		const Vector2 c1RelativeVel = c1.m_velocity - c0.m_velocity;
 
-	// 3. Project relative velocity onto normal and tangent
-	const Vector2 collisionTangent = Vector2(m_collisionNormal.y, -m_collisionNormal.x);
-	const Vector2 c1RelNorm = m_collisionNormal * c1RelativeVel.Dot(m_collisionNormal);
-	const Vector2 c1RelTan = collisionTangent * c1RelativeVel.Dot(collisionTangent);
+		// 3. Project relative velocity onto normal and tangent
+		const Vector2 collisionTangent = Vector2(m_collisionNormal.y, -m_collisionNormal.x);
+		const Vector2 c1RelNorm = m_collisionNormal * c1RelativeVel.Dot(m_collisionNormal);
+		const Vector2 c1RelTan = collisionTangent * c1RelativeVel.Dot(collisionTangent);
 
-	// 4. Return to world frame of reference
-	Vector2 c1Norm = c1RelNorm + c0.m_velocity;
-	Vector2 c1Tan = c1RelTan + c0.m_velocity;
+		// 4. Return to world frame of reference
+		Vector2 c1Norm = c1RelNorm + c0.m_velocity;
+		Vector2 c1Tan = c1RelTan + c0.m_velocity;
 
-	// 5. Set new velocities on shapes
-	c0.m_velocity = c1Norm;
-	c1.m_velocity = c1Tan;
+		// 5. Set new velocities on shapes
+		c0.m_velocity = c1Norm;
+		c1.m_velocity = c1Tan;
+	}
+	else
+	{
+		// Handle mass
+		// Equations from https://en.wikipedia.org/wiki/Elastic_collision - Two-dimensional collision with two moving objects
+		const Vector2 v0 = c0.m_velocity;
+		const Vector2 v1 = c1.m_velocity;
+		const float m0 = c0.m_mass;
+		const float m1 = c1.m_mass;
+		const Vector2 x0 = c0.m_pos;
+		const Vector2 x1 = c1.m_pos;
+		const Vector2 v0out = v0 - 
+			(x0 - x1) * 
+			((2 * m1) / (m0 + m1)) *
+			((v0 - v1).Dot(x0 - x1) / (x0 - x1).GetLengthSquared());
+		const Vector2 v1out = v1 - 
+			(x1 - x0) * 
+			((2 * m0) / (m0 + m1)) *
+			((v1 - v0).Dot(x1 - x0) / (x1 - x0).GetLengthSquared());
+
+		c0.m_velocity = v0out;
+		c1.m_velocity = v1out;
+	}
 }
