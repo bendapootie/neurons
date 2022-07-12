@@ -37,6 +37,12 @@
     <ClCompile Include="NeuronBall\NeuronBall.cpp">
       <Filter>Src\NeuronBall</Filter>
     </ClCompile>
+    <ClCompile Include="Util\Random.cpp">
+      <Filter>Src\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Shapes.cpp">
+      <Filter>Src\Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NeuronBall\NeuronGameDisplay.h">
@@ -61,6 +67,12 @@
       <Filter>Src\NeuronBall</Filter>
     </ClInclude>
     <ClInclude Include="Util\Array.h">
+      <Filter>Src\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Random.h">
+      <Filter>Src\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Shapes.h">
       <Filter>Src\Util</Filter>
     </ClInclude>
   </ItemGroup>

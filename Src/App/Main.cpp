@@ -10,6 +10,8 @@
 // TODO: These are just included for testing. Remove them when not needed anymore.
 #include "NeuronBall/NeuronGame.h"
 #include "NeuronBall/NeuronGameDisplay.h"
+#include "Util/Random.h"
+#include "Util/Shapes.h"
 
 class App
 {
@@ -39,15 +41,17 @@ public:
 
 			if (m_window.isOpen())
 			{
-				Update();
-				Draw();
+				//UpdateGame();
+				//DrawGame();
+				UpdatePhysicsTest();
+				DrawPhysicsTest();
 			}
 		}
 		return returnCode;
 	}
 
 private:
-	void Update()
+	void UpdateGame()
 	{
 		NeuronPlayerInput input[2];
 
@@ -66,9 +70,9 @@ private:
 		m_testGame.Update(input[0], input[1]);
 	}
 
-	void Draw()
+	void DrawGame()
 	{
-		sf::View view(sf::Vector2f(40.0f, 50.0f), sf::Vector2f(200.0f, 150.0f));
+		sf::View view(sf::Vector2f(50.0f, 40.0f), sf::Vector2f(200.0f, 150.0f));
 		m_window.setView(view);
 		m_window.clear(sf::Color(0, 0, 32, 255));
 		
@@ -78,9 +82,91 @@ private:
 		m_window.display();
 	}
 
+	void UpdatePhysicsTest()
+	{
+		constexpr float k_fieldLength = 100.0f;
+		constexpr float k_fieldWidth = 80.0f;
+		constexpr float k_secondsPerFrame = 1.0f / 60.0f;
+
+		constexpr float k_minRadius = 1.0f;
+		constexpr float k_maxRadius = 5.0f;
+		constexpr float k_maxSpeed = 30.0f;
+
+		if (m_initialized == false)
+		{
+			for (Circle& circle : m_shapes)
+			{
+				circle.m_pos = Vector2(Random::NextFloat(0.0f, k_fieldLength), Random::NextFloat(0.0f, k_fieldWidth));
+				circle.m_velocity = Vector2(Random::NextFloat(-k_maxSpeed, k_maxSpeed), Random::NextFloat(-k_maxSpeed, k_maxSpeed));
+				circle.m_facing = Random::NextFloat(0.0f, k_2pi);
+				circle.m_radialVelocity = Random::NextFloat(-k_2pi, k_2pi);
+				circle.m_radius = Random::NextFloat(k_minRadius, k_maxRadius);
+			}
+			m_initialized = true;
+		}
+
+		// Move circles and clamp to field
+		for (Circle& circle : m_shapes)
+		{
+			circle.m_pos += circle.m_velocity * k_secondsPerFrame;
+			circle.m_facing += circle.m_radialVelocity * k_secondsPerFrame;
+
+			// Temp collision against bounds of the field
+			const Vector2 minBound(circle.m_radius, circle.m_radius);
+			const Vector2 maxBound(k_fieldLength - circle.m_radius, k_fieldWidth - circle.m_radius);
+
+			const Vector2 oldPos = circle.m_pos;
+			circle.m_pos.x = Math::Clamp(circle.m_pos.x, minBound.x, maxBound.x);
+			circle.m_pos.y = Math::Clamp(circle.m_pos.y, minBound.y, maxBound.y);
+
+			// If position changed, there was a collision
+			if (circle.m_pos.x != oldPos.x)
+			{
+				circle.m_velocity.x = -circle.m_velocity.x;
+			}
+			if (circle.m_pos.y != oldPos.y)
+			{
+				circle.m_velocity.y = -circle.m_velocity.y;
+			}
+		}
+
+		for (int i = 0; i < m_shapes.Count(); i++)
+		{
+			for (int j = i + 1; j < m_shapes.Count(); j++)
+			{
+				Circle& c0 = m_shapes[i];
+				Circle& c1 = m_shapes[j];
+				CollisionResponse response = c0.Collide(c1);
+				if (response.m_collided)
+				{
+					response.ApplyResponse(c0, c1);
+				}
+			}
+		}
+	}
+
+	void DrawPhysicsTest()
+	{
+		sf::View view(sf::Vector2f(40.0f, 50.0f), sf::Vector2f(200.0f, 150.0f));
+		m_window.setView(view);
+		m_window.clear(sf::Color(0, 0, 32, 255));
+
+		for (Circle& circle : m_shapes)
+		{
+			circle.Draw(m_window);
+		}
+
+		m_window.display();
+	}
+
+
 private:
 	sf::RenderWindow m_window;
 	NeuronGame m_testGame;
+
+	// Physics test members
+	bool m_initialized = false;
+	Array<Circle, 16> m_shapes;
 };
 
 int WinMain(const int argc, const char** argv)
