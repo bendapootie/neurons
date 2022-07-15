@@ -46,7 +46,7 @@ public:
 	constexpr static bool IsValidIndex(int index) { return (index >= 0) && (index < Size); }
 
 	// Memsets all data to 0
-	void Zero() { ZeroMemory(m_array, sizeof(m_array)); }
+	void Zero() { memset(m_array, 0x00, sizeof(m_array)); }
 
 	// Bracket operator to make indexing like an array simple
 	const Type& operator[](int index) const

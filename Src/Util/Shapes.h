@@ -67,7 +67,7 @@ public:
 	const Shape* m_shape0 = nullptr;
 	const Shape* m_shape1 = nullptr;
 	// Distance needed to move m_shape1 so it no longer collides with m_shape0
-	// Note: Because of floating point imprecision, moving m_shape0 by this distance may still result in a calculated collision
+	// Note: Because of floating point imprecision, moving m_shape1 by this distance may still result in a calculated collision
 	Vector2 m_penetrationVector = Vector2::Zero;
 	// Point of contact on surface of m_shape0
 	Vector2 m_collisionPoint = Vector2::Zero;

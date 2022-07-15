@@ -95,8 +95,8 @@ namespace Math
 		}
 		return dst_degrees;
 	}
-	inline float DegToRad(float degrees) { return degrees * (PiF / 180.0f); }
-	inline float RadToDeg(float radians) { return radians * (180.0f / PiF); }
+	constexpr float DegToRad(float degrees) { return degrees * (PiF / 180.0f); }
+	constexpr float RadToDeg(float radians) { return radians * (180.0f / PiF); }
 	inline float Sin(float f) { return ::sinf(f); }
 	inline float Cos(float f) { return ::cosf(f); }
 	inline float Tan(float f) { return ::tanf(f); }
