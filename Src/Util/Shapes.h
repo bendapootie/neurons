@@ -7,8 +7,16 @@ class Circle;
 class Rectangle;
 namespace sf { class RenderWindow; }
 
-class ShapeBase
+class Shape
 {
+public:
+	virtual float ComputeMass(const float density) const = 0;
+	virtual CollisionResponse Collide(const Shape& other) const = 0;
+	virtual CollisionResponse Collide(const Circle& other) const = 0;
+	virtual CollisionResponse Collide(const Rectangle& other) const = 0;
+
+	virtual void Draw(sf::RenderWindow& window) const = 0;
+
 public:
 	Vector2 m_pos = Vector2::Zero;
 	Vector2 m_velocity = Vector2::Zero;
@@ -17,12 +25,16 @@ public:
 	float m_mass = 1.0f;
 };
 
-class Circle : public ShapeBase
+class Circle : public Shape
 {
 public:
-	CollisionResponse Collide(const Circle& other) const;
-	CollisionResponse Collide(const Rectangle& other) const;
-	void Draw(sf::RenderWindow& window) const;
+	virtual float ComputeMass(const float density) const override;
+
+	virtual CollisionResponse Collide(const Shape& other) const override;
+	virtual CollisionResponse Collide(const Circle& other) const override;
+	virtual CollisionResponse Collide(const Rectangle& other) const override;
+
+	virtual void Draw(sf::RenderWindow& window) const override;
 
 public:
 	float m_radius = 0.0f;
@@ -30,11 +42,16 @@ public:
 
 // A facing angle of 0 radians points down the x-axis,
 // so length is along the x-axis and width is along the y-axis
-class Rectangle : public ShapeBase
+class Rectangle : public Shape
 {
 public:
-	CollisionResponse Collide(const Circle& other) const;
-	CollisionResponse Collide(const Rectangle& other) const;
+	virtual float ComputeMass(const float density) const override;
+
+	virtual CollisionResponse Collide(const Shape& other) const override;
+	virtual CollisionResponse Collide(const Circle& other) const override;
+	virtual CollisionResponse Collide(const Rectangle& other) const override;
+
+	virtual void Draw(sf::RenderWindow& window) const override;
 
 public:
 	float m_halfLength = 1.0f;	// x-axis
@@ -44,11 +61,11 @@ public:
 class CollisionResponse
 {
 public:
-	void ApplyResponse(Circle& c0, Circle& c1) const;
+	void ApplyResponse(Shape& s0, Shape& s1) const;
 
 public:
-	const ShapeBase* m_shape0 = nullptr;
-	const ShapeBase* m_shape1 = nullptr;
+	const Shape* m_shape0 = nullptr;
+	const Shape* m_shape1 = nullptr;
 	// Distance needed to move m_shape1 so it no longer collides with m_shape0
 	// Note: Because of floating point imprecision, moving m_shape0 by this distance may still result in a calculated collision
 	Vector2 m_penetrationVector = Vector2::Zero;

@@ -1,8 +1,6 @@
 # Visual Studio user files and folders
 *.vcxproj.user
 .vs/
-# Not sure if .filters files should be excluded
-# *.vcxproj.filters
 
 # Ignore blender backup files
 *.blend1
@@ -10,6 +8,7 @@
 # Build output folders
 /Build
 /Src/x64
+/Test/x64
 
 # ImGui local config file
 data/imgui.ini

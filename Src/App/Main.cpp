@@ -92,41 +92,63 @@ private:
 		constexpr float k_maxRadius = 5.0f;
 		constexpr float k_maxSpeed = 30.0f;
 
+		constexpr float k_defaultDensity = 1.0f;
+
 		if (m_initialized == false)
 		{
-			for (Circle& circle : m_shapes)
+			for (Shape*& shape : m_shapes)
 			{
-				circle.m_pos = Vector2(Random::NextFloat(0.0f, k_fieldLength), Random::NextFloat(0.0f, k_fieldWidth));
-				circle.m_velocity = Vector2(Random::NextFloat(-k_maxSpeed, k_maxSpeed), Random::NextFloat(-k_maxSpeed, k_maxSpeed));
-				circle.m_facing = Random::NextFloat(0.0f, k_2pi);
-				circle.m_radialVelocity = Random::NextFloat(-k_2pi, k_2pi);
-				circle.m_radius = Random::NextFloat(k_minRadius, k_maxRadius);
+				if (Random::NextInt(0, 2) == 1)
+				{
+					Circle* newCircle = new Circle();
+					newCircle->m_pos = Vector2(Random::NextFloat(0.0f, k_fieldLength), Random::NextFloat(0.0f, k_fieldWidth));
+					newCircle->m_velocity = Vector2(Random::NextFloat(-k_maxSpeed, k_maxSpeed), Random::NextFloat(-k_maxSpeed, k_maxSpeed));
+					newCircle->m_facing = Random::NextFloat(0.0f, k_2pi);
+					newCircle->m_radialVelocity = Random::NextFloat(-k_2pi, k_2pi);
+					newCircle->m_radius = Random::NextFloat(k_minRadius, k_maxRadius);
+					shape = newCircle;
+				}
+				else
+				{
+					Rectangle* newRectangle = new Rectangle();
+					newRectangle->m_pos = Vector2(Random::NextFloat(0.0f, k_fieldLength), Random::NextFloat(0.0f, k_fieldWidth));
+					newRectangle->m_velocity = Vector2(Random::NextFloat(-k_maxSpeed, k_maxSpeed), Random::NextFloat(-k_maxSpeed, k_maxSpeed));
+					newRectangle->m_facing = Random::NextFloat(0.0f, k_2pi);
+					newRectangle->m_radialVelocity = Random::NextFloat(-k_2pi, k_2pi);
+					newRectangle->m_halfLength = Random::NextFloat(k_minRadius, k_maxRadius);
+					newRectangle->m_halfWidth = Random::NextFloat(k_minRadius, k_maxRadius);
+					shape = newRectangle;
+				}
+				// Compute mass based on area
+				shape->m_mass = shape->ComputeMass(k_defaultDensity);
 			}
+
 			m_initialized = true;
 		}
 
-		// Move circles and clamp to field
-		for (Circle& circle : m_shapes)
+		// Move shapes and clamp to field
+		for (Shape* shape : m_shapes)
 		{
-			circle.m_pos += circle.m_velocity * k_secondsPerFrame;
-			circle.m_facing += circle.m_radialVelocity * k_secondsPerFrame;
+			shape->m_pos += shape->m_velocity * k_secondsPerFrame;
+			shape->m_facing += shape->m_radialVelocity * k_secondsPerFrame;
 
+			// TODO: Test the actual shape against the world bounds instead of the center point
 			// Temp collision against bounds of the field
-			const Vector2 minBound(circle.m_radius, circle.m_radius);
-			const Vector2 maxBound(k_fieldLength - circle.m_radius, k_fieldWidth - circle.m_radius);
+			const Vector2 minBound(0.0f, 0.0f);
+			const Vector2 maxBound(k_fieldLength, k_fieldWidth);
 
-			const Vector2 oldPos = circle.m_pos;
-			circle.m_pos.x = Math::Clamp(circle.m_pos.x, minBound.x, maxBound.x);
-			circle.m_pos.y = Math::Clamp(circle.m_pos.y, minBound.y, maxBound.y);
+			const Vector2 oldPos = shape->m_pos;
+			shape->m_pos.x = Math::Clamp(shape->m_pos.x, minBound.x, maxBound.x);
+			shape->m_pos.y = Math::Clamp(shape->m_pos.y, minBound.y, maxBound.y);
 
 			// If position changed, there was a collision
-			if (circle.m_pos.x != oldPos.x)
+			if (shape->m_pos.x != oldPos.x)
 			{
-				circle.m_velocity.x = -circle.m_velocity.x;
+				shape->m_velocity.x = -shape->m_velocity.x;
 			}
-			if (circle.m_pos.y != oldPos.y)
+			if (shape->m_pos.y != oldPos.y)
 			{
-				circle.m_velocity.y = -circle.m_velocity.y;
+				shape->m_velocity.y = -shape->m_velocity.y;
 			}
 		}
 
@@ -134,12 +156,12 @@ private:
 		{
 			for (int j = i + 1; j < m_shapes.Count(); j++)
 			{
-				Circle& c0 = m_shapes[i];
-				Circle& c1 = m_shapes[j];
+				Shape& c0 = *m_shapes[i];
+				Shape& c1 = *m_shapes[j];
 				CollisionResponse response = c0.Collide(c1);
 				if (response.m_collided)
 				{
-					response.ApplyResponse(c0, c1);
+					response.ApplyResponse(c1, c0);
 				}
 			}
 		}
@@ -151,9 +173,9 @@ private:
 		m_window.setView(view);
 		m_window.clear(sf::Color(0, 0, 32, 255));
 
-		for (Circle& circle : m_shapes)
+		for (const Shape* shape : m_shapes)
 		{
-			circle.Draw(m_window);
+			shape->Draw(m_window);
 		}
 
 		m_window.display();
@@ -166,7 +188,7 @@ private:
 
 	// Physics test members
 	bool m_initialized = false;
-	Array<Circle, 16> m_shapes;
+	Array<Shape*, 16> m_shapes;
 };
 
 int WinMain(const int argc, const char** argv)
