@@ -83,6 +83,6 @@ void NeuronGameDisplay::Draw(sf::RenderWindow& window) const
 	ball.setFillColor(ballFillColor);
 	ball.setOutlineColor(ballOutlineColor);
 	ball.setOutlineThickness(ballOutlineThickness);
-	ball.setPosition(neuronBall.m_pos.x, neuronBall.m_pos.y);
+	ball.setPosition(neuronBall.m_shape.m_pos.x, neuronBall.m_shape.m_pos.y);
 	window.draw(ball);
 }

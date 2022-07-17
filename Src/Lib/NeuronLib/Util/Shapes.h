@@ -30,7 +30,7 @@ public:
 public:
 	Vector2 m_pos = Vector2::Zero;
 	Vector2 m_velocity = Vector2::Zero;
-	float m_mass = 1.0f;
+	float m_mass = 0.0f;
 
 	float m_facing = 0.0f;
 	float m_radialVelocity = 0.0f;
@@ -69,8 +69,8 @@ protected:
 	Array<Vector2, 4> GetCornerPoints() const;
 
 public:
-	float m_halfLength = 1.0f;	// x-axis
-	float m_halfWidth = 1.0f;	// y-axis
+	float m_halfLength = 0.0f;	// x-axis
+	float m_halfWidth = 0.0f;	// y-axis
 };
 
 class CollisionResponse

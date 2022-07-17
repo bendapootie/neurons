@@ -1,5 +1,7 @@
 #pragma  once
+
 #include "Util/Vector.h"
+#include "Util/Shapes.h"
 
 class NeuronGame;
 class NeuronPlayer;
@@ -7,10 +9,8 @@ class NeuronPlayer;
 class NeuronBall
 {
 public:
-	NeuronBall() {}
-	NeuronBall(const Vector2 pos) :
-		m_pos(pos)
-	{}
+	NeuronBall();
+	NeuronBall(const Vector2 pos);
 
 	bool CollideWithPlayer(const NeuronPlayer& player);
 	bool CollideWithField(const NeuronGame& game);
@@ -20,6 +20,5 @@ public:
 	static constexpr float GetRollingFriction() { return 0.2f; }
 
 public:
-	Vector2 m_pos = Vector2::Zero;
-	Vector2 m_velocity = Vector2::Zero;
+	Circle m_shape;
 };

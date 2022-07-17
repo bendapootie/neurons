@@ -121,14 +121,14 @@ bool NeuronPlayer::CollideWithBall(const NeuronBall& ball)
 	// TODO: Fix this and NeuronBall::CollideWithPlayer (merge the two functions?)
 	bool wasCollision = false;
 
-	const Vector2 ballToPlayer = m_pos - ball.m_pos;
+	const Vector2 ballToPlayer = m_pos - ball.m_shape.m_pos;
 	float distance;
 	const Vector2 ballToPlayerNormal = ballToPlayer.GetSafeNormalized(distance);
 	const float minDistanceAllowed = ball.GetRadius() + GetPlayerWidth();
 	if (distance < minDistanceAllowed)
 	{
 		// Car collided with ball and needs to move away
-		m_pos = ball.m_pos + (ballToPlayerNormal * minDistanceAllowed);
+		m_pos = ball.m_shape.m_pos + (ballToPlayerNormal * minDistanceAllowed);
 		wasCollision = true;
 	}
 	// TODO: Should velocities change here?

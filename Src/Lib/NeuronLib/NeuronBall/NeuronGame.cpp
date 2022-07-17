@@ -65,23 +65,23 @@ void NeuronGame::ApplyInputToPlayer(NeuronPlayer& outPlayer, const NeuronPlayerI
 void NeuronGame::UpdateBall()
 {
 	// Update ball position based on velocity and velocity based on friction
-	m_ball.m_pos += m_ball.m_velocity * k_timePerTick;
-	m_ball.m_velocity *= (1.0f - (m_ball.GetRollingFriction() * k_timePerTick));
+	m_ball.m_shape.m_pos += m_ball.m_shape.m_velocity * k_timePerTick;
+	m_ball.m_shape.m_velocity *= (1.0f - (m_ball.GetRollingFriction() * k_timePerTick));
 
 	// TODO: These checks are mostley duplicated in NeuronBall::CollideWithField. Should they be merged?
 	// Collide ball against bounds of the field
 	const Vector2 minBound(m_ball.GetRadius(), m_ball.GetRadius());
 	const Vector2 maxBound(GetFieldWidth() - m_ball.GetRadius(), GetFieldLength() - m_ball.GetRadius());
 
-	if ((m_ball.m_pos.x < minBound.x) || (m_ball.m_pos.x > maxBound.x))
+	if ((m_ball.m_shape.m_pos.x < minBound.x) || (m_ball.m_shape.m_pos.x > maxBound.x))
 	{
-		m_ball.m_pos.x = Math::Clamp(m_ball.m_pos.x, minBound.x, maxBound.x);
-		m_ball.m_velocity.x = -m_ball.m_velocity.x;
+		m_ball.m_shape.m_pos.x = Math::Clamp(m_ball.m_shape.m_pos.x, minBound.x, maxBound.x);
+		m_ball.m_shape.m_velocity.x = -m_ball.m_shape.m_velocity.x;
 	}
-	if ((m_ball.m_pos.y < minBound.y) || (m_ball.m_pos.y > maxBound.y))
+	if ((m_ball.m_shape.m_pos.y < minBound.y) || (m_ball.m_shape.m_pos.y > maxBound.y))
 	{
-		m_ball.m_pos.y = Math::Clamp(m_ball.m_pos.y, minBound.y, maxBound.y);
-		m_ball.m_velocity.y = -m_ball.m_velocity.y;
+		m_ball.m_shape.m_pos.y = Math::Clamp(m_ball.m_shape.m_pos.y, minBound.y, maxBound.y);
+		m_ball.m_shape.m_velocity.y = -m_ball.m_shape.m_velocity.y;
 	}
 }
 
@@ -121,7 +121,7 @@ void NeuronGame::ProcessCollisions()
 bool NeuronGame::CollideBallWithPlayer(NeuronBall& ball, NeuronPlayer& player)
 {
 	// Transform circle into player's space so collision detection is done centered and axis-aligned
-	const Vector2 transformedBallPos = (ball.m_pos - player.m_pos).RotateAroundOrigin(-player.m_facingRadians);
+	const Vector2 transformedBallPos = (ball.m_shape.m_pos - player.m_pos).RotateAroundOrigin(-player.m_facingRadians);
 
 	// Determine whether circle should be tested against width, length, or the corner and compute penetration vector
 	Vector2 absTransformedPenetrationVector = Vector2::Zero;
@@ -169,7 +169,7 @@ bool NeuronGame::CollideBallWithPlayer(NeuronBall& ball, NeuronPlayer& player)
 	else
 	{
 		const Vector2 penetrationVector = transformedPenetrationVector.RotateAroundOrigin(player.m_facingRadians);
-		ball.m_pos += penetrationVector;
+		ball.m_shape.m_pos += penetrationVector;
 
 		return true;
 	}

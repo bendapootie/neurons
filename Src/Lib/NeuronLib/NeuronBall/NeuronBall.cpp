@@ -3,12 +3,29 @@
 
 #include "NeuronGame.h"
 #include "NeuronPlayer.h"
+#include "Util/Math.h"
+
+float k_defaultBallDensity = 1.0f;
+
+NeuronBall::NeuronBall()
+{
+	m_shape.m_radius = 2.0f;
+	m_shape.ComputeMassAndInertia(k_defaultBallDensity);
+}
+
+NeuronBall::NeuronBall(const Vector2 pos)
+{
+	m_shape.m_pos = pos;
+	m_shape.m_radius = 2.0f;
+	m_shape.ComputeMassAndInertia(k_defaultBallDensity);
+}
+
 
 bool NeuronBall::CollideWithPlayer(const NeuronPlayer& player)
 {
 	bool wasCollision = false;
 
-	const Vector2 playerToBall = m_pos - player.m_pos;
+	const Vector2 playerToBall = m_shape.m_pos - player.m_pos;
 	float distance;
 	const Vector2 playerToBallNormal = playerToBall.GetSafeNormalized(distance);
 	// TODO: Compute player radius correctly
@@ -18,13 +35,13 @@ bool NeuronBall::CollideWithPlayer(const NeuronPlayer& player)
 	if (distance < minDistanceAllowed)
 	{
 		// Ball collided with car and needs to move away
-		m_pos = player.m_pos + (playerToBallNormal * minDistanceAllowed);
+		m_shape.m_pos = player.m_pos + (playerToBallNormal * minDistanceAllowed);
 
 		// TODO: This isn't the right way to apply velocity to the ball
 		const float velocityDot = playerToBallNormal.Dot(player.m_velocity.GetSafeNormalized());
 		if (velocityDot > 0.0f)
 		{
-			m_velocity = player.m_velocity * velocityDot;
+			m_shape.m_velocity = player.m_velocity * velocityDot;
 		}
 		wasCollision = true;
 	}
@@ -38,17 +55,17 @@ bool NeuronBall::CollideWithField(const NeuronGame& game)
 	const Vector2 minBound(GetRadius(), GetRadius());
 	const Vector2 maxBound(game.GetFieldWidth() - GetRadius(), game.GetFieldLength() - GetRadius());
 
-	const Vector2 oldPos = m_pos;
+	const Vector2 oldPos = m_shape.m_pos;
 	// Note: Only position is updated, not velocity. Bouncing off the walls is handled elsewhere
 //	if ((m_pos.x < minBound.x) || (m_pos.x > maxBound.x))
 	{
-		m_pos.x = Math::Clamp(m_pos.x, minBound.x, maxBound.x);
+		m_shape.m_pos.x = Math::Clamp(m_shape.m_pos.x, minBound.x, maxBound.x);
 	}
 //	if ((m_pos.y < minBound.y) || (m_pos.y > maxBound.y))
 	{
-		m_pos.y = Math::Clamp(m_pos.y, minBound.y, maxBound.y);
+		m_shape.m_pos.y = Math::Clamp(m_shape.m_pos.y, minBound.y, maxBound.y);
 	}
 
 	// If position changed, there was a collision
-	return m_pos != oldPos;
+	return m_shape.m_pos != oldPos;
 }

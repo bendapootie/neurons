@@ -32,7 +32,7 @@ int App::Run()
 
 		if (m_window.isOpen())
 		{
-			constexpr bool playGame = false;
+			constexpr bool playGame = true;
 			if (playGame)
 			{
 				UpdateGame();
