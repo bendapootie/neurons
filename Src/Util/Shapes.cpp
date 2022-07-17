@@ -3,10 +3,13 @@
 #include "crtdbg.h"	// for _ASSERT
 #include <SFML/Graphics.hpp>
 
-
-float Circle::ComputeMass(const float density) const
+void Circle::ComputeMassAndInertia(const float density)
 {
-	return density * k_pi * Math::Sqr(m_radius);
+	m_mass = density * k_pi * Math::Sqr(m_radius);
+
+	// Reference for inertia calculations of common shapes...
+	// https://en.wikipedia.org/wiki/List_of_moments_of_inertia
+	m_inertia = 0.5f * m_mass * Math::Sqr(m_radius);
 }
 
 
@@ -17,9 +20,7 @@ CollisionResponse Circle::Collide(const Shape& other) const
 
 CollisionResponse Circle::Collide(const Circle& other) const
 {
-	CollisionResponse response;
-	response.m_shape0 = this;
-	response.m_shape1 = &other;
+	CollisionResponse response(this, &other);
 
 	float dist;
 	const Vector2 toOtherNormal = (other.m_pos - m_pos).GetSafeNormalized(dist);
@@ -37,9 +38,7 @@ CollisionResponse Circle::Collide(const Circle& other) const
 
 CollisionResponse Circle::Collide(const Rectangle& rect) const
 {
-	CollisionResponse response;
-	response.m_shape0 = this;
-	response.m_shape1 = &rect;
+	CollisionResponse response(this, &rect);
 
 	Vector2 collisionPoint = Vector2::Zero;
 	Vector2 collisionNormal = Vector2::UnitX;
@@ -129,9 +128,13 @@ void Circle::Draw(sf::RenderWindow& window) const
 	window.draw(ball);
 }
 
-float Rectangle::ComputeMass(const float density) const
+void Rectangle::ComputeMassAndInertia(const float density)
 {
-	return density * m_halfLength * m_halfWidth * 4.0f;
+	m_mass = density * m_halfLength * m_halfWidth * 4.0f;
+
+	// Reference for inertia calculations of common shapes...
+	// https://en.wikipedia.org/wiki/List_of_moments_of_inertia
+	m_inertia = (1.0f / 12.0f) * m_mass * (Math::Sqr(2.0f * m_halfLength) + Math::Sqr(2.0f * m_halfWidth));
 }
 
 CollisionResponse Rectangle::Collide(const Shape& other) const
@@ -146,7 +149,161 @@ CollisionResponse Rectangle::Collide(const Circle& other) const
 
 CollisionResponse Rectangle::Collide(const Rectangle& other) const
 {
-	return CollisionResponse();
+	// TODO: 1. Early-out if bounding circles are far enough apart
+
+	Array<CollisionResponse, 2> responses;
+
+	// 2. Check CollisionResponse from transforming "other" into this's space
+	// 3. Check CollisionResponse from transforming "this" into others's space
+	for (int loop = 0; loop < 2; loop++)
+	{
+		// TODO: This is a lot of dirty syntax to allow the rest of the function use nice syntax
+		const Rectangle* r0ptr;
+		const Rectangle* r1ptr;
+		CollisionResponse* responsePtr;
+		if (loop == 0)
+		{
+			r0ptr = this;
+			r1ptr = &other;
+			responsePtr = &responses[0];
+		}
+		else
+		{
+			r0ptr = &other;
+			r1ptr = this;
+			responsePtr = &responses[1];
+		}
+
+		// Get references to parameters
+		const Rectangle& r0 = *r0ptr;
+		const Rectangle& r1 = *r1ptr;
+
+		CollisionResponse& response = *responsePtr;
+		response.m_shape0 = &r0;
+		response.m_shape1 = &r1;
+		// Initialize with a very large number so following code can easily find the smallest penetration vector
+		response.m_penetrationVector = Vector2(Math::FloatMax, Math::FloatMax);
+		// This response will only be used if there is a collision
+		response.m_collided = true;
+
+		// Transform r1's position and facing into r0's space
+		const Vector2 relPos = (r1.m_pos - r0.m_pos).RotateAroundOrigin(-r0.m_facing);
+		const float relFacing = r1.m_facing - r0.m_facing;
+
+		// Get the corner points of r1 relative to r0
+		const Vector2 relForward = Vector2(Math::Cos(relFacing), Math::Sin(relFacing));
+		const Vector2 relRight(relForward.y, -relForward.x);
+		const Vector2 relHalfLength = relForward * r1.m_halfLength;
+		const Vector2 relHalfWidth = relRight * r1.m_halfWidth;
+		Array<Vector2, 4> relPoints;
+		relPoints[0] = Vector2(relPos + relHalfLength + relHalfWidth);
+		relPoints[1] = Vector2(relPos + relHalfLength - relHalfWidth);
+		relPoints[2] = Vector2(relPos - relHalfLength - relHalfWidth);
+		relPoints[3] = Vector2(relPos - relHalfLength + relHalfWidth);
+
+		// Find min and max x/y values for relative points projected onto x/y axis
+		float minX = relPoints[0].x;
+		float maxX = relPoints[0].x;
+		float minY = relPoints[0].y;
+		float maxY = relPoints[0].y;
+		for (int i = 1; i < relPoints.Count(); i++)
+		{
+			minX = Math::Min(minX, relPoints[i].x);
+			maxX = Math::Max(maxX, relPoints[i].x);
+			minY = Math::Min(minY, relPoints[i].y);
+			maxY = Math::Max(maxY, relPoints[i].y);
+		}
+
+		// Check if projections overlap. If they don't, early out with no collision.
+		// If they do overlap, determine CollisionResponse parameters (eg. penetration, normal, etc)
+		if ((minX >= r0.m_halfLength) || (maxX <= -r0.m_halfLength))
+		{
+			// No collision!
+			return CollisionResponse(&r0, &r1);
+		}
+		else
+		{
+			// Choose the direction with the smaller penetration depth
+			const float pMinX = r0.m_halfLength - minX;
+			const float pMaxX = -r0.m_halfLength - maxX;
+			if (Math::Abs(pMinX) <= Math::Abs(pMaxX))
+			{
+				// Track response with smallest penetration depth
+				if (Math::Sqr(pMinX) < response.m_penetrationVector.GetLengthSquared())
+				{
+					response.m_penetrationVector = Vector2(pMinX, 0.0f);
+					response.m_collisionNormal = Vector2::UnitX;
+					// TODO: Figure out collision point
+					response.m_collisionPoint = Vector2::Zero;
+				}
+			}
+			else
+			{
+				// Track response with smallest penetration depth
+				if (Math::Sqr(pMaxX) < response.m_penetrationVector.GetLengthSquared())
+				{
+					response.m_penetrationVector = Vector2(pMaxX, 0.0f);
+					response.m_collisionNormal = -Vector2::UnitX;
+					// TODO: Figure out collision point
+					response.m_collisionPoint = Vector2::Zero;
+				}
+			}
+		}
+
+		// Do the same checks on the y-axis.
+		// TODO: Should these code chunks be combined since the logic is essentially the same?
+		if ((minY >= r0.m_halfWidth) || (maxY <= -r0.m_halfWidth))
+		{
+			// No collision!
+			return CollisionResponse(&r0, &r1);
+		}
+		else
+		{
+			// Choose the direction with the smaller penetration depth
+			const float pMinY = r0.m_halfWidth - minY;
+			const float pMaxY = -r0.m_halfWidth - maxY;
+			if (Math::Abs(pMinY) <= Math::Abs(pMaxY))
+			{
+				// Track response with smallest penetration depth
+				if (Math::Sqr(pMinY) < response.m_penetrationVector.GetLengthSquared())
+				{
+					response.m_penetrationVector = Vector2(0.0f, pMinY);
+					response.m_collisionNormal = Vector2::UnitY;
+					// TODO: Figure out collision point
+					response.m_collisionPoint = Vector2::Zero;
+				}
+			}
+			else
+			{
+				// Track response with smallest penetration depth
+				if (Math::Sqr(pMaxY) < response.m_penetrationVector.GetLengthSquared())
+				{
+					response.m_penetrationVector = Vector2(0.0f, pMaxY);
+					response.m_collisionNormal = -Vector2::UnitY;
+					// TODO: Figure out collision point
+					response.m_collisionPoint = Vector2::Zero;
+				}
+			}
+		}
+	}
+
+	// 4. Compare collision responses and return the one with shorter penetration
+	// Note: Above loop would have returned early if there was not a collision
+	CollisionResponse* response =
+		(responses[0].m_penetrationVector.GetLengthSquared() <= responses[1].m_penetrationVector.GetLengthSquared()) ?
+		&responses[0] :
+		&responses[1];
+
+	// 5. Transform response back into world-space. At this point, the vectors are all still in shape0's space
+	response->m_penetrationVector = response->m_penetrationVector.RotateAroundOrigin(response->m_shape0->m_facing);
+
+	response->m_collisionPoint = response->m_collisionPoint.RotateAroundOrigin(response->m_shape0->m_facing);
+	response->m_collisionPoint += response->m_shape0->m_pos;
+
+	response->m_collisionNormal = response->m_collisionNormal.RotateAroundOrigin(response->m_shape0->m_facing);
+
+	_ASSERT(response->m_collided == true);
+	return *response;
 }
 
 void Rectangle::Draw(sf::RenderWindow& window) const
@@ -167,7 +324,6 @@ void Rectangle::Draw(sf::RenderWindow& window) const
 	rect.setPosition(m_pos.x, m_pos.y);
 	window.draw(rect);
 }
-
 
 void CollisionResponse::ApplyResponse(Shape& shape0, Shape& shape1) const
 {
@@ -203,6 +359,7 @@ void CollisionResponse::ApplyResponse(Shape& shape0, Shape& shape1) const
 			((2 * m0) / (m0 + m1)) *
 			((v1 - v0).Dot(x1 - x0) / (x1 - x0).GetLengthSquared());
 
+		// TODO: Add restitution here?
 		s0.m_velocity = v0out;
 		s1.m_velocity = v1out;
 	}

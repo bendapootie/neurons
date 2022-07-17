@@ -21,7 +21,7 @@ public:
 
 	void Initialize()
 	{
-		m_window.create(sf::VideoMode(800, 600), "Neurons");
+		m_window.create(sf::VideoMode(800, 450), "Neurons");
 		m_window.setVerticalSyncEnabled(true);
 	}
 
@@ -72,7 +72,7 @@ private:
 
 	void DrawGame()
 	{
-		sf::View view(sf::Vector2f(50.0f, 40.0f), sf::Vector2f(200.0f, 150.0f));
+		sf::View view(sf::Vector2f(50.0f, 40.0f), sf::Vector2f(160.0f, 90.0f));
 		m_window.setView(view);
 		m_window.clear(sf::Color(0, 0, 32, 255));
 		
@@ -84,9 +84,11 @@ private:
 
 	void UpdatePhysicsTest()
 	{
-		constexpr float k_fieldLength = 100.0f;
-		constexpr float k_fieldWidth = 80.0f;
+		constexpr float k_fieldLength = 160.0f;
+		constexpr float k_fieldWidth = 90.0f;
 		constexpr float k_secondsPerFrame = 1.0f / 60.0f;
+
+		constexpr Vector2 k_gravity(0.0f, 0.0f);
 
 		constexpr float k_minRadius = 1.0f;
 		constexpr float k_maxRadius = 5.0f;
@@ -106,7 +108,7 @@ private:
 			{
 				for (Shape*& shape : m_shapes)
 				{
-					if (Random::NextInt(0, 2) == 1)
+					if (Random::NextInt(0, 2) == 2)
 					{
 						Circle* newCircle = new Circle();
 						newCircle->m_pos = Vector2(Random::NextFloat(0.0f, k_fieldLength), Random::NextFloat(0.0f, k_fieldWidth));
@@ -127,28 +129,37 @@ private:
 						newRectangle->m_halfWidth = Random::NextFloat(k_minRadius, k_maxRadius);
 						shape = newRectangle;
 					}
-					// Compute mass based on area
-					shape->m_mass = shape->ComputeMass(k_defaultDensity);
+					// Compute mass and inertia based on area
+					shape->ComputeMassAndInertia(k_defaultDensity);
 				}
 			}
 			else
 			{
 				{
-					Circle* c = new Circle();
-					c->m_pos = Vector2(50.0f, 10.0f);
-					c->m_velocity = Vector2(0.0f, 10.0f);
-					c->m_radius = 5.0f;
-					m_shapes[1] = c;
+// 					Circle* c = new Circle();
+// 					c->m_pos = Vector2(50.0f, 10.0f);
+// 					c->m_velocity = Vector2(0.0f, 10.0f);
+// 					c->m_radius = 5.0f;
+// 					m_shapes[1] = c;
+					Rectangle* r = new Rectangle();
+					r->m_pos = Vector2(10.0f, 50.0f);
+					r->m_velocity = Vector2(10.0f, 0.0f);
+					r->m_facing = Math::DegToRad(30.0f);
+					r->m_halfLength = 15.0f;
+					r->m_halfWidth = 6.0f;
+					r->ComputeMassAndInertia(1.0f);
+					m_shapes[0] = r;
 				}
 
 				{
 					Rectangle* r = new Rectangle();
 					r->m_pos = Vector2(50.0f, 50.0f);
-					r->m_velocity = Vector2(0.0f, -10.0f);
-					r->m_facing = Math::DegToRad(45.0f);
+					r->m_velocity = Vector2(-10.0f, 0.0f);
+					r->m_facing = Math::DegToRad(90.0f);
 					r->m_halfLength = 15.0f;
-					r->m_halfWidth = 2.0f;
-					m_shapes[0] = r;
+					r->m_halfWidth = 6.0f;
+					r->ComputeMassAndInertia(1.0f);
+					m_shapes[1] = r;
 				}
 			}
 
@@ -162,7 +173,8 @@ private:
 			{
 				continue;
 			}
-			shape->m_pos += shape->m_velocity * k_secondsPerFrame;
+			shape->m_pos += shape->m_velocity * k_secondsPerFrame + k_gravity * (0.5f * Math::Sqr(k_secondsPerFrame));
+			shape->m_velocity += k_gravity * k_secondsPerFrame;
 			shape->m_facing += shape->m_radialVelocity * k_secondsPerFrame;
 
 			// TODO: Test the actual shape against the world bounds instead of the center point
@@ -208,7 +220,7 @@ private:
 
 	void DrawPhysicsTest()
 	{
-		sf::View view(sf::Vector2f(40.0f, 50.0f), sf::Vector2f(200.0f, 150.0f));
+		sf::View view(sf::Vector2f(80.0f, 45.0f), sf::Vector2f(160.0f, 90.0f));
 		m_window.setView(view);
 		m_window.clear(sf::Color(0, 0, 32, 255));
 
@@ -230,7 +242,7 @@ private:
 
 	// Physics test members
 	bool m_initialized = false;
-	Array<Shape*, 16> m_shapes;
+	Array<Shape*, 64> m_shapes;
 };
 
 int WinMain(const int argc, const char** argv)

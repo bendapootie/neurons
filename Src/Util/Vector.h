@@ -23,8 +23,8 @@ public:
 
 	// Default constructor doesn't do any initialization
 	Vector2() {}
-	Vector2(float _x, float _y) : x(_x), y(_y) {}
-	Vector2(const Vector2& other) : x(other.x), y(other.y) {}
+	constexpr Vector2(float _x, float _y) : x(_x), y(_y) {}
+	constexpr Vector2(const Vector2& other) : x(other.x), y(other.y) {}
 
 	// Somewhat hacky functions to get a 'float' pointer to the start of the Vector
 	const float* Ptr() const { return &x; }
