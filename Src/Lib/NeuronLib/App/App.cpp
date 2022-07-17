@@ -32,10 +32,17 @@ int App::Run()
 
 		if (m_window.isOpen())
 		{
-			//UpdateGame();
-			//DrawGame();
-			UpdatePhysicsTest();
-			DrawPhysicsTest();
+			constexpr bool playGame = false;
+			if (playGame)
+			{
+				UpdateGame();
+				DrawGame();
+			}
+			else
+			{
+				UpdatePhysicsTest();
+				DrawPhysicsTest();
+			}
 		}
 	}
 	return returnCode;
@@ -62,7 +69,7 @@ void App::UpdateGame()
 
 void App::DrawGame()
 {
-	sf::View view(sf::Vector2f(50.0f, 40.0f), sf::Vector2f(160.0f, 90.0f));
+	sf::View view(sf::Vector2f(40.0f, 50.0f), sf::Vector2f(240.0f, 135.0f));
 	m_window.setView(view);
 	m_window.clear(sf::Color(0, 0, 32, 255));
 
@@ -98,7 +105,7 @@ void App::UpdatePhysicsTest()
 		{
 			for (Shape*& shape : m_shapes)
 			{
-				if (Random::NextInt(0, 2) == 2)
+				if (Random::NextInt(0, 2) == 1)
 				{
 					Circle* newCircle = new Circle();
 					newCircle->m_pos = Vector2(Random::NextFloat(0.0f, k_fieldLength), Random::NextFloat(0.0f, k_fieldWidth));
