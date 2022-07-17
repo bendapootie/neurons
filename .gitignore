@@ -10,6 +10,7 @@
 # Build output folders
 /Build
 /Src/x64
+/Src/Test/x64
 /Test/x64
 /Src/Lib/NeuronLib/x64
 

@@ -1,29 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Util">
       <UniqueIdentifier>{be22106b-4e0a-4900-985f-d034db8bd867}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App">
+      <UniqueIdentifier>{71b8173d-a897-45ad-8734-1b50064690c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NeuronBall">
+      <UniqueIdentifier>{98f864e8-be5a-434a-8981-3d203e392ecf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="framework.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="pch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Util\Array.h">
       <Filter>Util</Filter>
     </ClInclude>
@@ -42,11 +30,24 @@
     <ClInclude Include="Util\Vector.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="App\App.h">
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="NeuronBall\NeuronBall.h">
+      <Filter>NeuronBall</Filter>
+    </ClInclude>
+    <ClInclude Include="NeuronBall\NeuronGame.h">
+      <Filter>NeuronBall</Filter>
+    </ClInclude>
+    <ClInclude Include="NeuronBall\NeuronGameDisplay.h">
+      <Filter>NeuronBall</Filter>
+    </ClInclude>
+    <ClInclude Include="NeuronBall\NeuronPlayer.h">
+      <Filter>NeuronBall</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="pch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Util\Random.cpp">
       <Filter>Util</Filter>
     </ClCompile>
@@ -55,6 +56,22 @@
     </ClCompile>
     <ClCompile Include="Util\Vector.cpp">
       <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="App\App.cpp">
+      <Filter>App</Filter>
+    </ClCompile>
+    <ClCompile Include="NeuronBall\NeuronBall.cpp">
+      <Filter>NeuronBall</Filter>
+    </ClCompile>
+    <ClCompile Include="NeuronBall\NeuronGame.cpp">
+      <Filter>NeuronBall</Filter>
+    </ClCompile>
+    <ClCompile Include="NeuronBall\NeuronGameDisplay.cpp">
+      <Filter>NeuronBall</Filter>
+    </ClCompile>
+    <ClCompile Include="NeuronBall\NeuronPlayer.cpp">
+      <Filter>NeuronBall</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

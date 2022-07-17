@@ -5,45 +5,13 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Src\App">
-      <UniqueIdentifier>{78cd4889-c9ab-495c-93c7-a80496d77254}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Src\NeuronBall">
-      <UniqueIdentifier>{d78c1900-b126-4123-a565-435ae79da693}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="neurons.cpp">
       <Filter>Src</Filter>
     </ClCompile>
-    <ClCompile Include="App\Main.cpp">
-      <Filter>Src\App</Filter>
+    <ClCompile Include="Main.cpp">
+      <Filter>Src</Filter>
     </ClCompile>
-    <ClCompile Include="NeuronBall\NeuronGameDisplay.cpp">
-      <Filter>Src\NeuronBall</Filter>
-    </ClCompile>
-    <ClCompile Include="NeuronBall\NeuronGame.cpp">
-      <Filter>Src\NeuronBall</Filter>
-    </ClCompile>
-    <ClCompile Include="NeuronBall\NeuronPlayer.cpp">
-      <Filter>Src\NeuronBall</Filter>
-    </ClCompile>
-    <ClCompile Include="NeuronBall\NeuronBall.cpp">
-      <Filter>Src\NeuronBall</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="NeuronBall\NeuronGameDisplay.h">
-      <Filter>Src\NeuronBall</Filter>
-    </ClInclude>
-    <ClInclude Include="NeuronBall\NeuronGame.h">
-      <Filter>Src\NeuronBall</Filter>
-    </ClInclude>
-    <ClInclude Include="NeuronBall\NeuronPlayer.h">
-      <Filter>Src\NeuronBall</Filter>
-    </ClInclude>
-    <ClInclude Include="NeuronBall\NeuronBall.h">
-      <Filter>Src\NeuronBall</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

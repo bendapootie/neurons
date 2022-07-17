@@ -1,4 +1,6 @@
+#include "pch.h"
 #include "NeuronGameDisplay.h"
+
 #include "NeuronGame.h"
 #include <SFML/Graphics.hpp>
 
