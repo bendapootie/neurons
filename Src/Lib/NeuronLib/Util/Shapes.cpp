@@ -1,6 +1,9 @@
+#include "pch.h"
 #include "Shapes.h"
 
 #include "crtdbg.h"	// for _ASSERT
+
+// TODO: Move SFML-related code into another class (ie. shape drawer)
 #include <SFML/Graphics.hpp>
 
 void Circle::ComputeMassAndInertia(const float density)
@@ -315,7 +318,7 @@ void Rectangle::Draw(sf::RenderWindow& window) const
 	sf::Color fillColor(r, g, b);
 
 	sf::RectangleShape rect;
-	rect.setSize(sf::Vector2(2.0f * m_halfLength, 2.0f * m_halfWidth));
+	rect.setSize(sf::Vector2f(2.0f * m_halfLength, 2.0f * m_halfWidth));
 	rect.setRotation(Math::RadToDeg(m_facing));
 	rect.setOrigin(m_halfLength, m_halfWidth);
 	rect.setFillColor(fillColor);

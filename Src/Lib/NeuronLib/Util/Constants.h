@@ -26,8 +26,9 @@ namespace Math
 // 	constexpr int8 Int8Max = 127;
 // 	constexpr int16 Int16Min = (-32767) - 1;
 // 	constexpr int16 Int16Max = 32767;
-// 	constexpr int32 Int32Min = (-2147483647) - 1;
-// 	constexpr int32 Int32Max = 2147483647;
+	static_assert(sizeof(int) == 4, "Signed int is expected to be 32 bits");
+	constexpr int Int32Min = (-2147483647) - 1;
+	constexpr int Int32Max = 2147483647;
 // 	constexpr int64 Int64Min = (-9223372036854775807) - 1;
 // 	constexpr int64 Int64Max = 9223372036854775807;
 // 
@@ -35,8 +36,9 @@ namespace Math
 // 	constexpr uint8 UInt8Max = 255;
 // 	constexpr uint16 UInt16Min = 0;
 // 	constexpr uint16 UInt16Max = 65535;
-// 	constexpr uint32 UInt32Min = 0;
-// 	constexpr uint32 UInt32Max = 4294967295;
+	static_assert(sizeof(unsigned int) == 4, "Unsigned int is expected to be 32 bits");
+	constexpr unsigned int UInt32Min = 0;
+	constexpr unsigned int UInt32Max = 4294967295;
 // 	constexpr uint64 UInt64Min = 0;
 // 	constexpr uint64 UInt64Max = 18446744073709551615;
 

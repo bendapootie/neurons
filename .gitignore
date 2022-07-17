@@ -5,10 +5,13 @@
 # Ignore blender backup files
 *.blend1
 
+# Ignore Obsidian customization files
+
 # Build output folders
 /Build
 /Src/x64
 /Test/x64
+/Src/Lib/NeuronLib/x64
 
 # ImGui local config file
 data/imgui.ini

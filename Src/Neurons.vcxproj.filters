@@ -11,9 +11,6 @@
     <Filter Include="Src\NeuronBall">
       <UniqueIdentifier>{d78c1900-b126-4123-a565-435ae79da693}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Util">
-      <UniqueIdentifier>{83b6f2f3-6e8c-4d7d-81df-73e85636ee13}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="neurons.cpp">
@@ -28,20 +25,11 @@
     <ClCompile Include="NeuronBall\NeuronGame.cpp">
       <Filter>Src\NeuronBall</Filter>
     </ClCompile>
-    <ClCompile Include="Util\Vector.cpp">
-      <Filter>Src\Util</Filter>
-    </ClCompile>
     <ClCompile Include="NeuronBall\NeuronPlayer.cpp">
       <Filter>Src\NeuronBall</Filter>
     </ClCompile>
     <ClCompile Include="NeuronBall\NeuronBall.cpp">
       <Filter>Src\NeuronBall</Filter>
-    </ClCompile>
-    <ClCompile Include="Util\Random.cpp">
-      <Filter>Src\Util</Filter>
-    </ClCompile>
-    <ClCompile Include="Util\Shapes.cpp">
-      <Filter>Src\Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -51,29 +39,11 @@
     <ClInclude Include="NeuronBall\NeuronGame.h">
       <Filter>Src\NeuronBall</Filter>
     </ClInclude>
-    <ClInclude Include="Util\Constants.h">
-      <Filter>Src\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\Vector.h">
-      <Filter>Src\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\Math.h">
-      <Filter>Src\Util</Filter>
-    </ClInclude>
     <ClInclude Include="NeuronBall\NeuronPlayer.h">
       <Filter>Src\NeuronBall</Filter>
     </ClInclude>
     <ClInclude Include="NeuronBall\NeuronBall.h">
       <Filter>Src\NeuronBall</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\Array.h">
-      <Filter>Src\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\Random.h">
-      <Filter>Src\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\Shapes.h">
-      <Filter>Src\Util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
