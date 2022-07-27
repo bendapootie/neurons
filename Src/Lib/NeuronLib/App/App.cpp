@@ -32,7 +32,7 @@ int App::Run()
 
 		if (m_window.isOpen())
 		{
-			constexpr bool playGame = true;
+			constexpr bool playGame = false;
 			if (playGame)
 			{
 				UpdateGame();
@@ -100,7 +100,7 @@ void App::UpdatePhysicsTest()
 	{
 		m_shapes.Zero();
 
-		constexpr bool k_randomInit = true;
+		constexpr bool k_randomInit = false;
 		if constexpr (k_randomInit)
 		{
 			for (Shape*& shape : m_shapes)
@@ -111,7 +111,7 @@ void App::UpdatePhysicsTest()
 					newCircle->m_pos = Vector2(Random::NextFloat(0.0f, k_fieldLength), Random::NextFloat(0.0f, k_fieldWidth));
 					newCircle->m_velocity = Vector2(Random::NextFloat(-k_maxSpeed, k_maxSpeed), Random::NextFloat(-k_maxSpeed, k_maxSpeed));
 					newCircle->m_facing = Random::NextFloat(0.0f, k_2pi);
-					newCircle->m_radialVelocity = Random::NextFloat(-k_maxCircleRotationalVelocity, k_maxCircleRotationalVelocity);
+					newCircle->m_angularVelocity = Random::NextFloat(-k_maxCircleRotationalVelocity, k_maxCircleRotationalVelocity);
 					newCircle->m_radius = Random::NextFloat(k_minRadius, k_maxRadius);
 					shape = newCircle;
 				}
@@ -121,7 +121,7 @@ void App::UpdatePhysicsTest()
 					newRectangle->m_pos = Vector2(Random::NextFloat(0.0f, k_fieldLength), Random::NextFloat(0.0f, k_fieldWidth));
 					newRectangle->m_velocity = Vector2(Random::NextFloat(-k_maxSpeed, k_maxSpeed), Random::NextFloat(-k_maxSpeed, k_maxSpeed));
 					newRectangle->m_facing = Random::NextFloat(0.0f, k_2pi);
-					newRectangle->m_radialVelocity = Random::NextFloat(-k_maxRectRotationalVelocity, k_maxRectRotationalVelocity);
+					newRectangle->m_angularVelocity = Random::NextFloat(-k_maxRectRotationalVelocity, k_maxRectRotationalVelocity);
 					newRectangle->m_halfLength = Random::NextFloat(k_minRadius, k_maxRadius);
 					newRectangle->m_halfWidth = Random::NextFloat(k_minRadius, k_maxRadius);
 					shape = newRectangle;
@@ -133,30 +133,42 @@ void App::UpdatePhysicsTest()
 		else
 		{
 			{
-				// 					Circle* c = new Circle();
-				// 					c->m_pos = Vector2(50.0f, 10.0f);
-				// 					c->m_velocity = Vector2(0.0f, 10.0f);
-				// 					c->m_radius = 5.0f;
-				// 					m_shapes[1] = c;
-				Rectangle* r = new Rectangle();
-				r->m_pos = Vector2(10.0f, 50.0f);
-				r->m_velocity = Vector2(10.0f, 0.0f);
-				r->m_facing = Math::DegToRad(30.0f);
-				r->m_halfLength = 15.0f;
-				r->m_halfWidth = 6.0f;
-				r->ComputeMassAndInertia(1.0f);
-				m_shapes[0] = r;
-			}
+				Circle* c = new Circle();
+				c->m_pos = Vector2(10.0f, 50.0f);
+				c->m_velocity = Vector2(10.0f, 0.0f);
+				c->m_radius = 5.0f;
+				c->ComputeMassAndInertia(1.0f);
+				m_shapes[0] = c;
 
-			{
 				Rectangle* r = new Rectangle();
 				r->m_pos = Vector2(50.0f, 50.0f);
-				r->m_velocity = Vector2(-10.0f, 0.0f);
+				r->m_velocity = Vector2(0.0f, 0.0f);
 				r->m_facing = Math::DegToRad(90.0f);
 				r->m_halfLength = 15.0f;
-				r->m_halfWidth = 6.0f;
+				r->m_halfWidth = 1.309f;
 				r->ComputeMassAndInertia(1.0f);
 				m_shapes[1] = r;
+			}
+
+			// Simple collision between two circles
+			if constexpr (true)
+			{
+				{
+					Circle* c = new Circle();
+					c->m_pos = Vector2(10.0f, 10.0f);
+					c->m_velocity = Vector2(10.0f, 0.0f);
+					c->m_radius = 5.0f;
+					c->ComputeMassAndInertia(1.0f);
+					m_shapes[2] = c;
+				}
+				{
+					Circle* c = new Circle();
+					c->m_pos = Vector2(40.0f, 10.0f);
+					c->m_velocity = Vector2(00.0f, 0.0f);
+					c->m_radius = 5.0f;
+					c->ComputeMassAndInertia(1.0f);
+					m_shapes[3] = c;
+				}
 			}
 		}
 
@@ -172,7 +184,7 @@ void App::UpdatePhysicsTest()
 		}
 		shape->m_pos += shape->m_velocity * k_secondsPerFrame + k_gravity * (0.5f * Math::Sqr(k_secondsPerFrame));
 		shape->m_velocity += k_gravity * k_secondsPerFrame;
-		shape->m_facing += shape->m_radialVelocity * k_secondsPerFrame;
+		shape->m_facing += shape->m_angularVelocity * k_secondsPerFrame;
 
 		// TODO: Test the actual shape against the world bounds instead of the center point
 		// Temp collision against bounds of the field
@@ -213,6 +225,18 @@ void App::UpdatePhysicsTest()
 			}
 		}
 	}
+
+	// Calculate total energy
+	m_totalLinearEnergy = 0.0f;
+	m_totalRotationalEnergy = 0.0f;
+	for (const auto& shape : m_shapes)
+	{
+		if (shape != nullptr)
+		{
+			m_totalLinearEnergy += shape->GetLinearKineticEnergy();
+			m_totalRotationalEnergy += shape->GetRotationalKineticEnergy();
+		}
+	}
 }
 
 void App::DrawPhysicsTest()
@@ -228,6 +252,24 @@ void App::DrawPhysicsTest()
 			shape->Draw(m_window);
 		}
 	}
+
+	static sf::Font s_font;
+	static bool s_initialized = false;
+	if (s_initialized == false)
+	{
+		bool success = s_font.loadFromFile("..\\Data\\Fonts\\Overpass-Regular.ttf");
+		s_initialized = true;
+	}
+	
+	sf::Text text;
+	text.setFont(s_font);
+	wchar_t buffer[64];
+	swprintf_s(buffer, L"Lin = %0.6f\nRot = %0.6f\nTot = %0.6f", m_totalLinearEnergy, m_totalRotationalEnergy, m_totalLinearEnergy + m_totalRotationalEnergy);
+	text.setString(buffer);
+	text.setCharacterSize(16);
+	text.setFillColor(sf::Color::White);
+	text.setScale(0.2f, 0.2f);
+	m_window.draw(text);
 
 	m_window.display();
 }

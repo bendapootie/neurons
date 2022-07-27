@@ -27,13 +27,38 @@ public:
 		return Vector2(Math::Cos(m_facing), Math::Sin(m_facing));
 	}
 
+	// Calculates and returns linear kinetic energy (KE = 0.5 * mass * velocity^2)
+	// Units are kg*m^2/s^2
+	float GetLinearKineticEnergy() const
+	{
+		return 0.5f * m_mass * m_velocity.GetLengthSquared();
+	}
+
+	// Rotational kinetic energy (RE = 0.5 * inertia * angularVelocity^2)
+	// Units are kg*m^2/s^2
+	float GetRotationalKineticEnergy() const
+	{
+		return 0.5f * m_inertia * Math::Sqr(m_angularVelocity);
+	}
+
+	float GetTotalKineticEnergy() const
+	{
+		return GetLinearKineticEnergy() + GetRotationalKineticEnergy();
+	}
+
 public:
+	// m
 	Vector2 m_pos = Vector2::Zero;
+	// m/s
 	Vector2 m_velocity = Vector2::Zero;
+	// kg
 	float m_mass = 0.0f;
 
+	// radians
 	float m_facing = 0.0f;
-	float m_radialVelocity = 0.0f;
+	// radians/s
+	float m_angularVelocity = 0.0f;
+	// kg*m^2
 	float m_inertia = 0.0f;
 };
 

@@ -34,4 +34,7 @@ private:
 	// Physics test members
 	bool m_initialized = false;
 	Array<Shape*, 64> m_shapes;
+
+	float m_totalLinearEnergy = 0.0f;
+	float m_totalRotationalEnergy = 0.0f;
 };
