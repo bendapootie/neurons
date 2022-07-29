@@ -100,7 +100,7 @@ void App::UpdatePhysicsTest()
 	{
 		m_shapes.Zero();
 
-		constexpr bool k_randomInit = false;
+		constexpr bool k_randomInit = true;
 		if constexpr (k_randomInit)
 		{
 			for (Shape*& shape : m_shapes)
@@ -164,7 +164,7 @@ void App::UpdatePhysicsTest()
 				{
 					Circle* c = new Circle();
 					c->m_pos = Vector2(40.0f, 10.0f);
-					c->m_velocity = Vector2(00.0f, 0.0f);
+					c->m_velocity = Vector2(0.0f, 0.0f);
 					c->m_radius = 5.0f;
 					c->ComputeMassAndInertia(1.0f);
 					m_shapes[3] = c;

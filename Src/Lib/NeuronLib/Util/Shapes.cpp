@@ -114,6 +114,8 @@ CollisionResponse Circle::Collide(const Rectangle& rect) const
 
 void Circle::Draw(sf::RenderWindow& window) const
 {
+	const float k_radiusThicknessScalar = 0.05f;
+
 	// Draw ball
 	const int r = Math::Clamp(static_cast<int>(Math::Cos(m_facing) * 256.0f), 0, 255);
 	const int g = Math::Clamp(static_cast<int>(Math::Cos(m_facing + (k_2pi / 3.0f)) * 256.0f), 0, 255);
@@ -129,6 +131,14 @@ void Circle::Draw(sf::RenderWindow& window) const
 	//ball.setOutlineThickness(ballOutlineThickness);
 	ball.setPosition(m_pos.x, m_pos.y);
 	window.draw(ball);
+
+	sf::RectangleShape radius;
+	radius.setSize(sf::Vector2f(m_radius, m_radius * k_radiusThicknessScalar));
+	radius.setRotation(Math::RadToDeg(m_facing));
+	radius.setOrigin(0.0f, 0.0f);
+	radius.setFillColor(sf::Color::White);
+	radius.setPosition(m_pos.x, m_pos.y);
+	window.draw(radius);
 }
 
 void Rectangle::ComputeMassAndInertia(const float density)
