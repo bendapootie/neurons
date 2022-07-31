@@ -63,6 +63,7 @@ void App::UpdateGame()
 			float x = Math::Clamp(sf::Joystick::getAxisPosition(i, sf::Joystick::X) * 0.01f, -1.0f, 1.0f);
 			input[i].m_steering = (x * x) * ((x >= 0.0f) ? 1.0f : -1.0f);
 			input[i].m_speed = -sf::Joystick::getAxisPosition(i, sf::Joystick::Z) * 0.01f;
+			input[i].m_boost = sf::Joystick::isButtonPressed(i, 0);
 		}
 	}
 

@@ -14,6 +14,8 @@ public:
 	float m_steering = 0.0f;
 	// -1.0 <= full reverse; 0.0 = stop; 1.0 >= full forward
 	float m_speed = 0.0f;
+	// Value above 0.5 tries to activate boost
+	float m_boost = 0.0f;
 };
 
 class NeuronPlayer
@@ -43,4 +45,6 @@ public:
 
 public:
 	Shape* m_shape = nullptr;
+	// Available boost
+	float m_boost = 0.0f;
 };

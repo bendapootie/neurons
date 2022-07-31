@@ -7,6 +7,7 @@
 constexpr float k_maxTurnRadiansPerSecond = DegToRad(270.0f);
 constexpr float k_turningDeadZone = 0.1f;
 constexpr float k_maxForwardSpeed = 30.0f;
+constexpr float k_maxBoostedSpeed = k_maxForwardSpeed * 1.75f;
 constexpr float k_maxReverseSpeed = k_maxForwardSpeed * 0.75f;
 // TODO: Consider separating acceleration into forward, reverse, and braking accelerations
 constexpr float k_maxAcceleration = 100.0f;
@@ -27,7 +28,7 @@ void NeuronGame::ApplyInputToPlayer(NeuronPlayer& outPlayer, const NeuronPlayerI
 {
 	// Determine target speed
 	const float clampedThrottle = (Math::Abs(input.m_speed) <= k_throttleDeadZone) ? 0.0f : Math::Clamp(input.m_speed, -1.0f, 1.0f);
-	const float targetSpeed = clampedThrottle * ((clampedThrottle >= 0.0f) ? k_maxForwardSpeed : k_maxReverseSpeed);
+	const float targetSpeed = (input.m_boost >= 0.5f) ? k_maxBoostedSpeed : (clampedThrottle * ((clampedThrottle >= 0.0f) ? k_maxForwardSpeed : k_maxReverseSpeed));
 	const Vector2 oldForward = outPlayer.GetForward();
 	const Vector2 targetVelocity = oldForward * targetSpeed;
 	const Vector2 desiredDeltaVelocity = targetVelocity - outPlayer.GetVelocity();
