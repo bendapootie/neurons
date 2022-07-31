@@ -19,6 +19,8 @@ void NeuronGameDisplay::Draw(sf::RenderWindow& window) const
 	const sf::Color fieldOutlineColor(192, 64, 64);
 	const sf::Color playerColor1(255, 0, 0);
 	const sf::Color playerColor2(0, 0, 255);
+	const sf::Color playerColor1Front(255, 128, 128);
+	const sf::Color playerColor2Front(128, 128, 255);
 	const sf::Color playerOutlineColor(192, 192, 192, 128);
 
 	const sf::Color ballFillColor(255, 255, 255);
@@ -62,12 +64,25 @@ void NeuronGameDisplay::Draw(sf::RenderWindow& window) const
 	for (int i = 0; i < m_neuronGame.GetNumPlayers(); i++)
 	{
 		const NeuronPlayer& neuronPlayer = m_neuronGame.GetPlayer(i);
+		sf::Color playerColor = (i == 0) ? playerColor1 : playerColor2;
 		neuronPlayer.m_shape->Draw(
 			window,
-			(i == 0) ? playerColor1 : playerColor2,
+			playerColor,
 			playerOutlineColor,
 			playerOutlineThickness
 		);
+
+		// Draw forward line
+		constexpr float k_frontLineThickness = 2.0f;
+		sf::Color playerColorFront = (i == 0) ? playerColor1Front : playerColor2Front;
+		
+		sf::RectangleShape line;
+		line.setSize(sf::Vector2f(k_frontLineThickness, neuronPlayer.GetPlayerWidth()));
+		line.setFillColor(playerColorFront);
+		line.setOrigin(sf::Vector2f(k_frontLineThickness - neuronPlayer.GetPlayerHalfLength(), neuronPlayer.GetPlayerHalfWidth()));
+		line.setPosition(sf::Vector2f(neuronPlayer.GetPos().x, neuronPlayer.GetPos().y));
+		line.setRotation(RadToDeg(neuronPlayer.GetFacing()));
+		window.draw(line);
 	}
 
 	// Draw ball
