@@ -12,7 +12,6 @@ public:
 	NeuronBall();
 	NeuronBall(const Vector2 pos);
 
-	bool CollideWithPlayer(const NeuronPlayer& player);
 	bool CollideWithField(const NeuronGame& game);
 
 	static constexpr float GetRadius() { return 2.0f; }

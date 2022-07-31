@@ -34,8 +34,6 @@ public:
 	Array<Vector2, 4> GetCornerPoints() const;
 
 	bool CollideWithField(const NeuronGame& game);
-	bool CollideWithBall(const NeuronBall& ball);
-	static bool CollidePlayers(NeuronPlayer& p0, NeuronPlayer& p1);
 
 	static constexpr float GetPlayerWidth() { return 4.0f; }
 	static constexpr float GetPlayerLength() { return GetPlayerWidth() * 1.8f; }

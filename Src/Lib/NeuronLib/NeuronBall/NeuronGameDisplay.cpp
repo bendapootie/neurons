@@ -6,13 +6,11 @@
 
 void NeuronGameDisplay::Draw(sf::RenderWindow& window) const
 {
-	const float width = m_neuronGame.GetFieldWidth();
 	const float length = m_neuronGame.GetFieldLength();
+	const float width = m_neuronGame.GetFieldWidth();
 	const float goalWidth = m_neuronGame.GetGoalWidth();
 	const float goalDepth = goalWidth * 0.2f;	// Goal depth is only visual, so it's not tracked by NeuronBallGame
 	const float fieldOutlineThickness = 1.0f;
-	const float playerWidth = NeuronPlayer::GetPlayerWidth();
-	const float playerLength = NeuronPlayer::GetPlayerLength();
 	const float playerOutlineThickness = 0.25f;
 
 	const sf::Color goalColor1(128, 0, 0);
@@ -29,20 +27,20 @@ void NeuronGameDisplay::Draw(sf::RenderWindow& window) const
 
 	// Draw goal outlines
 	sf::RectangleShape goal;
-	goal.setSize(sf::Vector2f(goalWidth, goalDepth));
+	goal.setSize(sf::Vector2f(goalDepth, goalWidth));
 	goal.setFillColor(sf::Color::Transparent);
 	goal.setOutlineColor(fieldOutlineColor);
 	goal.setOutlineThickness(fieldOutlineThickness);
-	goal.setPosition((width - goalWidth) * 0.5f, -goalDepth);
+	goal.setPosition(-goalDepth, (width - goalWidth) * 0.5f);
 	window.draw(goal);
 
 	goal.setFillColor(playerColor2);
-	goal.setPosition((width - goalWidth) * 0.5f, length);
+	goal.setPosition(length, (width - goalWidth) * 0.5f);
 	window.draw(goal);
 
 	// Draw field
 	sf::RectangleShape field;
-	field.setSize(sf::Vector2f(width, length));
+	field.setSize(sf::Vector2f(length, width));
 	field.setFillColor(sf::Color(0, 64, 0));
 	field.setOutlineColor(fieldOutlineColor);
 	field.setOutlineThickness(fieldOutlineThickness);
@@ -52,11 +50,11 @@ void NeuronGameDisplay::Draw(sf::RenderWindow& window) const
 	// Draw inside of goals
 	goal.setFillColor(goalColor1);
 	goal.setOutlineThickness(0.0f);
-	goal.setPosition((width - goalWidth) * 0.5f, -goalDepth);
+	goal.setPosition(-goalDepth, (width - goalWidth) * 0.5f);
 	window.draw(goal);
 
 	goal.setFillColor(goalColor2);
-	goal.setPosition((width - goalWidth) * 0.5f, length);
+	goal.setPosition(length, (width - goalWidth) * 0.5f);
 	window.draw(goal);
 
 	// Draw players
@@ -64,25 +62,15 @@ void NeuronGameDisplay::Draw(sf::RenderWindow& window) const
 	for (int i = 0; i < m_neuronGame.GetNumPlayers(); i++)
 	{
 		const NeuronPlayer& neuronPlayer = m_neuronGame.GetPlayer(i);
-
-		player.setSize(sf::Vector2f(playerWidth, playerLength));
-		player.setOrigin(player.getSize() * 0.5f);
-		player.setFillColor((i == 0) ? playerColor1 : playerColor2);
-		player.setOutlineColor(playerOutlineColor);
-		player.setOutlineThickness(playerOutlineThickness);
-		player.setPosition(neuronPlayer.m_shape->GetPos().x, neuronPlayer.m_shape->GetPos().y);
-		player.setRotation(Math::RadToDeg(neuronPlayer.GetFacing()) + 90.0f);
-		window.draw(player);
+		neuronPlayer.m_shape->Draw(
+			window,
+			(i == 0) ? playerColor1 : playerColor2,
+			playerOutlineColor,
+			playerOutlineThickness
+		);
 	}
 
 	// Draw ball
-	sf::CircleShape ball;
 	const NeuronBall& neuronBall = m_neuronGame.GetBall();
-	ball.setRadius(neuronBall.GetRadius());
-	ball.setOrigin(ball.getRadius(), ball.getRadius());
-	ball.setFillColor(ballFillColor);
-	ball.setOutlineColor(ballOutlineColor);
-	ball.setOutlineThickness(ballOutlineThickness);
-	ball.setPosition(neuronBall.m_shape.m_pos.x, neuronBall.m_shape.m_pos.y);
-	window.draw(ball);
+	neuronBall.m_shape.Draw(window, ballFillColor, ballOutlineColor, ballOutlineThickness);
 }

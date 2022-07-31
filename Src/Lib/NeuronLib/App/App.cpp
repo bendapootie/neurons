@@ -10,6 +10,10 @@
 #include "Util/Shapes.h"
 
 
+constexpr bool k_playGame = true;
+constexpr bool k_randomInit = false;
+
+
 void App::Initialize()
 {
 	m_window.create(sf::VideoMode(800, 450), "Neurons");
@@ -32,8 +36,7 @@ int App::Run()
 
 		if (m_window.isOpen())
 		{
-			constexpr bool playGame = true;
-			if (playGame)
+			if (k_playGame)
 			{
 				UpdateGame();
 				DrawGame();
@@ -100,7 +103,6 @@ void App::UpdatePhysicsTest()
 	{
 		m_shapes.Zero();
 
-		constexpr bool k_randomInit = false;
 		if constexpr (k_randomInit)
 		{
 			for (Shape*& shape : m_shapes)

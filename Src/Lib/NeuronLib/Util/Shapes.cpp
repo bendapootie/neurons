@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Shapes.h"
 
 #include "crtdbg.h"	// for _ASSERT
@@ -114,21 +114,28 @@ CollisionResponse Circle::Collide(const Rectangle& rect) const
 
 void Circle::Draw(sf::RenderWindow& window) const
 {
-	const float k_radiusThicknessScalar = 0.05f;
-
 	// Draw ball
 	const int r = Math::Clamp(static_cast<int>(Math::Cos(m_facing) * 256.0f), 0, 255);
 	const int g = Math::Clamp(static_cast<int>(Math::Cos(m_facing + (k_2pi / 3.0f)) * 256.0f), 0, 255);
 	const int b = Math::Clamp(static_cast<int>(Math::Cos(m_facing - (k_2pi / 3.0f)) * 256.0f), 0, 255);
 	sf::Color fillColor(r, g, b);
 
+	Draw(window, fillColor, sf::Color::Transparent, 0.0f);
+}
+
+void Circle::Draw(sf::RenderWindow& window, const sf::Color& fillColor, const sf::Color& outlineColor, const float outlineThickness) const
+{
+	const float k_radiusThicknessScalar = 0.05f;
+
+	// Draw ball
+
 	sf::CircleShape ball;
 	ball.setRadius(m_radius);
 	ball.setRotation(Math::RadToDeg(m_facing));
 	ball.setOrigin(m_radius, m_radius);
 	ball.setFillColor(fillColor);
-	//ball.setOutlineColor(ballOutlineColor);
-	//ball.setOutlineThickness(ballOutlineThickness);
+	ball.setOutlineColor(outlineColor);
+	ball.setOutlineThickness(outlineThickness);
 	ball.setPosition(m_pos.x, m_pos.y);
 	window.draw(ball);
 
@@ -140,6 +147,7 @@ void Circle::Draw(sf::RenderWindow& window) const
 	radius.setPosition(m_pos.x, m_pos.y);
 	window.draw(radius);
 }
+
 
 void Rectangle::ComputeMassAndInertia(const float density)
 {
@@ -327,16 +335,28 @@ void Rectangle::Draw(sf::RenderWindow& window) const
 	const int b = Math::Clamp(static_cast<int>(Math::Cos(m_facing - (k_2pi / 3.0f)) * 256.0f), 0, 255);
 	sf::Color fillColor(r, g, b);
 
+	Draw(window, fillColor, sf::Color::Transparent, 0.0f);
+}
+
+void Rectangle::Draw(
+	sf::RenderWindow& window,
+	const sf::Color& fillColor,
+	const sf::Color& outlineColor,
+	const float outlineThickness
+) const
+{
+	// Draw rectangle
 	sf::RectangleShape rect;
 	rect.setSize(sf::Vector2f(2.0f * m_halfLength, 2.0f * m_halfWidth));
 	rect.setRotation(Math::RadToDeg(m_facing));
 	rect.setOrigin(m_halfLength, m_halfWidth);
 	rect.setFillColor(fillColor);
-	//rect.setOutlineColor(ballOutlineColor);
-	//rect.setOutlineThickness(ballOutlineThickness);
+	rect.setOutlineColor(outlineColor);
+	rect.setOutlineThickness(outlineThickness);
 	rect.setPosition(m_pos.x, m_pos.y);
 	window.draw(rect);
 }
+
 
 void CollisionResponse::ApplyResponse(Shape& shape0, Shape& shape1) const
 {
@@ -351,6 +371,35 @@ void CollisionResponse::ApplyResponse(Shape& shape0, Shape& shape1) const
 
 	// 1. Resolve penetration
 	s1.m_pos += m_penetrationVector;
+
+	// NOTES from https://www.euclideanspace.com/physics/dynamics/collision/twod/index.htm
+	// about Collision in 2 dimensions (with rotation and friction)
+// 	In the case of angular motion component :
+// 
+// 	net Torque = T = d L / d t = F x R = F * ((Rc - r) + 90deg * U)
+// 		where :
+// 		T is net instantanous Torque(in this case caused only by instantanous contact force)
+// 		L is angular momentum
+// 		x is cross product
+// 		F is force acting on contact point
+// 		R is distance between centre of massand contact point
+// 		r is centre of mass of object
+// 		Rc is contact point
+// 		U is unit vector normal to contact point
+// 
+// 		so change in angular momentum is :
+// 	d L = F dt * ((Rc - r) + 90deg * U)
+// 		so impulse due to angular motion is :
+// 	i = intergral of F dt
+// 		i = d L / ((Rc - r) + 90deg * U)
+// 		i = Δw * I / ((Rc - r) + 90deg * U)
+// 
+// 		where:
+// 	I = moment of inertia
+// 		so total impulse due to linear and angular momentum is :
+// 
+// 	i = Δv * M = Δw * I / ((Rc - r) + 90deg * U)
+
 
 	const bool k_separateAxes = false;
 	if constexpr (k_separateAxes)

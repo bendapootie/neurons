@@ -15,16 +15,16 @@ class NeuronGame
 {
 public:
 	NeuronGame() :
-		m_player0(Vector2(m_fieldWidth * 0.5f, m_fieldLength * 0.1f), DegToRad( 90.0f)),
-		m_player1(Vector2(m_fieldWidth * 0.5f, m_fieldLength * 0.9f), DegToRad(270.0f)),
-		m_ball(Vector2(m_fieldWidth * 0.5f, m_fieldLength * 0.5f))
+		m_player0(Vector2(m_fieldLength * 0.1f, m_fieldWidth * 0.5f), DegToRad(  0.0f)),
+		m_player1(Vector2(m_fieldLength * 0.9f, m_fieldWidth * 0.5f), DegToRad(180.0f)),
+		m_ball(Vector2(m_fieldLength * 0.5f, m_fieldWidth * 0.5f))
 	{}
 
 	void Update(const NeuronPlayerInput& p0, const NeuronPlayerInput& p1);
 
 	float GetFieldWidth() const { return m_fieldWidth; }
 	float GetFieldLength() const { return m_fieldLength; }
-	float GetGoalWidth() const { return m_fieldLength * 0.25f; }
+	float GetGoalWidth() const { return m_fieldWidth * 0.25f; }
 	static constexpr int GetNumPlayers() { return 2; }
 	const NeuronPlayer& GetPlayer(const int index) const { return (index == 0) ? m_player0 : m_player1; }
 	NeuronPlayer& GetPlayer(const int index) { return (index == 0) ? m_player0 : m_player1; }
@@ -35,11 +35,11 @@ private:
 	void UpdateBall();
 	void ProcessCollisions();
 
-	static bool CollideBallWithPlayer(NeuronBall& ball, NeuronPlayer& player);
-
 private:
-	const float m_fieldWidth = 80.0f;
+	// Length is along x-axis
 	const float m_fieldLength = 100.0f;
+	// Width is along y-axis
+	const float m_fieldWidth = 80.0f;
 	NeuronPlayer m_player0;
 	NeuronPlayer m_player1;
 	NeuronBall m_ball;

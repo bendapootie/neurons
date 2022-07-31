@@ -71,7 +71,7 @@ void NeuronGame::UpdateBall()
 	// TODO: These checks are mostley duplicated in NeuronBall::CollideWithField. Should they be merged?
 	// Collide ball against bounds of the field
 	const Vector2 minBound(m_ball.GetRadius(), m_ball.GetRadius());
-	const Vector2 maxBound(GetFieldWidth() - m_ball.GetRadius(), GetFieldLength() - m_ball.GetRadius());
+	const Vector2 maxBound(GetFieldLength() - m_ball.GetRadius(), GetFieldWidth() - m_ball.GetRadius());
 
 	Vector2 newVelocity = m_ball.m_shape.GetVelocity();
 	if ((m_ball.m_shape.m_pos.x < minBound.x) || (m_ball.m_shape.m_pos.x > maxBound.x))
@@ -108,71 +108,27 @@ void NeuronGame::ProcessCollisions()
 	// 2. Check ball vs player
 	for (int i = 0; i < GetNumPlayers(); i++)
 	{
-		anyCollision |= CollideBallWithPlayer(m_ball, GetPlayer(i));
-		//anyCollision |= m_ball.CollideWithPlayer(GetPlayer(i));
+		Shape* ballShape = &m_ball.m_shape;
+		Shape* playerShape = GetPlayer(i).m_shape;
+		CollisionResponse response = ballShape->Collide(*playerShape);
+		if (response.m_collided)
+		{
+			response.ApplyResponse(*ballShape, *playerShape);
+		}
 	}
 
 	// 3. Check ball vs field (move ball)
 	anyCollision |= m_ball.CollideWithField(*this);
 
 	// 5. Check player vs player (move both)
-	anyCollision |= NeuronPlayer::CollidePlayers(GetPlayer(0), GetPlayer(1));
-}
-
-// static
-bool NeuronGame::CollideBallWithPlayer(NeuronBall& ball, NeuronPlayer& player)
-{
-	// Transform circle into player's space so collision detection is done centered and axis-aligned
-	const Vector2 transformedBallPos = (ball.m_shape.m_pos - player.m_shape->GetPos()).RotateAroundOrigin(-player.m_shape->GetFacing());
-
-	// Determine whether circle should be tested against width, length, or the corner and compute penetration vector
-	Vector2 absTransformedPenetrationVector = Vector2::Zero;
-	// Do all computations in positive quadrant to avoid duplicating checks
-	const Vector2 absTransformedBallPos(Math::Abs(transformedBallPos.x), Math::Abs(transformedBallPos.y));
-	// Note: Facing of 0 is facing right, going down the x-axis
-	// https://github.com/bendapootie/neurons/issues/4 - If ball is fully within rectangle, the wrong axis may be chosen to calculate penetration vector
-	if (absTransformedBallPos.x < player.GetPlayerHalfLength())
 	{
-		// Only need to check collision with top of box
-		const float yAxisPenetration = player.GetPlayerHalfWidth() - (absTransformedBallPos.y - ball.GetRadius());
-		// Negative penetration means there was no collision, so penetration is clamped to zero
-		absTransformedPenetrationVector.y = Math::Max(yAxisPenetration, 0.0f);
-	}
-	else if(absTransformedBallPos.y < player.GetPlayerHalfWidth())
-	{
-		// Only need to check collision with side of box
-		const float xAxisPenetration = player.GetPlayerHalfLength() - (absTransformedBallPos.x - ball.GetRadius());
-		// Negative penetration means there was no collision, so penetration is clamped to zero
-		absTransformedPenetrationVector.x = Math::Max(xAxisPenetration, 0.0f);
-	}
-	else
-	{
-		// Ball is closest to corner point is closest to ball
-		const Vector2 absTransformedCornerToBall = absTransformedBallPos - Vector2(player.GetPlayerHalfLength(), player.GetPlayerHalfWidth());
-		float distanceFromCornerToCenterOfBall;
-		const Vector2 cornerToBallNormal = absTransformedCornerToBall.GetSafeNormalized(distanceFromCornerToCenterOfBall);
-		const float penetrationDepth = ball.GetRadius() - distanceFromCornerToCenterOfBall;
-		if (penetrationDepth > 0.0f)
+		Shape* p0Shape = GetPlayer(0).m_shape;
+		Shape* p1Shape = GetPlayer(1).m_shape;
+		CollisionResponse response = p0Shape->Collide(*p1Shape);
+		if (response.m_collided)
 		{
-			absTransformedPenetrationVector = cornerToBallNormal * penetrationDepth;
+			response.ApplyResponse(*p0Shape, *p1Shape);
 		}
-	}
-
-	const Vector2 transformedPenetrationVector(
-		Math::Sign(transformedBallPos.x) * absTransformedPenetrationVector.x,
-		Math::Sign(transformedBallPos.y) * absTransformedPenetrationVector.y
-	);
-
-	if (transformedPenetrationVector == Vector2::Zero)
-	{
-		// Zero penetration vector means there was no collision
-		return false;
-	}
-	else
-	{
-		const Vector2 penetrationVector = transformedPenetrationVector.RotateAroundOrigin(player.m_shape->GetFacing());
-		ball.m_shape.m_pos += penetrationVector;
-
-		return true;
+		//anyCollision |= NeuronPlayer::CollidePlayers(GetPlayer(0), GetPlayer(1));
 	}
 }

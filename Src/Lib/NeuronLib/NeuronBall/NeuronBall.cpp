@@ -20,40 +20,11 @@ NeuronBall::NeuronBall(const Vector2 pos)
 	m_shape.ComputeMassAndInertia(k_defaultBallDensity);
 }
 
-
-bool NeuronBall::CollideWithPlayer(const NeuronPlayer& player)
-{
-	bool wasCollision = false;
-
-	const Vector2 playerToBall = m_shape.m_pos - player.GetPos();
-	float distance;
-	const Vector2 playerToBallNormal = playerToBall.GetSafeNormalized(distance);
-	// TODO: Compute player radius correctly
-	// TODO: Treat player shape as a rectangle, not a circle
-	// TODO: Fix this and NeuronPlayer::CollideWithBall (merge the two functions?)
-	const float minDistanceAllowed = GetRadius() + player.GetPlayerWidth();
-	if (distance < minDistanceAllowed)
-	{
-		// Ball collided with car and needs to move away
-		m_shape.m_pos = player.GetPos() + (playerToBallNormal * minDistanceAllowed);
-
-		// TODO: This isn't the right way to apply velocity to the ball
-		const float velocityDot = playerToBallNormal.Dot(player.GetVelocity().GetSafeNormalized());
-		if (velocityDot > 0.0f)
-		{
-			m_shape.m_velocity = player.GetVelocity() * velocityDot;
-		}
-		wasCollision = true;
-	}
-
-	return wasCollision;
-}
-
 bool NeuronBall::CollideWithField(const NeuronGame& game)
 {
 	// Collide ball against bounds of the field
 	const Vector2 minBound(GetRadius(), GetRadius());
-	const Vector2 maxBound(game.GetFieldWidth() - GetRadius(), game.GetFieldLength() - GetRadius());
+	const Vector2 maxBound(game.GetFieldLength() - GetRadius(), game.GetFieldWidth() - GetRadius());
 
 	const Vector2 oldPos = m_shape.m_pos;
 	// Note: Only position is updated, not velocity. Bouncing off the walls is handled elsewhere

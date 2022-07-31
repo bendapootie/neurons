@@ -7,6 +7,7 @@ class CollisionResponse;
 class Circle;
 class Rectangle;
 namespace sf { class RenderWindow; }
+namespace sf { class Color; }
 
 class Shape
 {
@@ -21,6 +22,12 @@ public:
 	virtual CollisionResponse Collide(const Rectangle& other) const = 0;
 
 	virtual void Draw(sf::RenderWindow& window) const = 0;
+	virtual void Draw(
+		sf::RenderWindow& window,
+		const sf::Color& fillColor,
+		const sf::Color& outlineColor,
+		const float outlineThickness
+	) const = 0;
 
 	Vector2 GetPos() const
 	{
@@ -103,6 +110,12 @@ public:
 	virtual CollisionResponse Collide(const Rectangle& other) const override;
 
 	virtual void Draw(sf::RenderWindow& window) const override;
+	virtual void Draw(
+		sf::RenderWindow& window,
+		const sf::Color& fillColor,
+		const sf::Color& outlineColor,
+		const float outlineThickness
+	) const override;
 
 public:
 	float m_radius = 0.0f;
@@ -120,6 +133,12 @@ public:
 	virtual CollisionResponse Collide(const Rectangle& other) const override;
 
 	virtual void Draw(sf::RenderWindow& window) const override;
+	virtual void Draw(
+		sf::RenderWindow& window,
+		const sf::Color& fillColor,
+		const sf::Color& outlineColor,
+		const float outlineThickness
+	) const override;
 
 protected:
 	Array<Vector2, 4> GetCornerPoints() const;
