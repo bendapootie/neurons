@@ -32,7 +32,7 @@ int App::Run()
 
 		if (m_window.isOpen())
 		{
-			constexpr bool playGame = false;
+			constexpr bool playGame = true;
 			if (playGame)
 			{
 				UpdateGame();
@@ -100,7 +100,7 @@ void App::UpdatePhysicsTest()
 	{
 		m_shapes.Zero();
 
-		constexpr bool k_randomInit = true;
+		constexpr bool k_randomInit = false;
 		if constexpr (k_randomInit)
 		{
 			for (Shape*& shape : m_shapes)
@@ -132,6 +132,8 @@ void App::UpdatePhysicsTest()
 		}
 		else
 		{
+			// Collision between circle and rectangle
+			if constexpr (false)
 			{
 				Circle* c = new Circle();
 				c->m_pos = Vector2(10.0f, 50.0f);
@@ -155,7 +157,7 @@ void App::UpdatePhysicsTest()
 			{
 				{
 					Circle* c = new Circle();
-					c->m_pos = Vector2(10.0f, 10.0f);
+					c->m_pos = Vector2(10.0f, 40.0f);
 					c->m_velocity = Vector2(10.0f, 0.0f);
 					c->m_radius = 5.0f;
 					c->ComputeMassAndInertia(1.0f);
@@ -163,7 +165,7 @@ void App::UpdatePhysicsTest()
 				}
 				{
 					Circle* c = new Circle();
-					c->m_pos = Vector2(40.0f, 10.0f);
+					c->m_pos = Vector2(40.0f, 40.0f - 10.0f / Math::Sqrt(2.0f));
 					c->m_velocity = Vector2(0.0f, 0.0f);
 					c->m_radius = 5.0f;
 					c->ComputeMassAndInertia(1.0f);

@@ -70,8 +70,8 @@ void NeuronGameDisplay::Draw(sf::RenderWindow& window) const
 		player.setFillColor((i == 0) ? playerColor1 : playerColor2);
 		player.setOutlineColor(playerOutlineColor);
 		player.setOutlineThickness(playerOutlineThickness);
-		player.setPosition(neuronPlayer.m_pos.x, neuronPlayer.m_pos.y);
-		player.setRotation(neuronPlayer.GetRotationDegrees() + 90.0f);
+		player.setPosition(neuronPlayer.m_shape->GetPos().x, neuronPlayer.m_shape->GetPos().y);
+		player.setRotation(Math::RadToDeg(neuronPlayer.GetFacing()) + 90.0f);
 		window.draw(player);
 	}
 

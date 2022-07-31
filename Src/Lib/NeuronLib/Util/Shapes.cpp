@@ -352,28 +352,58 @@ void CollisionResponse::ApplyResponse(Shape& shape0, Shape& shape1) const
 	// 1. Resolve penetration
 	s1.m_pos += m_penetrationVector;
 
-	// Only resolve collision if relative velocities are pointed at each other
-	if (m_collisionNormal.Dot(s1.m_velocity - s0.m_velocity) < 0.0f)
+	const bool k_separateAxes = false;
+	if constexpr (k_separateAxes)
 	{
-		// Handle circles with different masses
-		// Equations from https://en.wikipedia.org/wiki/Elastic_collision - Two-dimensional collision with two moving objects
-		const Vector2 v0 = s0.m_velocity;
-		const Vector2 v1 = s1.m_velocity;
-		const float m0 = s0.m_mass;
-		const float m1 = s1.m_mass;
-		const Vector2 x0 = s0.m_pos;
-		const Vector2 x1 = s1.m_pos;
-		const Vector2 v0out = v0 -
-			(x0 - x1) *
-			((2 * m1) / (m0 + m1)) *
-			((v0 - v1).Dot(x0 - x1) / (x0 - x1).GetLengthSquared());
-		const Vector2 v1out = v1 -
-			(x1 - x0) *
-			((2 * m0) / (m0 + m1)) *
-			((v1 - v0).Dot(x1 - x0) / (x1 - x0).GetLengthSquared());
+		// Calculate velocity at collision point for each shape
+		// TODO: Sanity check that m_collisionPoint is on (or very close to) the surface of each shape?
+		const Vector2 v0atC = s0.GetVelocityAtWorldPos(m_collisionPoint);
+		const Vector2 v1atC = s1.GetVelocityAtWorldPos(m_collisionPoint);
 
-		// TODO: Add restitution here?
-		s0.m_velocity = v0out;
-		s1.m_velocity = v1out;
+		// Make all calculations as though s0 is moving and s1 is stationary
+		const Vector2 v0RelAtC = v0atC - v1atC;
+
+		// Split velocity into normal and tangent to handle collision and friction separately
+		const Vector2 collisionTangent(m_collisionNormal.y, -m_collisionNormal.x);
+		const Vector2 vRelNorm = m_collisionNormal * v0RelAtC.Dot(m_collisionNormal);
+		const Vector2 vRelTan = collisionTangent * v0RelAtC.Dot(collisionTangent);
+
+		// Compute velocities for an elastic collision in the direction of the normal
+		// If s0 is at rest, the following can be used to calculate result velocities
+		// v0' = v0 * (m0 - m1) / (m0 + m1)
+		// v1' = (v0 * 2 * m0) / (m0 + m1)
+		const Vector2 v0RelOut = v0RelAtC * ((s0.m_mass - s1.m_mass) / (s0.m_mass + s1.m_mass));
+		const Vector2 v1RelOut = v0RelAtC * ((2.0f * s0.m_mass) / (s0.m_mass + s1.m_mass));
+
+	//	Start here to figure out rotation
+		// The best example equations I've found so far...
+		// https://www.euclideanspace.com/physics/dynamics/collision/twod/index.htm
+	}
+	else
+	{
+		// Only resolve collision if relative velocities are pointed at each other
+		if (m_collisionNormal.Dot(s1.m_velocity - s0.m_velocity) < 0.0f)
+		{
+			// Handle circles with different masses
+			// Equations from https://en.wikipedia.org/wiki/Elastic_collision - Two-dimensional collision with two moving objects
+			const Vector2 v0 = s0.m_velocity;
+			const Vector2 v1 = s1.m_velocity;
+			const float m0 = s0.m_mass;
+			const float m1 = s1.m_mass;
+			const Vector2 x0 = s0.m_pos;
+			const Vector2 x1 = s1.m_pos;
+			const Vector2 v0out = v0 -
+				(x0 - x1) *
+				((2 * m1) / (m0 + m1)) *
+				((v0 - v1).Dot(x0 - x1) / (x0 - x1).GetLengthSquared());
+			const Vector2 v1out = v1 -
+				(x1 - x0) *
+				((2 * m0) / (m0 + m1)) *
+				((v1 - v0).Dot(x1 - x0) / (x1 - x0).GetLengthSquared());
+
+			// TODO: Add restitution here?
+			s0.m_velocity = v0out;
+			s1.m_velocity = v1out;
+		}
 	}
 }

@@ -30,59 +30,61 @@ void NeuronGame::ApplyInputToPlayer(NeuronPlayer& outPlayer, const NeuronPlayerI
 	const float targetSpeed = clampedThrottle * ((clampedThrottle >= 0.0f) ? k_maxForwardSpeed : k_maxReverseSpeed);
 	const Vector2 oldForward = outPlayer.GetForward();
 	const Vector2 targetVelocity = oldForward * targetSpeed;
-	const Vector2 desiredDeltaVelocity = targetVelocity - outPlayer.m_velocity;
+	const Vector2 desiredDeltaVelocity = targetVelocity - outPlayer.GetVelocity();
 	const float desiredDeltaVelocitySquared = desiredDeltaVelocity.GetLengthSquared();
 	constexpr float k_maxAccelerationPerTick = k_maxAcceleration * k_timePerTick;
 	constexpr float k_maxAccelerationPerTickSquared = k_maxAccelerationPerTick * k_maxAccelerationPerTick;
 	if (desiredDeltaVelocitySquared <= k_maxAccelerationPerTickSquared)
 	{
 		// Acceleration is low enough to set directly
-		outPlayer.m_velocity = targetVelocity;
+		outPlayer.SetVelocity(targetVelocity);
 	}
 	else
 	{
 		// Player wants to accelerate faster than allowed. Apply the maximum allowed.
 		const Vector2 directionOfAcceleration = desiredDeltaVelocity.GetNormalized();
-		outPlayer.m_velocity += directionOfAcceleration * k_maxAccelerationPerTickSquared;
+		outPlayer.SetVelocity(outPlayer.GetVelocity() + directionOfAcceleration * k_maxAccelerationPerTickSquared);
 	}
 
-	outPlayer.m_pos += outPlayer.m_velocity * k_timePerTick;
+	outPlayer.SetPos(outPlayer.GetPos() + outPlayer.GetVelocity() * k_timePerTick);
 
-	const bool isMovingForward = oldForward.Dot(outPlayer.m_velocity) >= 0.0f;
+	const bool isMovingForward = oldForward.Dot(outPlayer.GetVelocity()) >= 0.0f;
 
 	// Turn rate is limited by last update's velocity
 	const float clampedSteering = (Math::Abs(input.m_steering) <= k_turningDeadZone) ? 0.0f : Math::Clamp(input.m_steering, -1.0f, 1.0f);
-	const float currentSpeed = outPlayer.m_velocity.GetLength();
+	const float currentSpeed = outPlayer.GetVelocity().GetLength();
 	const float speedPercentOfMax = currentSpeed / k_maxForwardSpeed;
 	// turnThrottleScalar is based on the square of the speed percent to give it a nicer ramp
 	const float turnThrottleScalar = Math::Clamp(1.0f - ((1.0f - speedPercentOfMax) * (1.0f - speedPercentOfMax)), 0.0f, 1.0f);
 	const float deltaAngle = clampedSteering * k_maxTurnRadiansPerSecond * k_timePerTick * turnThrottleScalar * (isMovingForward ? 1.0f : -1.0f);
-	const float newFacing = outPlayer.m_facingRadians + deltaAngle;
+	const float newFacing = outPlayer.GetFacing() + deltaAngle;
 	// Always keep facing in the range of [0..2pi]
-	outPlayer.m_facingRadians = remainderf(newFacing, k_2pi);
+	outPlayer.SetFacing(remainderf(newFacing, k_2pi));
 }
 
 void NeuronGame::UpdateBall()
 {
 	// Update ball position based on velocity and velocity based on friction
-	m_ball.m_shape.m_pos += m_ball.m_shape.m_velocity * k_timePerTick;
-	m_ball.m_shape.m_velocity *= (1.0f - (m_ball.GetRollingFriction() * k_timePerTick));
+	m_ball.m_shape.m_pos += m_ball.m_shape.GetVelocity() * k_timePerTick;
+	m_ball.m_shape.SetVelocity(m_ball.m_shape.GetVelocity() * (1.0f - (m_ball.GetRollingFriction() * k_timePerTick)));
 
 	// TODO: These checks are mostley duplicated in NeuronBall::CollideWithField. Should they be merged?
 	// Collide ball against bounds of the field
 	const Vector2 minBound(m_ball.GetRadius(), m_ball.GetRadius());
 	const Vector2 maxBound(GetFieldWidth() - m_ball.GetRadius(), GetFieldLength() - m_ball.GetRadius());
 
+	Vector2 newVelocity = m_ball.m_shape.GetVelocity();
 	if ((m_ball.m_shape.m_pos.x < minBound.x) || (m_ball.m_shape.m_pos.x > maxBound.x))
 	{
 		m_ball.m_shape.m_pos.x = Math::Clamp(m_ball.m_shape.m_pos.x, minBound.x, maxBound.x);
-		m_ball.m_shape.m_velocity.x = -m_ball.m_shape.m_velocity.x;
+		newVelocity.x = -m_ball.m_shape.GetVelocity().x;
 	}
 	if ((m_ball.m_shape.m_pos.y < minBound.y) || (m_ball.m_shape.m_pos.y > maxBound.y))
 	{
 		m_ball.m_shape.m_pos.y = Math::Clamp(m_ball.m_shape.m_pos.y, minBound.y, maxBound.y);
-		m_ball.m_shape.m_velocity.y = -m_ball.m_shape.m_velocity.y;
+		newVelocity.y = -m_ball.m_shape.GetVelocity().y;
 	}
+	m_ball.m_shape.SetVelocity(newVelocity);
 }
 
 void NeuronGame::ProcessCollisions()
@@ -121,7 +123,7 @@ void NeuronGame::ProcessCollisions()
 bool NeuronGame::CollideBallWithPlayer(NeuronBall& ball, NeuronPlayer& player)
 {
 	// Transform circle into player's space so collision detection is done centered and axis-aligned
-	const Vector2 transformedBallPos = (ball.m_shape.m_pos - player.m_pos).RotateAroundOrigin(-player.m_facingRadians);
+	const Vector2 transformedBallPos = (ball.m_shape.m_pos - player.m_shape->GetPos()).RotateAroundOrigin(-player.m_shape->GetFacing());
 
 	// Determine whether circle should be tested against width, length, or the corner and compute penetration vector
 	Vector2 absTransformedPenetrationVector = Vector2::Zero;
@@ -168,7 +170,7 @@ bool NeuronGame::CollideBallWithPlayer(NeuronBall& ball, NeuronPlayer& player)
 	}
 	else
 	{
-		const Vector2 penetrationVector = transformedPenetrationVector.RotateAroundOrigin(player.m_facingRadians);
+		const Vector2 penetrationVector = transformedPenetrationVector.RotateAroundOrigin(player.m_shape->GetFacing());
 		ball.m_shape.m_pos += penetrationVector;
 
 		return true;

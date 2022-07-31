@@ -22,9 +22,40 @@ public:
 
 	virtual void Draw(sf::RenderWindow& window) const = 0;
 
+	Vector2 GetPos() const
+	{
+		return m_pos;
+	}
+	Vector2& GetPos()
+	{
+		return m_pos;
+	}
+
+	Vector2 GetVelocity() const
+	{
+		return m_velocity;
+	}
+	void SetVelocity(const Vector2 vel)
+	{
+		m_velocity = vel;
+	}
+
+	float GetFacing() const
+	{
+		return m_facing;
+	}
+
 	Vector2 GetForward() const
 	{
 		return Vector2(Math::Cos(m_facing), Math::Sin(m_facing));
+	}
+
+	// Returns the linear velocity of the shape at a given world position.
+	// If angular velocity is zero, this will be the same as m_velocity.
+	// If it's not zero, the instantaneous linear velocity contributed by rotation will be accounted for.
+	Vector2 GetVelocityAtWorldPos(const Vector2& testPos) const
+	{
+		return m_velocity + (testPos - m_pos) * m_angularVelocity;
 	}
 
 	// Calculates and returns linear kinetic energy (KE = 0.5 * mass * velocity^2)

@@ -58,6 +58,54 @@ static Vector2 ConvexHullCollisionTest(const Array<Vector2, 4>& testPoints, cons
 	return fixDistance;
 }
 
+NeuronPlayer::NeuronPlayer(const Vector2 pos, const float facing)
+{
+	Rectangle* rect = new Rectangle();
+	rect->m_pos = pos;
+	rect->m_velocity = Vector2::Zero;
+	rect->m_facing = facing;
+	rect->m_angularVelocity = 0.0f;
+	rect->m_halfLength = GetPlayerHalfLength();
+	rect->m_halfWidth = GetPlayerHalfWidth();
+
+	m_shape = rect;
+}
+
+Vector2 NeuronPlayer::GetPos() const
+{
+	return m_shape->m_pos;
+}
+
+void NeuronPlayer::SetPos(const Vector2 pos)
+{
+	m_shape->m_pos = pos;
+}
+
+Vector2 NeuronPlayer::GetVelocity() const
+{
+	return m_shape->m_velocity;
+}
+
+void NeuronPlayer::SetVelocity(const Vector2 vel)
+{
+	m_shape->m_velocity = vel;
+}
+
+float NeuronPlayer::GetFacing() const
+{
+	return m_shape->m_facing;
+}
+
+void NeuronPlayer::SetFacing(const float facing)
+{
+	m_shape->m_facing = facing;
+}
+
+Vector2 NeuronPlayer::GetForward() const
+{
+	return Vector2(Math::Cos(m_shape->m_facing), Math::Sin(m_shape->m_facing));
+}
+
 Array<Vector2, 4> NeuronPlayer::GetCornerPoints() const
 {
 	Array<Vector2, 4> corners;
@@ -69,10 +117,10 @@ Array<Vector2, 4> NeuronPlayer::GetCornerPoints() const
 	const Vector2 halfWidthVector = halfRight * GetPlayerWidth();
 
 	// Compute all the corner points in counter-clockwise order
-	corners[0] = Vector2(m_pos + halfLengthVector + halfWidthVector);
-	corners[1] = Vector2(m_pos + halfLengthVector - halfWidthVector);
-	corners[2] = Vector2(m_pos - halfLengthVector - halfWidthVector);
-	corners[3] = Vector2(m_pos - halfLengthVector + halfWidthVector);
+	corners[0] = Vector2(m_shape->m_pos + halfLengthVector + halfWidthVector);
+	corners[1] = Vector2(m_shape->m_pos + halfLengthVector - halfWidthVector);
+	corners[2] = Vector2(m_shape->m_pos - halfLengthVector - halfWidthVector);
+	corners[3] = Vector2(m_shape->m_pos - halfLengthVector + halfWidthVector);
 
 	return corners;
 }
@@ -109,7 +157,7 @@ bool NeuronPlayer::CollideWithField(const NeuronGame& game)
 	}
 
 	// Move the player back by how much it was over the line
-	m_pos += pushDistance;
+	m_shape->m_pos += pushDistance;
 
 	// If pushDistance isn't zero, there was a collision
 	return pushDistance != Vector2::Zero;
@@ -121,14 +169,14 @@ bool NeuronPlayer::CollideWithBall(const NeuronBall& ball)
 	// TODO: Fix this and NeuronBall::CollideWithPlayer (merge the two functions?)
 	bool wasCollision = false;
 
-	const Vector2 ballToPlayer = m_pos - ball.m_shape.m_pos;
+	const Vector2 ballToPlayer = m_shape->m_pos - ball.m_shape.m_pos;
 	float distance;
 	const Vector2 ballToPlayerNormal = ballToPlayer.GetSafeNormalized(distance);
 	const float minDistanceAllowed = ball.GetRadius() + GetPlayerWidth();
 	if (distance < minDistanceAllowed)
 	{
 		// Car collided with ball and needs to move away
-		m_pos = ball.m_shape.m_pos + (ballToPlayerNormal * minDistanceAllowed);
+		m_shape->m_pos = ball.m_shape.m_pos + (ballToPlayerNormal * minDistanceAllowed);
 		wasCollision = true;
 	}
 	// TODO: Should velocities change here?
@@ -140,7 +188,7 @@ bool NeuronPlayer::CollidePlayers(NeuronPlayer& player0, NeuronPlayer& player1)
 {
 	// Do a quick distance check vs player bounding circles to try and early-out
 	const float minCollisionDistance = player0.GetPlayerRadius() + player1.GetPlayerRadius();
-	const float distanceSqr = player0.m_pos.GetDistanceSquared(player1.m_pos);
+	const float distanceSqr = player0.m_shape->m_pos.GetDistanceSquared(player1.m_shape->m_pos);
 	if (distanceSqr >= Math::Sqr(minCollisionDistance))
 	{
 		return false;
@@ -154,11 +202,11 @@ bool NeuronPlayer::CollidePlayers(NeuronPlayer& player0, NeuronPlayer& player1)
 
 	if (fixDistance0.GetLengthSquared() > fixDistance1.GetLengthSquared())
 	{
-		player0.m_pos -= fixDistance0;
+		player0.m_shape->m_pos -= fixDistance0;
 	}
 	else
 	{
-		player1.m_pos -= fixDistance1;
+		player1.m_shape->m_pos -= fixDistance1;
 	}
 
 	return false;

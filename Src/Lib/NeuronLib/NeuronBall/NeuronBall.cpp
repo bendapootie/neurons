@@ -25,7 +25,7 @@ bool NeuronBall::CollideWithPlayer(const NeuronPlayer& player)
 {
 	bool wasCollision = false;
 
-	const Vector2 playerToBall = m_shape.m_pos - player.m_pos;
+	const Vector2 playerToBall = m_shape.m_pos - player.GetPos();
 	float distance;
 	const Vector2 playerToBallNormal = playerToBall.GetSafeNormalized(distance);
 	// TODO: Compute player radius correctly
@@ -35,13 +35,13 @@ bool NeuronBall::CollideWithPlayer(const NeuronPlayer& player)
 	if (distance < minDistanceAllowed)
 	{
 		// Ball collided with car and needs to move away
-		m_shape.m_pos = player.m_pos + (playerToBallNormal * minDistanceAllowed);
+		m_shape.m_pos = player.GetPos() + (playerToBallNormal * minDistanceAllowed);
 
 		// TODO: This isn't the right way to apply velocity to the ball
-		const float velocityDot = playerToBallNormal.Dot(player.m_velocity.GetSafeNormalized());
+		const float velocityDot = playerToBallNormal.Dot(player.GetVelocity().GetSafeNormalized());
 		if (velocityDot > 0.0f)
 		{
-			m_shape.m_velocity = player.m_velocity * velocityDot;
+			m_shape.m_velocity = player.GetVelocity() * velocityDot;
 		}
 		wasCollision = true;
 	}
