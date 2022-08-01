@@ -14,11 +14,7 @@ class NeuronPlayer;
 class NeuronGame
 {
 public:
-	NeuronGame() :
-		m_player0(Vector2(m_fieldLength * 0.1f, m_fieldWidth * 0.5f), DegToRad(  0.0f)),
-		m_player1(Vector2(m_fieldLength * 0.9f, m_fieldWidth * 0.5f), DegToRad(180.0f)),
-		m_ball(Vector2(m_fieldLength * 0.5f, m_fieldWidth * 0.5f))
-	{}
+	NeuronGame();
 
 	void Update(const NeuronPlayerInput& p0, const NeuronPlayerInput& p1);
 
@@ -29,11 +25,17 @@ public:
 	const NeuronPlayer& GetPlayer(const int index) const { return (index == 0) ? m_player0 : m_player1; }
 	NeuronPlayer& GetPlayer(const int index) { return (index == 0) ? m_player0 : m_player1; }
 	const NeuronBall& GetBall() const { return m_ball; }
+	int GetPlayerScore(const int playerIndex) const { return m_score[playerIndex]; }
 
 private:
+	// Called after a goal to reset player and ball positions
+	void ResetField();
+
 	static void ApplyInputToPlayer(NeuronPlayer& outPlayer, const NeuronPlayerInput& input);
 	void UpdateBall();
 	void ProcessCollisions();
+	void CheckForGoal();
+	void ScoreForPlayerIndex(const int playerIndex);
 
 private:
 	// Length is along x-axis
@@ -43,4 +45,6 @@ private:
 	NeuronPlayer m_player0;
 	NeuronPlayer m_player1;
 	NeuronBall m_ball;
+	Array<int, 2> m_score;
+	float m_timeRemaining;
 };

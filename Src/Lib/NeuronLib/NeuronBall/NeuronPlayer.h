@@ -21,7 +21,7 @@ public:
 class NeuronPlayer
 {
 public:
-	NeuronPlayer() {}
+	NeuronPlayer() : NeuronPlayer(Vector2::Zero, 0.0f) {}
 	NeuronPlayer(const Vector2 pos, const float facing);
 
 	Vector2 GetPos() const;

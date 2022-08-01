@@ -4,6 +4,23 @@
 #include "NeuronGame.h"
 #include <SFML/Graphics.hpp>
 
+namespace
+{
+	static sf::Font* s_font = nullptr;
+
+	sf::Font& GetDebugFont()
+	{
+		if (s_font == nullptr)
+		{
+			s_font = new sf::Font();
+			bool success = s_font->loadFromFile("..\\Data\\Fonts\\Overpass-Regular.ttf");
+		}
+		return *s_font;
+	}
+}
+
+
+
 void NeuronGameDisplay::Draw(sf::RenderWindow& window) const
 {
 	const float length = m_neuronGame.GetFieldLength();
@@ -88,4 +105,18 @@ void NeuronGameDisplay::Draw(sf::RenderWindow& window) const
 	// Draw ball
 	const NeuronBall& neuronBall = m_neuronGame.GetBall();
 	neuronBall.m_shape.Draw(window, ballFillColor, ballOutlineColor, ballOutlineThickness);
+
+	// Draw score
+	{
+		sf::Text score;
+		score.setFont(GetDebugFont());
+		wchar_t buffer[32];
+		swprintf_s(buffer, L"%d - %d", m_neuronGame.GetPlayerScore(0), m_neuronGame.GetPlayerScore(1));
+		score.setString(buffer);
+		score.setFillColor(sf::Color::White);
+		score.setScale(0.2f, 0.2f);
+		score.setOrigin(score.getLocalBounds().width * 0.5f, 2.0f * score.getLocalBounds().height);
+		score.setPosition(sf::Vector2f(length * 0.5f, 0.0f));
+		window.draw(score);
+	}
 }

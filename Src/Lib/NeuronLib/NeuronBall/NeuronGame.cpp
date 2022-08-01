@@ -4,6 +4,9 @@
 #include <algorithm>
 #include "Util/Constants.h"
 
+constexpr float k_defaultGameDuration = 60.0f;
+constexpr float k_playerWidthOffsetPercent = 0.04f;
+
 constexpr float k_maxTurnRadiansPerSecond = DegToRad(270.0f);
 constexpr float k_turningDeadZone = 0.1f;
 constexpr float k_maxForwardSpeed = 30.0f;
@@ -15,12 +18,37 @@ constexpr float k_throttleDeadZone = 0.1f;
 // Run at 60hz
 constexpr float k_timePerTick = 1.0f / 60.0f;
 
+NeuronGame::NeuronGame()
+{
+	ResetField();
+	m_score[0] = 0;
+	m_score[1] = 0;
+	m_timeRemaining = k_defaultGameDuration;
+}
+
+
 void NeuronGame::Update(const NeuronPlayerInput& p0, const NeuronPlayerInput& p1)
 {
 	ApplyInputToPlayer(m_player0, p0);
 	ApplyInputToPlayer(m_player1, p1);
 	UpdateBall();
 	ProcessCollisions();
+	CheckForGoal();
+	m_timeRemaining -= k_timePerTick;
+}
+
+void NeuronGame::ResetField()
+{
+	m_player0.SetPos(Vector2(m_fieldLength * 0.1f, m_fieldWidth * (0.5f - k_playerWidthOffsetPercent)));
+	m_player0.SetFacing(DegToRad(0.0f));
+	m_player0.SetVelocity(Vector2::Zero);
+
+	m_player1.SetPos(Vector2(m_fieldLength * 0.9f, m_fieldWidth * (0.5f + k_playerWidthOffsetPercent)));
+	m_player1.SetFacing(DegToRad(180.0f));
+	m_player1.SetVelocity(Vector2::Zero);
+
+	m_ball.m_shape.SetPos(Vector2(m_fieldLength * 0.5f, m_fieldWidth * 0.5f));
+	m_ball.m_shape.SetVelocity(Vector2::Zero);
 }
 
 // static
@@ -84,11 +112,10 @@ void NeuronGame::ProcessCollisions()
 	// 5. Check player vs player (move both)
 
 	// TODO: Alternate order players are processed each frame to maintain fairness? Would that matter?
-	bool anyCollision = false;
 	// 1. Check player vs field (move player)
 	for (int i = 0; i < GetNumPlayers(); i++)
 	{
-		anyCollision |= GetPlayer(i).CollideWithField(*this);
+		GetPlayer(i).CollideWithField(*this);
 	}
 
 	// 2. Check ball vs player
@@ -104,7 +131,7 @@ void NeuronGame::ProcessCollisions()
 	}
 
 	// 3. Check ball vs field (move ball)
-	anyCollision |= m_ball.CollideWithField(*this, FieldCollisionStyle::PushOnly);
+	m_ball.CollideWithField(*this, FieldCollisionStyle::PushOnly);
 
 	// 5. Check player vs player (move both)
 	{
@@ -115,6 +142,36 @@ void NeuronGame::ProcessCollisions()
 		{
 			response.ApplyResponse(*p0Shape, *p1Shape);
 		}
-		//anyCollision |= NeuronPlayer::CollidePlayers(GetPlayer(0), GetPlayer(1));
 	}
+}
+
+void NeuronGame::CheckForGoal()
+{
+	const float k_epsilon = Math::FloatSmallNumber;
+	const float radius = m_ball.GetRadius();
+	const Vector2 pos = m_ball.m_shape.GetPos();
+	const float minGoalWidth = (GetFieldWidth() - GetGoalWidth()) * 0.5f;
+	const float maxGoalWidth = (GetFieldWidth() + GetGoalWidth()) * 0.5f;
+
+	if ((pos.y >= minGoalWidth) && (pos.y <= maxGoalWidth))
+	{
+		// Check for goals
+		if (pos.x <= radius + k_epsilon)
+		{
+			// GOAL!!!!!
+			ScoreForPlayerIndex(1);
+		}
+
+		if (pos.x >= (GetFieldLength() - (radius + k_epsilon)))
+		{
+			// GOAL!!!!!
+			ScoreForPlayerIndex(0);
+		}
+	}
+}
+
+void NeuronGame::ScoreForPlayerIndex(const int playerIndex)
+{
+	m_score[playerIndex]++;
+	ResetField();
 }

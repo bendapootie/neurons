@@ -37,6 +37,10 @@ public:
 	{
 		return m_pos;
 	}
+	void SetPos(const Vector2 pos)
+	{
+		m_pos = pos;
+	}
 
 	Vector2 GetVelocity() const
 	{
