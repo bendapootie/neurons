@@ -20,21 +20,29 @@ NeuronBall::NeuronBall(const Vector2 pos)
 	m_shape.ComputeMassAndInertia(k_defaultBallDensity);
 }
 
-bool NeuronBall::CollideWithField(const NeuronGame& game)
+bool NeuronBall::CollideWithField(const NeuronGame& game, const FieldCollisionStyle style)
 {
 	// Collide ball against bounds of the field
 	const Vector2 minBound(GetRadius(), GetRadius());
 	const Vector2 maxBound(game.GetFieldLength() - GetRadius(), game.GetFieldWidth() - GetRadius());
 
 	const Vector2 oldPos = m_shape.m_pos;
-	// Note: Only position is updated, not velocity. Bouncing off the walls is handled elsewhere
-//	if ((m_pos.x < minBound.x) || (m_pos.x > maxBound.x))
+	m_shape.m_pos.x = Math::Clamp(m_shape.m_pos.x, minBound.x, maxBound.x);
+	m_shape.m_pos.y = Math::Clamp(m_shape.m_pos.y, minBound.y, maxBound.y);
+
+	// Handle bouncing off walls if requested
+	if (style == FieldCollisionStyle::PushAndBounce)
 	{
-		m_shape.m_pos.x = Math::Clamp(m_shape.m_pos.x, minBound.x, maxBound.x);
-	}
-//	if ((m_pos.y < minBound.y) || (m_pos.y > maxBound.y))
-	{
-		m_shape.m_pos.y = Math::Clamp(m_shape.m_pos.y, minBound.y, maxBound.y);
+		// If pos.x changed, there was a collision and x-velocity needs to be flipped
+		if (oldPos.x != m_shape.m_pos.x)
+		{
+			m_shape.m_velocity.x = -m_shape.m_velocity.x;
+		}
+		// Same thing for y-pos and velocity
+		if (oldPos.y != m_shape.m_pos.y)
+		{
+			m_shape.m_velocity.y = -m_shape.m_velocity.y;
+		}
 	}
 
 	// If position changed, there was a collision

@@ -69,23 +69,8 @@ void NeuronGame::UpdateBall()
 	m_ball.m_shape.m_pos += m_ball.m_shape.GetVelocity() * k_timePerTick;
 	m_ball.m_shape.SetVelocity(m_ball.m_shape.GetVelocity() * (1.0f - (m_ball.GetRollingFriction() * k_timePerTick)));
 
-	// TODO: These checks are mostley duplicated in NeuronBall::CollideWithField. Should they be merged?
-	// Collide ball against bounds of the field
-	const Vector2 minBound(m_ball.GetRadius(), m_ball.GetRadius());
-	const Vector2 maxBound(GetFieldLength() - m_ball.GetRadius(), GetFieldWidth() - m_ball.GetRadius());
-
-	Vector2 newVelocity = m_ball.m_shape.GetVelocity();
-	if ((m_ball.m_shape.m_pos.x < minBound.x) || (m_ball.m_shape.m_pos.x > maxBound.x))
-	{
-		m_ball.m_shape.m_pos.x = Math::Clamp(m_ball.m_shape.m_pos.x, minBound.x, maxBound.x);
-		newVelocity.x = -m_ball.m_shape.GetVelocity().x;
-	}
-	if ((m_ball.m_shape.m_pos.y < minBound.y) || (m_ball.m_shape.m_pos.y > maxBound.y))
-	{
-		m_ball.m_shape.m_pos.y = Math::Clamp(m_ball.m_shape.m_pos.y, minBound.y, maxBound.y);
-		newVelocity.y = -m_ball.m_shape.GetVelocity().y;
-	}
-	m_ball.m_shape.SetVelocity(newVelocity);
+	// Collide ball against bounds of the field, bouncing off walls if hit
+	m_ball.CollideWithField(*this, FieldCollisionStyle::PushAndBounce);
 }
 
 void NeuronGame::ProcessCollisions()
@@ -119,7 +104,7 @@ void NeuronGame::ProcessCollisions()
 	}
 
 	// 3. Check ball vs field (move ball)
-	anyCollision |= m_ball.CollideWithField(*this);
+	anyCollision |= m_ball.CollideWithField(*this, FieldCollisionStyle::PushOnly);
 
 	// 5. Check player vs player (move both)
 	{
