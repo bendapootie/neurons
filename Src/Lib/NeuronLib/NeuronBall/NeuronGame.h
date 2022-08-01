@@ -17,6 +17,7 @@ public:
 	NeuronGame();
 
 	void Update(const NeuronPlayerInput& p0, const NeuronPlayerInput& p1);
+	bool IsGameOver() const;
 
 	float GetFieldWidth() const { return m_fieldWidth; }
 	float GetFieldLength() const { return m_fieldLength; }
@@ -26,6 +27,7 @@ public:
 	NeuronPlayer& GetPlayer(const int index) { return (index == 0) ? m_player0 : m_player1; }
 	const NeuronBall& GetBall() const { return m_ball; }
 	int GetPlayerScore(const int playerIndex) const { return m_score[playerIndex]; }
+	float GetTimeRemaining() const { return m_timeRemaining; }
 
 private:
 	// Called after a goal to reset player and ball positions

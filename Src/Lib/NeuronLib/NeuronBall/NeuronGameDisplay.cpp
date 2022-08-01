@@ -108,15 +108,34 @@ void NeuronGameDisplay::Draw(sf::RenderWindow& window) const
 
 	// Draw score
 	{
-		sf::Text score;
-		score.setFont(GetDebugFont());
+		sf::Text text;
+		const sf::Font& font = GetDebugFont();
+		text.setFont(font);
+		const float lineSpacing = font.getLineSpacing(text.getCharacterSize());
+		
 		wchar_t buffer[32];
 		swprintf_s(buffer, L"%d - %d", m_neuronGame.GetPlayerScore(0), m_neuronGame.GetPlayerScore(1));
-		score.setString(buffer);
-		score.setFillColor(sf::Color::White);
-		score.setScale(0.2f, 0.2f);
-		score.setOrigin(score.getLocalBounds().width * 0.5f, 2.0f * score.getLocalBounds().height);
-		score.setPosition(sf::Vector2f(length * 0.5f, 0.0f));
-		window.draw(score);
+		text.setString(buffer);
+		text.setFillColor(sf::Color::White);
+		text.setScale(0.2f, 0.2f);
+		text.setOrigin(text.getLocalBounds().width * 0.5f, lineSpacing);
+		text.setPosition(sf::Vector2f(length * 0.5f, 0.0f));
+		window.draw(text);
+		
+		const int timeRemaining = static_cast<int>(Math::Ceil(m_neuronGame.GetTimeRemaining()));
+		swprintf_s(buffer, L"%d:%02d", timeRemaining / 60, timeRemaining % 60);
+		text.setString(buffer);
+		text.setOrigin(0.0f, lineSpacing);
+		text.setPosition(sf::Vector2f(0.0f, 0.0f));
+		window.draw(text);
+
+		if (m_neuronGame.IsGameOver())
+		{
+			text.setScale(0.4f, 0.4f);
+			text.setString(L"Game Over");
+			text.setOrigin(text.getLocalBounds().width * 0.5f, text.getLocalBounds().height * 1.0f);
+			text.setPosition(sf::Vector2f(length * 0.5f, width * 0.5f));
+			window.draw(text);
+		}
 	}
 }

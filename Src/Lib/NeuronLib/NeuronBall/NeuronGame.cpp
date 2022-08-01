@@ -6,6 +6,7 @@
 
 constexpr float k_defaultGameDuration = 60.0f;
 constexpr float k_playerWidthOffsetPercent = 0.04f;
+constexpr int k_scoreToWin = 5;
 
 constexpr float k_maxTurnRadiansPerSecond = DegToRad(270.0f);
 constexpr float k_turningDeadZone = 0.1f;
@@ -29,12 +30,23 @@ NeuronGame::NeuronGame()
 
 void NeuronGame::Update(const NeuronPlayerInput& p0, const NeuronPlayerInput& p1)
 {
-	ApplyInputToPlayer(m_player0, p0);
-	ApplyInputToPlayer(m_player1, p1);
-	UpdateBall();
-	ProcessCollisions();
-	CheckForGoal();
-	m_timeRemaining -= k_timePerTick;
+	if (!IsGameOver())
+	{
+		ApplyInputToPlayer(m_player0, p0);
+		ApplyInputToPlayer(m_player1, p1);
+		UpdateBall();
+		ProcessCollisions();
+		CheckForGoal();
+		m_timeRemaining = Math::Max(m_timeRemaining - k_timePerTick, 0.0f);
+	}
+}
+
+bool NeuronGame::IsGameOver() const
+{
+	return
+		(m_score[0] >= k_scoreToWin) ||
+		(m_score[1] >= k_scoreToWin) ||
+		(m_timeRemaining <= 0.0f);
 }
 
 void NeuronGame::ResetField()
