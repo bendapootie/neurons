@@ -3,6 +3,9 @@
 // For _ASSERT
 #include "crtdbg.h"
 
+// For memset
+#include "memory.h"
+
 // Wrapper for statically sized arrays.  Provides error checking in debug builds
 // and has no additional memory cost.
 template <class Type, int Size>

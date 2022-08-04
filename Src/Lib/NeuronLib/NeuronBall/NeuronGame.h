@@ -6,6 +6,9 @@
 
 class NeuronPlayerInput;
 class NeuronPlayer;
+class NeuronPlayerController;
+
+constexpr int k_numPlayers = 2;
 
 // Instance of a simple 1v1 soccer-like game
 // Player = 1.4m long
@@ -16,17 +19,19 @@ class NeuronGame
 public:
 	NeuronGame();
 
+	void SetPlayerController(int playerIndex, NeuronPlayerController* playerController);
+
 	void Update(const NeuronPlayerInput& p0, const NeuronPlayerInput& p1);
 	bool IsGameOver() const;
 
 	float GetFieldWidth() const { return m_fieldWidth; }
 	float GetFieldLength() const { return m_fieldLength; }
 	float GetGoalWidth() const { return m_fieldWidth * 0.25f; }
-	static constexpr int GetNumPlayers() { return 2; }
-	const NeuronPlayer& GetPlayer(const int index) const { return (index == 0) ? m_player0 : m_player1; }
-	NeuronPlayer& GetPlayer(const int index) { return (index == 0) ? m_player0 : m_player1; }
+	static constexpr int GetNumPlayers() { return k_numPlayers; }
+	const NeuronPlayer& GetPlayer(const int index) const { return m_players[index]; }
+	NeuronPlayer& GetPlayer(const int index) { return m_players[index]; }
 	const NeuronBall& GetBall() const { return m_ball; }
-	int GetPlayerScore(const int playerIndex) const { return m_score[playerIndex]; }
+	int GetPlayerScore(const int playerIndex) const { return m_scores[playerIndex]; }
 	float GetTimeRemaining() const { return m_timeRemaining; }
 
 private:
@@ -44,9 +49,10 @@ private:
 	const float m_fieldLength = 100.0f;
 	// Width is along y-axis
 	const float m_fieldWidth = 80.0f;
-	NeuronPlayer m_player0;
-	NeuronPlayer m_player1;
+	Array<NeuronPlayer, k_numPlayers> m_players;
 	NeuronBall m_ball;
-	Array<int, 2> m_score;
+	Array<int, k_numPlayers> m_scores;
 	float m_timeRemaining;
+
+	Array<NeuronPlayerController*, k_numPlayers> m_playerControllers;
 };

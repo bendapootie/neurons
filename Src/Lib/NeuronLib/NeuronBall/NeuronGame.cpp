@@ -22,18 +22,24 @@ constexpr float k_timePerTick = 1.0f / 60.0f;
 NeuronGame::NeuronGame()
 {
 	ResetField();
-	m_score[0] = 0;
-	m_score[1] = 0;
+	// Set scores to 0
+	m_scores.Zero();
+	// Set player controllers to null
+	m_playerControllers.Zero();
 	m_timeRemaining = k_defaultGameDuration;
 }
 
+void SetPlayerController(int playerIndex, NeuronPlayerController* playerController)
+{
+
+}
 
 void NeuronGame::Update(const NeuronPlayerInput& p0, const NeuronPlayerInput& p1)
 {
 	if (!IsGameOver())
 	{
-		ApplyInputToPlayer(m_player0, p0);
-		ApplyInputToPlayer(m_player1, p1);
+		ApplyInputToPlayer(m_players[0], p0);
+		ApplyInputToPlayer(m_players[1], p1);
 		UpdateBall();
 		ProcessCollisions();
 		CheckForGoal();
@@ -44,20 +50,20 @@ void NeuronGame::Update(const NeuronPlayerInput& p0, const NeuronPlayerInput& p1
 bool NeuronGame::IsGameOver() const
 {
 	return
-		(m_score[0] >= k_scoreToWin) ||
-		(m_score[1] >= k_scoreToWin) ||
+		(m_scores[0] >= k_scoreToWin) ||
+		(m_scores[1] >= k_scoreToWin) ||
 		(m_timeRemaining <= 0.0f);
 }
 
 void NeuronGame::ResetField()
 {
-	m_player0.SetPos(Vector2(m_fieldLength * 0.1f, m_fieldWidth * (0.5f - k_playerWidthOffsetPercent)));
-	m_player0.SetFacing(DegToRad(0.0f));
-	m_player0.SetVelocity(Vector2::Zero);
+	m_players[0].SetPos(Vector2(m_fieldLength * 0.1f, m_fieldWidth * (0.5f - k_playerWidthOffsetPercent)));
+	m_players[0].SetFacing(DegToRad(0.0f));
+	m_players[0].SetVelocity(Vector2::Zero);
 
-	m_player1.SetPos(Vector2(m_fieldLength * 0.9f, m_fieldWidth * (0.5f + k_playerWidthOffsetPercent)));
-	m_player1.SetFacing(DegToRad(180.0f));
-	m_player1.SetVelocity(Vector2::Zero);
+	m_players[1].SetPos(Vector2(m_fieldLength * 0.9f, m_fieldWidth * (0.5f + k_playerWidthOffsetPercent)));
+	m_players[1].SetFacing(DegToRad(180.0f));
+	m_players[1].SetVelocity(Vector2::Zero);
 
 	m_ball.m_shape.SetPos(Vector2(m_fieldLength * 0.5f, m_fieldWidth * 0.5f));
 	m_ball.m_shape.SetVelocity(Vector2::Zero);
@@ -184,6 +190,6 @@ void NeuronGame::CheckForGoal()
 
 void NeuronGame::ScoreForPlayerIndex(const int playerIndex)
 {
-	m_score[playerIndex]++;
+	m_scores[playerIndex]++;
 	ResetField();
 }
