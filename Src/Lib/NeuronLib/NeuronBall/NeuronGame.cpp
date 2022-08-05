@@ -2,9 +2,10 @@
 #include "NeuronGame.h"
 
 #include <algorithm>
+#include "NeuronPlayerController.h"
 #include "Util/Constants.h"
 
-constexpr float k_defaultGameDuration = 60.0f;
+constexpr float k_defaultGameDuration = 60.0f * 1.0f;
 constexpr float k_playerWidthOffsetPercent = 0.04f;
 constexpr int k_scoreToWin = 5;
 
@@ -29,17 +30,27 @@ NeuronGame::NeuronGame()
 	m_timeRemaining = k_defaultGameDuration;
 }
 
-void SetPlayerController(int playerIndex, NeuronPlayerController* playerController)
+void NeuronGame::SetPlayerController(int playerIndex, NeuronPlayerController* playerController)
 {
-
+	m_playerControllers[playerIndex] = playerController;
 }
 
-void NeuronGame::Update(const NeuronPlayerInput& p0, const NeuronPlayerInput& p1)
+void NeuronGame::Update()
 {
 	if (!IsGameOver())
 	{
-		ApplyInputToPlayer(m_players[0], p0);
-		ApplyInputToPlayer(m_players[1], p1);
+		for (int i = 0; i < k_numPlayers; i++)
+		{
+			if (m_playerControllers[i] != nullptr)
+			{
+				NeuronPlayerInput playerInput;
+				m_playerControllers[i]->GetInputFromGameState(playerInput, *this);
+
+				// TODO: This will always process and move player[0] first, giving player[1] slightly more information
+				ApplyInputToPlayer(m_players[i], playerInput);
+			}
+		}
+		
 		UpdateBall();
 		ProcessCollisions();
 		CheckForGoal();

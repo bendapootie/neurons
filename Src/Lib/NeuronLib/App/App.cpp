@@ -4,20 +4,39 @@
 #include <SFML/Graphics.hpp>
 
 // TODO: These are just included for testing. Remove them when not needed anymore.
+#include "NeuronBall/Controllers/HumanPlayerController.h"
 #include "NeuronBall/NeuronGame.h"
 #include "NeuronBall/NeuronGameDisplay.h"
 #include "Util/Random.h"
 #include "Util/Shapes.h"
+#include <chrono>
 
 
 constexpr bool k_playGame = true;
 constexpr bool k_randomInit = false;
 
+constexpr bool k_vsyncEnabled = true;
+
+App::~App()
+{
+	if (m_testGame != nullptr)
+	{
+		delete m_testGame;
+	}
+
+	for (auto shape : m_shapes)
+	{
+		if (shape != nullptr)
+		{
+			delete shape;
+		}
+	}
+}
 
 void App::Initialize()
 {
 	m_window.create(sf::VideoMode(800, 450), "Neurons");
-	m_window.setVerticalSyncEnabled(true);
+	m_window.setVerticalSyncEnabled(k_vsyncEnabled);
 }
 
 int App::Run()
@@ -38,6 +57,10 @@ int App::Run()
 		{
 			if (k_playGame)
 			{
+				if (m_testGame == nullptr)
+				{
+					InitializeGame();
+				}
 				UpdateGame();
 				DrawGame();
 			}
@@ -51,24 +74,17 @@ int App::Run()
 	return returnCode;
 }
 
+void App::InitializeGame()
+{
+	m_testGame = new NeuronGame();
+	m_testGame->SetPlayerController(0, new HumanPlayerController(0));
+	m_testGame->SetPlayerController(1, new HumanPlayerController(1));
+}
+
 void App::UpdateGame()
 {
-	NeuronPlayerInput input[2];
-
-	for (int i = 0; i < 2; i++)
-	{
-		// Sample Input
-		if (sf::Joystick::isConnected(i))
-		{
-			float x = Math::Clamp(sf::Joystick::getAxisPosition(i, sf::Joystick::X) * 0.01f, -1.0f, 1.0f);
-			input[i].m_steering = (x * x) * ((x >= 0.0f) ? 1.0f : -1.0f);
-			input[i].m_speed = -sf::Joystick::getAxisPosition(i, sf::Joystick::Z) * 0.01f;
-			input[i].m_boost = sf::Joystick::isButtonPressed(i, 0);
-		}
-	}
-
-	// Update game with input
-	m_testGame.Update(input[0], input[1]);
+	// Update game
+	m_testGame->Update();
 }
 
 void App::DrawGame()
@@ -77,10 +93,27 @@ void App::DrawGame()
 	m_window.setView(view);
 	m_window.clear(sf::Color(0, 0, 32, 255));
 
-	NeuronGameDisplay gameDisplay(m_testGame);
+	NeuronGameDisplay gameDisplay(*m_testGame);
 	gameDisplay.Draw(m_window);
 
-	m_window.display();
+	// Only update the display if vsync is on or enough time has passed
+	bool updateDisplay = k_vsyncEnabled;
+	if (!k_vsyncEnabled)
+	{
+		auto now = std::chrono::high_resolution_clock::now();
+		static auto s_lastDisplayTime = now;
+		auto timeSinceUpdate = now - s_lastDisplayTime;
+		auto elapsedMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(timeSinceUpdate);
+		if (elapsedMilliseconds.count() >= 16)
+		{
+			updateDisplay = true;
+			s_lastDisplayTime = now;
+		}
+	}
+	if (updateDisplay)
+	{
+		m_window.display();
+	}
 }
 
 void App::UpdatePhysicsTest()

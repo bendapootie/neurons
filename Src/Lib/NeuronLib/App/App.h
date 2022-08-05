@@ -8,19 +8,21 @@
 #include <SFML/Graphics.hpp>
 
 // TODO: These are just included for testing. Remove them when not needed anymore.
-#include "NeuronBall/NeuronGame.h"
-#include "Util/Shapes.h"
+#include "Util/Array.h"
+class NeuronGame;
+class Shape;
 
 class App
 {
 public:
 	App() {}
-	~App() {}
+	~App();
 
 	void Initialize();
 	int Run();
 
 private:
+	void InitializeGame();
 	void UpdateGame();
 	void DrawGame();
 	void UpdatePhysicsTest();
@@ -29,7 +31,7 @@ private:
 
 private:
 	sf::RenderWindow m_window;
-	NeuronGame m_testGame;
+	NeuronGame* m_testGame = nullptr;
 
 	// Physics test members
 	bool m_initialized = false;

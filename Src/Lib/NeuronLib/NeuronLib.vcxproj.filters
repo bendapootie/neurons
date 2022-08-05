@@ -10,6 +10,9 @@
     <Filter Include="NeuronBall">
       <UniqueIdentifier>{98f864e8-be5a-434a-8981-3d203e392ecf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NeuronBall\Controllers">
+      <UniqueIdentifier>{b689a02f-5c96-49ca-a588-21d386d9c584}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Util\Array.h">
@@ -46,6 +49,15 @@
     <ClInclude Include="NeuronBall\NeuronPlayer.h">
       <Filter>NeuronBall</Filter>
     </ClInclude>
+    <ClInclude Include="NeuronBall\NeuronPlayerController.h">
+      <Filter>NeuronBall</Filter>
+    </ClInclude>
+    <ClInclude Include="NeuronBall\Controllers\HumanPlayerController.h">
+      <Filter>NeuronBall\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="NeuronBall\NeuronPlayerInput.h">
+      <Filter>NeuronBall</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Util\Random.cpp">
@@ -72,6 +84,12 @@
     </ClCompile>
     <ClCompile Include="NeuronBall\NeuronPlayer.cpp">
       <Filter>NeuronBall</Filter>
+    </ClCompile>
+    <ClCompile Include="NeuronBall\NeuronPlayerController.cpp">
+      <Filter>NeuronBall</Filter>
+    </ClCompile>
+    <ClCompile Include="NeuronBall\Controllers\HumanPlayerController.cpp">
+      <Filter>NeuronBall\Controllers</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

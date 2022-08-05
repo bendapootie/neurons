@@ -21,7 +21,7 @@ public:
 
 	void SetPlayerController(int playerIndex, NeuronPlayerController* playerController);
 
-	void Update(const NeuronPlayerInput& p0, const NeuronPlayerInput& p1);
+	void Update();
 	bool IsGameOver() const;
 
 	float GetFieldWidth() const { return m_fieldWidth; }
