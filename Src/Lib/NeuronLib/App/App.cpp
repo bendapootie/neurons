@@ -5,6 +5,7 @@
 
 // TODO: These are just included for testing. Remove them when not needed anymore.
 #include "NeuronBall/Controllers/HumanPlayerController.h"
+#include "NeuronBall/Controllers/NeuralNetPlayerController.h"
 #include "NeuronBall/NeuronGame.h"
 #include "NeuronBall/NeuronGameDisplay.h"
 #include "Util/Random.h"
@@ -78,7 +79,7 @@ void App::InitializeGame()
 {
 	m_testGame = new NeuronGame();
 	m_testGame->SetPlayerController(0, new HumanPlayerController(0));
-	m_testGame->SetPlayerController(1, new HumanPlayerController(1));
+	m_testGame->SetPlayerController(1, new NeuralNetPlayerController());
 }
 
 void App::UpdateGame()

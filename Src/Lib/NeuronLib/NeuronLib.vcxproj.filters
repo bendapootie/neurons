@@ -64,6 +64,9 @@
     <ClInclude Include="NeuralNet\Network.h">
       <Filter>NeuralNet</Filter>
     </ClInclude>
+    <ClInclude Include="NeuronBall\Controllers\NeuralNetPlayerController.h">
+      <Filter>NeuronBall\Controllers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Util\Random.cpp">
@@ -99,6 +102,9 @@
     </ClCompile>
     <ClCompile Include="NeuralNet\Network.cpp">
       <Filter>NeuralNet</Filter>
+    </ClCompile>
+    <ClCompile Include="NeuronBall\Controllers\NeuralNetPlayerController.cpp">
+      <Filter>NeuronBall\Controllers</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
