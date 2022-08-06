@@ -13,6 +13,9 @@
     <Filter Include="NeuronBall\Controllers">
       <UniqueIdentifier>{b689a02f-5c96-49ca-a588-21d386d9c584}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NeuralNet">
+      <UniqueIdentifier>{ee5f21be-87b3-4615-be0a-d8c5c7ccc0af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Util\Array.h">
@@ -58,6 +61,9 @@
     <ClInclude Include="NeuronBall\NeuronPlayerInput.h">
       <Filter>NeuronBall</Filter>
     </ClInclude>
+    <ClInclude Include="NeuralNet\Network.h">
+      <Filter>NeuralNet</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Util\Random.cpp">
@@ -90,6 +96,9 @@
     </ClCompile>
     <ClCompile Include="NeuronBall\Controllers\HumanPlayerController.cpp">
       <Filter>NeuronBall\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="NeuralNet\Network.cpp">
+      <Filter>NeuralNet</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
