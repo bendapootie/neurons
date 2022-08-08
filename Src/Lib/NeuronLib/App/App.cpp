@@ -17,6 +17,8 @@ constexpr bool k_playGame = true;
 constexpr bool k_randomInit = false;
 
 constexpr bool k_vsyncEnabled = true;
+constexpr float k_windowWidth = 800;
+constexpr float k_aspectRatio = 16.0f / 9.0f;
 
 App::~App()
 {
@@ -36,7 +38,7 @@ App::~App()
 
 void App::Initialize()
 {
-	m_window.create(sf::VideoMode(800, 450), "Neurons");
+	m_window.create(sf::VideoMode(static_cast<int>(k_windowWidth), static_cast<int>(Math::Ceil(k_windowWidth / k_aspectRatio))), "Neurons");
 	m_window.setVerticalSyncEnabled(k_vsyncEnabled);
 }
 
@@ -90,7 +92,10 @@ void App::UpdateGame()
 
 void App::DrawGame()
 {
-	sf::View view(sf::Vector2f(40.0f, 50.0f), sf::Vector2f(240.0f, 135.0f));
+	const float length = m_testGame->GetFieldLength();
+	const float width = m_testGame->GetFieldWidth();
+	const float viewSize = length * 2.0f;
+	sf::View view(sf::Vector2f(length * 0.5f, width * 0.5f), sf::Vector2f(viewSize, viewSize / k_aspectRatio));
 	m_window.setView(view);
 	m_window.clear(sf::Color(0, 0, 32, 255));
 
