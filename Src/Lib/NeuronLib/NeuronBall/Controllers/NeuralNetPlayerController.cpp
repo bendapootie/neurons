@@ -1,21 +1,37 @@
 #include "pch.h"
 #include "NeuralNetPlayerController.h"
 
+#include "NeuralNet/Network.h"
 #include "NeuronBall/NeuronPlayerInput.h"
 #include "NeuronBall/NeuronGame.h"
 #include "NeuronBall/NeuronBall.h"
 #include "Util/Array.h"
+#include <vector>
 
 // TODO: Move to separate file?
 class GameStateForNeuralNetInput
 {
 public:
+	static constexpr int k_numGameStateInputs = 21;
+
 	GameStateForNeuralNetInput(const NeuronGame& game, const int playerIndex) :
 		m_game(game),
 		m_playerIndex(playerIndex),
 		m_nextInputToWrite(0)
 	{
 		SampleGameState();
+	}
+
+	// TODO: PERF: Get rid of the need for this function!
+	std::vector<float> GetStateAsStdVector() const
+	{
+		std::vector<float> output;
+		output.reserve(m_neuralNetInputs.Count());
+		for (const float f : m_neuralNetInputs)
+		{
+			output.push_back(f);
+		}
+		return output;
 	}
 
 private:
@@ -110,8 +126,6 @@ private:
 	}
 
 private:
-	static constexpr int k_numGameStateInputs = 21;
-
 	const NeuronGame& m_game;
 	const int m_playerIndex;
 	int m_nextInputToWrite;
@@ -126,10 +140,36 @@ private:
 NeuralNetPlayerController::NeuralNetPlayerController(const int playerIndex) :
 	m_playerIndex(playerIndex)
 {
+	// Input level needs "k_numGameStateInputs" neurons
+	// Output level needs 3 neurons
+
+	// TODO: Make a better way to discover the number of outputs
+	static_assert(sizeof(NeuronPlayerInput) == 3 * sizeof(float), "Verify NeuronPlayerInput has exactly 3 values");
+
+	// Create a simple neural network to map inputs (game state) to outputs (player actions)
+	std::vector<int> neuronsPerLevel = { GameStateForNeuralNetInput::k_numGameStateInputs, 3 };
+	m_neuralNetwork = new Network(neuronsPerLevel);
+
+	// Start with some random values instead of all zeros to try and get things kick-started
+	m_neuralNetwork->Randomize();
+}
+
+NeuralNetPlayerController::~NeuralNetPlayerController()
+{
+	if (m_neuralNetwork != nullptr)
+	{
+		delete m_neuralNetwork;
+	}
 }
 
 void NeuralNetPlayerController::GetInputFromGameState(NeuronPlayerInput& outPlayerInput, const NeuronGame& game)
 {
 	GameStateForNeuralNetInput networkInput(game, m_playerIndex);
+	
+	std::vector<float> networkOutput = m_neuralNetwork->Evaluate(networkInput.GetStateAsStdVector());
+	_ASSERT(networkOutput.size() == 3); // Network is expected to produce 3 values
+	outPlayerInput.m_steering = networkOutput[0];
+	outPlayerInput.m_speed = networkOutput[1];
+	outPlayerInput.m_boost = networkOutput[2];
 }
 
