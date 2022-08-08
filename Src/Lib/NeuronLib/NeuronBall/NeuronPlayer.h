@@ -2,21 +2,10 @@
 #include "Util/Array.h"
 #include "Util/Vector.h"
 
+
 class NeuronBall;
 class NeuronGame;
 class Shape;
-
-class NeuronPlayerInput
-{
-public:
-	// Values outside this range will get clamped
-	// -1.0 <= turn full left; 0.0 = straight; 1.0 >= turn full right
-	float m_steering = 0.0f;
-	// -1.0 <= full reverse; 0.0 = stop; 1.0 >= full forward
-	float m_speed = 0.0f;
-	// Value above 0.5 tries to activate boost
-	float m_boost = 0.0f;
-};
 
 class NeuronPlayer
 {
@@ -33,6 +22,7 @@ public:
 	// Set facing in radians
 	void SetFacing(const float facing);
 	Vector2 GetForward() const;
+	float GetBoostRemaining() const { return m_boost; }
 	Array<Vector2, 4> GetCornerPoints() const;
 
 	bool CollideWithField(const NeuronGame& game);

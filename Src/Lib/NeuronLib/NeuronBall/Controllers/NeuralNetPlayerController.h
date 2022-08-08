@@ -5,9 +5,10 @@
 class NeuralNetPlayerController : public NeuronPlayerController
 {
 public:
-	NeuralNetPlayerController();
+	NeuralNetPlayerController(const int playerIndex);
 
 	virtual void GetInputFromGameState(NeuronPlayerInput& outPlayerInput, const NeuronGame& game) override;
 
 private:
+	const int m_playerIndex = 0;
 };

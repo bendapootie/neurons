@@ -79,7 +79,7 @@ void App::InitializeGame()
 {
 	m_testGame = new NeuronGame();
 	m_testGame->SetPlayerController(0, new HumanPlayerController(0));
-	m_testGame->SetPlayerController(1, new NeuralNetPlayerController());
+	m_testGame->SetPlayerController(1, new NeuralNetPlayerController(1));
 }
 
 void App::UpdateGame()

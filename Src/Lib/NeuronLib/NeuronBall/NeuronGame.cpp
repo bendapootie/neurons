@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include "NeuronPlayerController.h"
+#include "NeuronPlayerInput.h"
 #include "Util/Constants.h"
 
 constexpr float k_defaultGameDuration = 60.0f * 1.0f;
