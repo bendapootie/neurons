@@ -17,8 +17,10 @@ constexpr bool k_playGame = true;
 constexpr bool k_randomInit = false;
 
 constexpr bool k_vsyncEnabled = true;
-constexpr float k_windowWidth = 800;
+constexpr float k_windowWidth = 800;	// 1280
 constexpr float k_aspectRatio = 16.0f / 9.0f;
+
+constexpr int k_startupDelay = 60 * 0;
 
 App::~App()
 {
@@ -64,7 +66,15 @@ int App::Run()
 				{
 					InitializeGame();
 				}
-				UpdateGame();
+				static int s_startupDelay = k_startupDelay;
+				if (s_startupDelay > 0)
+				{
+					s_startupDelay--;
+				}
+				else
+				{
+					UpdateGame();
+				}
 				DrawGame();
 			}
 			else

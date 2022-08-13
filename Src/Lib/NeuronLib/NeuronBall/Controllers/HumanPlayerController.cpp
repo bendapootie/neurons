@@ -68,5 +68,4 @@ void HumanPlayerController::GetInputFromGameState(NeuronPlayerInput& outPlayerIn
 			outPlayerInput.m_boost = 1.0f;
 		}
 	}
-
 }
