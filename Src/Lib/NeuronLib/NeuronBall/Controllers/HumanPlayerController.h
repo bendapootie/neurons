@@ -7,7 +7,7 @@ class HumanPlayerController : public NeuronPlayerController
 public:
 	HumanPlayerController(const int joystickIndex);
 
-	virtual void GetInputFromGameState(NeuronPlayerInput& outPlayerInput, const NeuronGame& game) override;
+	virtual void GetInputFromGameState(NeuronPlayerInput& outPlayerInput, const NeuronGame& game, const int playerIndex) override;
 
 private:
 	const int m_joystickIndex = 0;

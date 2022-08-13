@@ -23,12 +23,22 @@ constexpr float k_timePerTick = 1.0f / 60.0f;
 
 NeuronGame::NeuronGame()
 {
+	ResetGame(k_defaultGameDuration);
+}
+
+NeuronGame::~NeuronGame()
+{
+}
+
+void NeuronGame::ResetGame(const float gameDuration)
+{
 	ResetField();
 	// Set scores to 0
 	m_scores.Zero();
+	m_gameDuration = gameDuration;
+	m_timeRemaining = m_gameDuration;
 	// Set player controllers to null
 	m_playerControllers.Zero();
-	m_timeRemaining = k_defaultGameDuration;
 }
 
 void NeuronGame::SetPlayerController(int playerIndex, NeuronPlayerController* playerController)
@@ -40,15 +50,15 @@ void NeuronGame::Update()
 {
 	if (!IsGameOver())
 	{
-		for (int i = 0; i < k_numPlayers; i++)
+		for (int playerIndex = 0; playerIndex < k_numPlayers; playerIndex++)
 		{
-			if (m_playerControllers[i] != nullptr)
+			if (m_playerControllers[playerIndex] != nullptr)
 			{
 				NeuronPlayerInput playerInput;
-				m_playerControllers[i]->GetInputFromGameState(playerInput, *this);
+				m_playerControllers[playerIndex]->GetInputFromGameState(playerInput, *this, playerIndex);
 
 				// TODO: This will always process and move player[0] first, giving player[1] slightly more information
-				ApplyInputToPlayer(m_players[i], playerInput);
+				ApplyInputToPlayer(m_players[playerIndex], playerInput);
 			}
 		}
 		
@@ -57,6 +67,19 @@ void NeuronGame::Update()
 		CheckForGoal();
 		m_timeRemaining = Math::Max(m_timeRemaining - k_timePerTick, 0.0f);
 	}
+}
+
+GameState NeuronGame::GetGameState() const
+{
+	if (IsGameOver())
+	{
+		return GameState::GameOver;
+	}
+	if (m_timeRemaining == m_gameDuration)
+	{
+		return GameState::PreGame;
+	}
+	return GameState::InGame;
 }
 
 bool NeuronGame::IsGameOver() const

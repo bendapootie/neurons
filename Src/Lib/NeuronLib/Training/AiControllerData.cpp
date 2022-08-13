@@ -6,7 +6,7 @@
 
 AiControllerData::AiControllerData()
 {
-
+	m_controller = new NeuralNetPlayerController();
 }
 
 AiControllerData::~AiControllerData()

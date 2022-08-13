@@ -11,9 +11,10 @@
 #include "Training/AiPlayerTrainer.h"
 #include <chrono>
 
-constexpr bool k_runAiPlayerTrainer = false;
+constexpr bool k_runAiPlayerTrainer = true;
+constexpr float k_gameDuration = 60.0f * 1.0f;
 
-constexpr bool k_vsyncEnabled = true;
+constexpr bool k_vsyncEnabled = false;
 constexpr float k_windowWidth = 640;	// 1280
 constexpr float k_aspectRatio = 16.0f / 9.0f;
 
@@ -81,6 +82,7 @@ void App::InitializeGame()
 		AiPlayerTrainer::Config config;
 		config.m_numControllers = 4;
 		config.m_numGamesPerController = 3;
+		config.m_gameDuration = k_gameDuration;
 
 		_ASSERT(m_aiPlayerTrainer == nullptr);
 		m_aiPlayerTrainer = new AiPlayerTrainer(config);
@@ -89,8 +91,8 @@ void App::InitializeGame()
 	{
 		_ASSERT(m_testGame == nullptr);
 		m_testGame = new NeuronGame();
-		m_testGame->SetPlayerController(0, new NeuralNetPlayerController(0));
-		m_testGame->SetPlayerController(1, new NeuralNetPlayerController(1));
+		m_testGame->SetPlayerController(0, new NeuralNetPlayerController());
+		m_testGame->SetPlayerController(1, new NeuralNetPlayerController());
 	}
 }
 
@@ -108,41 +110,40 @@ void App::UpdateGame()
 
 void App::DrawGame()
 {
+	const NeuronGame* gameToDisplay = m_testGame;
 	if (k_runAiPlayerTrainer)
 	{
-
+		gameToDisplay = m_aiPlayerTrainer->GetGame(0);
 	}
-	else
+
+	// Only update the display if vsync is on or enough time has passed
+	bool updateDisplay = k_vsyncEnabled;
+	if (!k_vsyncEnabled)
 	{
-		// Only update the display if vsync is on or enough time has passed
-		bool updateDisplay = k_vsyncEnabled;
-		if (!k_vsyncEnabled)
+		auto now = std::chrono::high_resolution_clock::now();
+		static auto s_lastDisplayTime = now;
+		auto timeSinceUpdate = now - s_lastDisplayTime;
+		auto elapsedMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(timeSinceUpdate);
+		if (elapsedMilliseconds.count() >= 16)
 		{
-			auto now = std::chrono::high_resolution_clock::now();
-			static auto s_lastDisplayTime = now;
-			auto timeSinceUpdate = now - s_lastDisplayTime;
-			auto elapsedMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(timeSinceUpdate);
-			if (elapsedMilliseconds.count() >= 16)
-			{
-				updateDisplay = true;
-				s_lastDisplayTime = now;
-			}
+			updateDisplay = true;
+			s_lastDisplayTime = now;
 		}
-		if (updateDisplay)
-		{
-			const float length = m_testGame->GetFieldLength();
-			const float width = m_testGame->GetFieldWidth();
-			const float viewSize = length * 2.0f;
-			sf::View view(sf::Vector2f(length * 0.5f, width * 0.5f), sf::Vector2f(viewSize, viewSize / k_aspectRatio));
-			m_window.setView(view);
-			m_window.clear(sf::Color(0, 0, 32, 255));
-
-			NeuronGameDisplay gameDisplay(*m_testGame);
-			gameDisplay.Draw(m_window);
-
-			m_window.display();
-		}
-		// Only poll for OS events if the display was updated. It wastes CPU to do it more often.
-		m_skipPollEvent = !updateDisplay;
 	}
+	if (updateDisplay)
+	{
+		const float length = gameToDisplay->GetFieldLength();
+		const float width = gameToDisplay->GetFieldWidth();
+		const float viewSize = length * 2.0f;
+		sf::View view(sf::Vector2f(length * 0.5f, width * 0.5f), sf::Vector2f(viewSize, viewSize / k_aspectRatio));
+		m_window.setView(view);
+		m_window.clear(sf::Color(0, 0, 32, 255));
+
+		NeuronGameDisplay gameDisplay(*gameToDisplay);
+		gameDisplay.Draw(m_window);
+
+		m_window.display();
+	}
+	// Only poll for OS events if the display was updated. It wastes CPU to do it more often.
+	m_skipPollEvent = !updateDisplay;
 }

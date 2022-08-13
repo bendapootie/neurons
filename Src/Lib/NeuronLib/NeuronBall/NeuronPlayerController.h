@@ -6,5 +6,5 @@ class NeuronPlayerInput;
 class NeuronPlayerController
 {
 public:
-	virtual void GetInputFromGameState(NeuronPlayerInput& outPlayerInput, const NeuronGame& game) = 0;
+	virtual void GetInputFromGameState(NeuronPlayerInput& outPlayerInput, const NeuronGame& game, const int playerIndex) = 0;
 };

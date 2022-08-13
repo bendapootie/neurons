@@ -11,7 +11,7 @@ HumanPlayerController::HumanPlayerController(const int joystickIndex) :
 {
 }
 
-void HumanPlayerController::GetInputFromGameState(NeuronPlayerInput& outPlayerInput, const NeuronGame& game)
+void HumanPlayerController::GetInputFromGameState(NeuronPlayerInput& outPlayerInput, const NeuronGame& game, const int playerIndex)
 {
 	// Sample Input
 	if (sf::Joystick::isConnected(m_joystickIndex))

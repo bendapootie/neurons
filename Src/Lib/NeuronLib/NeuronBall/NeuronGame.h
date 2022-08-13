@@ -10,6 +10,14 @@ class NeuronPlayerController;
 
 constexpr int k_numPlayers = 2;
 
+
+enum class GameState
+{
+	PreGame,
+	InGame,
+	GameOver
+};
+
 // Instance of a simple 1v1 soccer-like game
 // Player = 1.4m long
 // Field 100m x 80m
@@ -18,10 +26,16 @@ class NeuronGame
 {
 public:
 	NeuronGame();
+	~NeuronGame();
+
+	// Resets the entire game. Used to play a new game on the same instance.
+	// Note: Also clears the player controllers
+	void ResetGame(const float gameDuration);
 
 	void SetPlayerController(int playerIndex, NeuronPlayerController* playerController);
 
 	void Update();
+	GameState GetGameState() const;
 	bool IsGameOver() const;
 
 	float GetFieldWidth() const { return m_fieldWidth; }
@@ -49,9 +63,11 @@ private:
 	const float m_fieldLength = 100.0f;
 	// Width is along y-axis
 	const float m_fieldWidth = 80.0f;
+
 	Array<NeuronPlayer, k_numPlayers> m_players;
 	NeuronBall m_ball;
 	Array<int, k_numPlayers> m_scores;
+	float m_gameDuration;
 	float m_timeRemaining;
 
 	Array<NeuronPlayerController*, k_numPlayers> m_playerControllers;

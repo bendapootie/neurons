@@ -137,8 +137,7 @@ private:
 //=============================================================================
 
 
-NeuralNetPlayerController::NeuralNetPlayerController(const int playerIndex) :
-	m_playerIndex(playerIndex)
+NeuralNetPlayerController::NeuralNetPlayerController()
 {
 	// Input level needs "k_numGameStateInputs" neurons
 	// Output level needs 3 neurons
@@ -162,9 +161,9 @@ NeuralNetPlayerController::~NeuralNetPlayerController()
 	}
 }
 
-void NeuralNetPlayerController::GetInputFromGameState(NeuronPlayerInput& outPlayerInput, const NeuronGame& game)
+void NeuralNetPlayerController::GetInputFromGameState(NeuronPlayerInput& outPlayerInput, const NeuronGame& game, const int playerIndex)
 {
-	GameStateForNeuralNetInput networkInput(game, m_playerIndex);
+	GameStateForNeuralNetInput networkInput(game, playerIndex);
 	
 	std::vector<float> networkOutput = m_neuralNetwork->Evaluate(networkInput.GetStateAsStdVector());
 	_ASSERT(networkOutput.size() == 3); // Network is expected to produce 3 values
@@ -173,3 +172,7 @@ void NeuralNetPlayerController::GetInputFromGameState(NeuronPlayerInput& outPlay
 	outPlayerInput.m_boost = networkOutput[2];
 }
 
+void NeuralNetPlayerController::Randomize()
+{
+	m_neuralNetwork->Randomize();
+}

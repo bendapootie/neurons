@@ -7,12 +7,13 @@ class Network;
 class NeuralNetPlayerController : public NeuronPlayerController
 {
 public:
-	NeuralNetPlayerController(const int playerIndex);
+	NeuralNetPlayerController();
 	~NeuralNetPlayerController();
 
-	virtual void GetInputFromGameState(NeuronPlayerInput& outPlayerInput, const NeuronGame& game) override;
+	virtual void GetInputFromGameState(NeuronPlayerInput& outPlayerInput, const NeuronGame& game, const int playerIndex) override;
+
+	void Randomize();
 
 private:
-	const int m_playerIndex = 0;
 	Network* m_neuralNetwork = nullptr;
 };
