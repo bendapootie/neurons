@@ -1,6 +1,7 @@
+#pragma once
+
 #include <SFML/Graphics.hpp>
 
-// TODO: These are just included for testing. Remove them when not needed anymore.
 #include "Util/Array.h"
 class Shape;
 

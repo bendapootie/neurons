@@ -31,3 +31,7 @@ AiPlayerTrainer::~AiPlayerTrainer()
 	}
 	m_controllers.clear();
 }
+
+void AiPlayerTrainer::Update()
+{
+}

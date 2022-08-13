@@ -18,6 +18,8 @@ public:
 	AiPlayerTrainer(const Config& config);
 	~AiPlayerTrainer();
 
+	void Update();
+
 private:
 	const Config m_config;
 	std::vector<NeuronGame*> m_games;
