@@ -6,11 +6,15 @@
 //
 
 #include "App/App.h"
+#include "App/PhysicsTest.h"
 
 int WinMain(const int argc, const char** argv)
 {
-	App app;
+ 	App app;
+//	PhysicsTest app;
+
 	app.Initialize();
 	int returnCode = app.Run();
+
 	return returnCode;
 }

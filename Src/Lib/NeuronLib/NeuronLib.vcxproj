@@ -180,6 +180,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="App\App.h" />
+    <ClInclude Include="App\PhysicsTest.h" />
     <ClInclude Include="NeuralNet\Network.h" />
     <ClInclude Include="NeuronBall\Controllers\HumanPlayerController.h" />
     <ClInclude Include="NeuronBall\Controllers\NeuralNetPlayerController.h" />
@@ -190,6 +191,8 @@
     <ClInclude Include="NeuronBall\NeuronPlayerController.h" />
     <ClInclude Include="NeuronBall\NeuronPlayerInput.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Training\AiControllerData.h" />
+    <ClInclude Include="Training\AiPlayerTrainer.h" />
     <ClInclude Include="Util\Array.h" />
     <ClInclude Include="Util\Constants.h" />
     <ClInclude Include="Util\Math.h" />
@@ -199,6 +202,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\App.cpp" />
+    <ClCompile Include="App\PhysicsTest.cpp" />
     <ClCompile Include="NeuralNet\Network.cpp" />
     <ClCompile Include="NeuronBall\Controllers\HumanPlayerController.cpp" />
     <ClCompile Include="NeuronBall\Controllers\NeuralNetPlayerController.cpp" />
@@ -213,6 +217,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Training\AiControllerData.cpp" />
+    <ClCompile Include="Training\AiPlayerTrainer.cpp" />
     <ClCompile Include="Util\Random.cpp" />
     <ClCompile Include="Util\Shapes.cpp" />
     <ClCompile Include="Util\Vector.cpp" />

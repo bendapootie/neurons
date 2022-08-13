@@ -16,6 +16,9 @@
     <Filter Include="NeuralNet">
       <UniqueIdentifier>{ee5f21be-87b3-4615-be0a-d8c5c7ccc0af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Training">
+      <UniqueIdentifier>{c0bee232-45f6-4542-883b-62a5a082c0d1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Util\Array.h">
@@ -67,6 +70,15 @@
     <ClInclude Include="NeuronBall\Controllers\NeuralNetPlayerController.h">
       <Filter>NeuronBall\Controllers</Filter>
     </ClInclude>
+    <ClInclude Include="Training\AiPlayerTrainer.h">
+      <Filter>Training</Filter>
+    </ClInclude>
+    <ClInclude Include="Training\AiControllerData.h">
+      <Filter>Training</Filter>
+    </ClInclude>
+    <ClInclude Include="App\PhysicsTest.h">
+      <Filter>App</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Util\Random.cpp">
@@ -105,6 +117,15 @@
     </ClCompile>
     <ClCompile Include="NeuronBall\Controllers\NeuralNetPlayerController.cpp">
       <Filter>NeuronBall\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Training\AiPlayerTrainer.cpp">
+      <Filter>Training</Filter>
+    </ClCompile>
+    <ClCompile Include="Training\AiControllerData.cpp">
+      <Filter>Training</Filter>
+    </ClCompile>
+    <ClCompile Include="App\PhysicsTest.cpp">
+      <Filter>App</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

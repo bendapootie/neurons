@@ -9,6 +9,7 @@
 
 // TODO: These are just included for testing. Remove them when not needed anymore.
 #include "Util/Array.h"
+class AiPlayerTrainer;
 class NeuronGame;
 class Shape;
 
@@ -25,18 +26,13 @@ private:
 	void InitializeGame();
 	void UpdateGame();
 	void DrawGame();
-	void UpdatePhysicsTest();
-	void DrawPhysicsTest();
-
 
 private:
 	sf::RenderWindow m_window;
+
+	// Instance of AiPlayerTrainer for running game simulations and training NeuralNetPlayerController
+	AiPlayerTrainer* m_aiPlayerTrainer = nullptr;
+
+	// TEMP: Game instance for testing
 	NeuronGame* m_testGame = nullptr;
-
-	// Physics test members
-	bool m_initialized = false;
-	Array<Shape*, 64> m_shapes;
-
-	float m_totalLinearEnergy = 0.0f;
-	float m_totalRotationalEnergy = 0.0f;
 };
