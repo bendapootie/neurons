@@ -4,10 +4,47 @@
 #include "AiControllerData.h"
 #include "NeuronBall/NeuronGame.h"
 #include "NeuronBall/Controllers/NeuralNetPlayerController.h"
+#include <windows.h> // for OutputDebugString
 
 constexpr int k_pointsForWin = 3;
 constexpr int k_pointsForDraw = 1;
 constexpr int k_pointsForLoss = 0;
+
+class GameStats
+{
+public:
+	GameStats(const int index0, const int index1) :
+		m_controllerIndex0(index0),
+		m_controllerIndex1(index1)
+	{
+	}
+
+public:
+	int m_controllerIndex0 = -1;
+	int m_controllerIndex1 = -1;
+};
+
+
+class GameSeason
+{
+public:
+	GameSeason(int numControllers, int numSeasons)
+	{
+		for (int season = 0; season < numSeasons; season++)
+		{
+			for (int controllerIndex = 0; controllerIndex < numControllers; controllerIndex++)
+			{
+				const int controllerIndex0 = controllerIndex;
+				const int controllerIndex1 = (controllerIndex + season + 1) % numControllers;
+				m_gameStats.push_back(GameStats(controllerIndex0, controllerIndex1));
+			}
+		}
+	}
+
+public:
+	std::vector<GameStats> m_gameStats;
+};
+
 
 
 AiPlayerTrainer::AiPlayerTrainer(const Config& config) :
@@ -15,23 +52,23 @@ AiPlayerTrainer::AiPlayerTrainer(const Config& config) :
 {
 	for (int i = 0; i < m_config.m_numControllers; i++)
 	{
-		m_controllers.push_back(new AiControllerData());
+		AiControllerData* aiControllerData = new AiControllerData();
+		aiControllerData->m_controller->Randomize();
+		m_controllers.push_back(aiControllerData);
 	}
 
 	// TODO: Use multiple games once execution is multi-threaded
-	m_games.push_back(new NeuronGame());
+	m_currentGame = new NeuronGame();
+
+	m_season = new GameSeason(config.m_numControllers, config.m_numGameSeasons);
 }
 
 AiPlayerTrainer::~AiPlayerTrainer()
 {
-	for (auto game : m_games)
+	if (m_currentGame != nullptr)
 	{
-		if (game != nullptr)
-		{
-			delete game;
-		}
+		delete m_currentGame;
 	}
-	m_games.clear();
 
 	for (auto controller : m_controllers)
 	{
@@ -41,47 +78,72 @@ AiPlayerTrainer::~AiPlayerTrainer()
 		}
 	}
 	m_controllers.clear();
+
+	_ASSERT(m_season != nullptr);
+	delete m_season;
 }
 
 void AiPlayerTrainer::Update()
 {
-	NeuronGame* game = m_games[0];
+	NeuronGame* game = m_currentGame;
 
-	switch (game->GetGameState())
+	if (game->GetGameState() == GameState::PreGame)
 	{
-	case GameState::GameOver:
+		const GameStats& stats = m_season->m_gameStats[m_currentGameInSeason];
+		
+		game->SetPlayerController(0, m_controllers[stats.m_controllerIndex0]->m_controller);
+		game->SetPlayerController(1, m_controllers[stats.m_controllerIndex1]->m_controller);
+	}
+
+	game->Update();
+
+	if (game->IsGameOver())
 	{
+		// Record the game's score and reset the game
+
+		const GameStats& stats = m_season->m_gameStats[m_currentGameInSeason];
+		AiControllerData* p0 = m_controllers[stats.m_controllerIndex0];
+		AiControllerData* p1 = m_controllers[stats.m_controllerIndex1];
+
 		// TODO: Keep track of which AiControllerData was used for each game
 		int p0Score = game->GetPlayerScore(0);
 		int p1Score = game->GetPlayerScore(1);
 		if (p0Score == p1Score)
 		{
-			m_controllers[0]->m_points += k_pointsForDraw;
-			m_controllers[1]->m_points += k_pointsForDraw;
+			p0->m_points += k_pointsForDraw;
+			p1->m_points += k_pointsForDraw;
 		}
 		else if (p0Score > p1Score)
 		{
-			m_controllers[0]->m_points += k_pointsForWin;
-			m_controllers[1]->m_points += k_pointsForLoss;
+			p0->m_points += k_pointsForWin;
+			p1->m_points += k_pointsForLoss;
 		}
 		else
 		{
-			m_controllers[0]->m_points += k_pointsForLoss;
-			m_controllers[1]->m_points += k_pointsForWin;
+			p0->m_points += k_pointsForLoss;
+			p1->m_points += k_pointsForWin;
 		}
-	}
-	// intentionally fall through...
-	case GameState::PreGame:
-		// Record the score and start the next game
 		game->ResetGame(m_config.m_gameDuration);
 
-		m_controllers[0]->m_controller->Randomize();
-		m_controllers[1]->m_controller->Randomize();
+		// Shift to next game in season
+		m_currentGameInSeason++;
 
-		game->SetPlayerController(0, m_controllers[0]->m_controller);
-		game->SetPlayerController(1, m_controllers[1]->m_controller);
-		break;
+		// Check if all games have been run
+		if (m_currentGameInSeason >= m_season->m_gameStats.size())
+		{
+			// Output stats
+			char msg[64];
+			sprintf_s(msg, "%d games played in %d seasons\n", static_cast<int>(m_season->m_gameStats.size()), m_config.m_numGameSeasons);
+			OutputDebugStringA(msg);
+			
+			for (int i = 0; i < m_controllers.size(); i++)
+			{
+				const AiControllerData* aiData = m_controllers[i];
+				sprintf_s(msg, "Controller %2d = %3d points\n", i, aiData->m_points);
+				OutputDebugStringA(msg);
+			}
+
+			m_done = true;
+		}
 	}
-
-	game->Update();
 }
