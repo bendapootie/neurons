@@ -17,16 +17,21 @@ public:
 		// How many seasons to run. Each season has controllers play two games.
 		int m_numGameSeasons = 1;
 		float m_gameDuration = 60.0f;
+
+		float m_percentToKeep = 0.2f;
+		float m_mutationRate = 0.01f;
 	};
 
 	AiPlayerTrainer(const Config& config);
 	~AiPlayerTrainer();
 
-	bool IsDone() const { return m_done; }
 	void Update();
 
 	int GetNumGames() const { return static_cast<int>(1); }
 	const NeuronGame* GetGame(const int index) { return m_currentGame; }
+
+public:
+	void PrepareNextGeneration();
 
 private:
 	const Config m_config;
@@ -40,5 +45,6 @@ private:
 
 	GameSeason* m_season = nullptr;
 	int m_currentGameInSeason = 0;
-	bool m_done = false;
+
+	int m_generation = 0;
 };

@@ -131,19 +131,27 @@ void AiPlayerTrainer::Update()
 		// Check if all games have been run
 		if (m_currentGameInSeason >= m_season->m_gameStats.size())
 		{
-			// Output stats
-			char msg[64];
-			sprintf_s(msg, "%d games played in %d seasons\n", static_cast<int>(m_season->m_gameStats.size()), m_config.m_numGameSeasons);
-			OutputDebugStringA(msg);
-			
-			for (int i = 0; i < m_controllers.size(); i++)
-			{
-				const AiControllerData* aiData = m_controllers[i];
-				sprintf_s(msg, "Controller %2d = %3d points\n", i, aiData->m_points);
-				OutputDebugStringA(msg);
-			}
-
-			m_done = true;
+			PrepareNextGeneration();
 		}
 	}
+}
+
+void AiPlayerTrainer::PrepareNextGeneration()
+{
+	// Output stats
+	char msg[64];
+	sprintf_s(msg, "Generation %d complete =====================================\n", m_generation);
+	OutputDebugStringA(msg);
+	sprintf_s(msg, "%d games played in %d seasons\n", static_cast<int>(m_season->m_gameStats.size()), m_config.m_numGameSeasons);
+	OutputDebugStringA(msg);
+
+	for (int i = 0; i < m_controllers.size(); i++)
+	{
+		const AiControllerData* aiData = m_controllers[i];
+		sprintf_s(msg, "Controller %2d = %3d points\n", i, aiData->m_points);
+		OutputDebugStringA(msg);
+	}
+
+	m_generation++;
+	m_currentGameInSeason = 0;
 }

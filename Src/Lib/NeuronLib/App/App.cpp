@@ -80,8 +80,8 @@ void App::InitializeGame()
 	if (k_runAiPlayerTrainer)
 	{
 		AiPlayerTrainer::Config config;
-		config.m_numControllers = 128;
-		config.m_numGameSeasons = 8;
+		config.m_numControllers = 16;
+		config.m_numGameSeasons = 2;
 		config.m_gameDuration = k_gameDuration;
 
 		_ASSERT(m_aiPlayerTrainer == nullptr);
@@ -100,14 +100,7 @@ void App::UpdateGame()
 {
 	if (k_runAiPlayerTrainer)
 	{
-		if (!m_aiPlayerTrainer->IsDone())
-		{
-			m_aiPlayerTrainer->Update();
-		}
-		else
-		{
-			return;
-		}
+		m_aiPlayerTrainer->Update();
 	}
 	else
 	{
