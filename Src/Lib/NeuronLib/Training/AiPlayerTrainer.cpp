@@ -8,10 +8,6 @@
 #include "Util/Random.h"
 #include <windows.h> // for OutputDebugString
 
-constexpr int k_pointsForWin = 3;
-constexpr int k_pointsForDraw = 1;
-constexpr int k_pointsForLoss = 0;
-
 class GameStats
 {
 public:
@@ -112,18 +108,18 @@ void AiPlayerTrainer::Update()
 		int p1Score = game->GetPlayerScore(1);
 		if (p0Score == p1Score)
 		{
-			p0->m_points += k_pointsForDraw;
-			p1->m_points += k_pointsForDraw;
+			p0->m_winLossRecord.m_ties++;
+			p1->m_winLossRecord.m_ties++;
 		}
 		else if (p0Score > p1Score)
 		{
-			p0->m_points += k_pointsForWin;
-			p1->m_points += k_pointsForLoss;
+			p0->m_winLossRecord.m_wins++;
+			p1->m_winLossRecord.m_losses++;
 		}
 		else
 		{
-			p0->m_points += k_pointsForLoss;
-			p1->m_points += k_pointsForWin;
+			p0->m_winLossRecord.m_losses++;
+			p1->m_winLossRecord.m_wins++;
 		}
 		game->ResetGame(m_config.m_gameDuration);
 
@@ -143,7 +139,7 @@ void AiPlayerTrainer::PrepareNextGeneration()
 	// Sort controllers based on score.
 	sort(begin(m_controllers),
 		end(m_controllers),
-		[](AiControllerData* a, AiControllerData* b) {return a->m_points > b->m_points; });
+		[](AiControllerData* a, AiControllerData* b) {return a->m_winLossRecord.GetPoints() > b->m_winLossRecord.GetPoints(); });
 
 	// Output stats
 	char msg[64];
@@ -155,7 +151,13 @@ void AiPlayerTrainer::PrepareNextGeneration()
 	for (int i = 0; i < m_controllers.size(); i++)
 	{
 		const AiControllerData* aiData = m_controllers[i];
-		sprintf_s(msg, "Controller %2d = %3d points\n", i, aiData->m_points);
+		sprintf_s(msg, "Controller %2d = %d/%d/%d = %3d points\n",
+			i,
+			aiData->m_winLossRecord.m_wins,
+			aiData->m_winLossRecord.m_losses,
+			aiData->m_winLossRecord.m_ties,
+			aiData->m_winLossRecord.GetPoints()
+		);
 		OutputDebugStringA(msg);
 	}
 
@@ -163,7 +165,13 @@ void AiPlayerTrainer::PrepareNextGeneration()
 	const int numControllersToKeep = static_cast<int>(m_controllers.size() * m_config.m_percentToKeep);
 	for (int i = numControllersToKeep; i < m_controllers.size(); i++)
 	{
-		m_controllers[i]->m_controller->Randomize();
+		// Note: There's a chance both parents will be the same. Should that be prevented?
+		const int parentIndex0 = Random::NextInt(0, numControllersToKeep);
+		const int parentIndex1 = Random::NextInt(0, numControllersToKeep);
+		m_controllers[i]->m_controller->Breed(
+			*m_controllers[parentIndex0]->m_controller,
+			*m_controllers[parentIndex1]->m_controller
+		);
 	}
 
 	// Randomize seeding of controllers
@@ -176,7 +184,7 @@ void AiPlayerTrainer::PrepareNextGeneration()
 	// Reset points for next generation
 	for (auto controller : m_controllers)
 	{
-		controller->m_points = 0;
+		controller->m_winLossRecord.Reset();
 	}
 
 	m_generation++;

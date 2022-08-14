@@ -19,7 +19,7 @@ public:
 		float m_gameDuration = 60.0f;
 
 		float m_percentToKeep = 0.2f;
-		float m_mutationRate = 0.01f;
+		//float m_mutationRate = 0.01f;
 	};
 
 	AiPlayerTrainer(const Config& config);

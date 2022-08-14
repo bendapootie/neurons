@@ -44,6 +44,7 @@ public:
 	}
 
 	void RandomizeWeights();
+	void RandomizeSingleWeight(int weightIndex);
 
 	void RandomizeBias();
 
@@ -100,16 +101,15 @@ public:
 	Network() {}
 	Network(const std::vector<int>& neuronsPerLevel)
 	{
-		levels.clear();
-		numInputs = neuronsPerLevel[0];
+		m_levels.clear();
+		m_numInputs = neuronsPerLevel[0];
 
-		int numWeights = 0;
 		for (int i = 0; i < neuronsPerLevel.size(); i++)
 		{
 			const int numNeurons = neuronsPerLevel[i];
-			levels.emplace_back(numNeurons, numWeights);
-			// Number of weights for the next level is same as the number of neurons in this level
-			numWeights = numNeurons;
+			// Number of weights for this level is the same as the number of neurons in the next level
+			const int numWeights = (i > 0) ? neuronsPerLevel[i - 1] : 0;
+			m_levels.emplace_back(numNeurons, numWeights);
 		}
 	}
 
@@ -126,9 +126,9 @@ public:
 		scratch1 = inputs;
 		scratch2.clear();
 
-		for (int levelIndex = 1; levelIndex < levels.size(); levelIndex++)
+		for (int levelIndex = 1; levelIndex < m_levels.size(); levelIndex++)
 		{
-			const auto& level = levels[levelIndex];
+			const auto& level = m_levels[levelIndex];
 			// ensure output is big enough
 			l2->resize(level.neurons.size());
 			for (int i = 0; i < level.neurons.size(); i++)
@@ -152,9 +152,9 @@ public:
 
 	void Print()
 	{
-		for (int i = 0; i < levels.size(); i++)
+		for (int i = 0; i < m_levels.size(); i++)
 		{
-			levels[i].Print();
+			m_levels[i].Print();
 			printf("\n");
 		}
 	}
@@ -178,11 +178,14 @@ public:
 
 	void Randomize()
 	{
-		for (auto& level : levels)
+		for (auto& level : m_levels)
 		{
 			level.Randomize();
 		}
 	}
+
+	// Rebuild this network by merging the two provided parents
+	void InitializeFromParents(const Network& parent0, const Network& parent1);
 
 	void Mutate();
 
@@ -213,7 +216,7 @@ private:
 	void AddRandomLevel();
 
 private:
-	std::vector<NetworkLevel> levels;
-	int numInputs;
-	MutationSettings mutationSettings;
+	std::vector<NetworkLevel> m_levels;
+	int m_numInputs;
+	MutationSettings m_mutationSettings;
 };
