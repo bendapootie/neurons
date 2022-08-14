@@ -1,9 +1,11 @@
 #include "pch.h"
 #include "AiPlayerTrainer.h"
 
+#include <algorithm>
 #include "AiControllerData.h"
 #include "NeuronBall/NeuronGame.h"
 #include "NeuronBall/Controllers/NeuralNetPlayerController.h"
+#include "Util/Random.h"
 #include <windows.h> // for OutputDebugString
 
 constexpr int k_pointsForWin = 3;
@@ -138,6 +140,11 @@ void AiPlayerTrainer::Update()
 
 void AiPlayerTrainer::PrepareNextGeneration()
 {
+	// Sort controllers based on score.
+	sort(begin(m_controllers),
+		end(m_controllers),
+		[](AiControllerData* a, AiControllerData* b) {return a->m_points > b->m_points; });
+
 	// Output stats
 	char msg[64];
 	sprintf_s(msg, "Generation %d complete =====================================\n", m_generation);
@@ -150,6 +157,26 @@ void AiPlayerTrainer::PrepareNextGeneration()
 		const AiControllerData* aiData = m_controllers[i];
 		sprintf_s(msg, "Controller %2d = %3d points\n", i, aiData->m_points);
 		OutputDebugStringA(msg);
+	}
+
+	// Replace "dead" controllers with new ones for the next generation
+	const int numControllersToKeep = static_cast<int>(m_controllers.size() * m_config.m_percentToKeep);
+	for (int i = numControllersToKeep; i < m_controllers.size(); i++)
+	{
+		m_controllers[i]->m_controller->Randomize();
+	}
+
+	// Randomize seeding of controllers
+	for (int i = 0; i < m_controllers.size() - 1; i++)
+	{
+		const int swapIndex = Random::NextInt(i + 1, static_cast<int>(m_controllers.size()));
+		std::swap(m_controllers[i], m_controllers[swapIndex]);
+	}
+
+	// Reset points for next generation
+	for (auto controller : m_controllers)
+	{
+		controller->m_points = 0;
 	}
 
 	m_generation++;
