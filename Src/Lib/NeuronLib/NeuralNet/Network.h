@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Util/Serializable.h"
 #include <vector>
 
 enum class NetworkRange
@@ -13,6 +14,11 @@ constexpr NetworkRange k_networkRange = NetworkRange::ZeroToOne;
 class MutationSettings
 {
 public:
+	bool operator == (const MutationSettings& rhs) const
+	{
+		return (memcmp(this, &rhs, sizeof(*this)) == 0);
+	}
+public:
 	float addLevel = 0.05f;			// Chance per network of adding a level
 	float addNeuron = 0.1f;			// Chance per level of adding a neuron
 	float deleteNeuron = 0.1f;		// Chance per level of deleting a neuron
@@ -20,13 +26,27 @@ public:
 	float modifyBias = 0.05f;		// Chance per neuron of modifying bias
 };
 
-class Neuron
+//=============================================================================
+
+class Neuron : public ISerializable
 {
 public:
 	Neuron() {}
 	Neuron(const int numWeights)
 	{
 		weights.resize(numWeights);
+	}
+
+	// ISerializable interface
+	virtual void Serialize(BinaryBuffer& stream) const override;
+	virtual void Deserialize(BinaryBuffer& stream) override;
+
+	// Primarily used for validating unit tests
+	bool operator == (const Neuron& rhs) const
+	{
+		return
+			(bias == rhs.bias) &&
+			(weights == rhs.weights);
 	}
 
 	void Print() const
@@ -59,12 +79,25 @@ public:
 	float bias = 0.0f;
 };
 
-class NetworkLevel
+//=============================================================================
+
+class NetworkLevel : public ISerializable
 {
 public:
+	NetworkLevel() = default;
 	NetworkLevel(const int numNeurons, const int numWeights)
 	{
 		neurons.resize(numNeurons, Neuron(numWeights));
+	}
+
+	// ISerializable interface
+	virtual void Serialize(BinaryBuffer& stream) const override;
+	virtual void Deserialize(BinaryBuffer& stream) override;
+
+	// Primarily used for validating unit tests
+	bool operator == (const NetworkLevel& rhs) const
+	{
+		return neurons == rhs.neurons;
 	}
 
 	void Print() const
@@ -95,7 +128,9 @@ public:
 	std::vector<Neuron> neurons;
 };
 
-class Network
+//=============================================================================
+
+class Network : public ISerializable
 {
 public:
 	Network() {}
@@ -111,6 +146,19 @@ public:
 			const int numWeights = (i > 0) ? neuronsPerLevel[i - 1] : 0;
 			m_levels.emplace_back(numNeurons, numWeights);
 		}
+	}
+
+	// ISerializable interface
+	virtual void Serialize(BinaryBuffer& stream) const override;
+	virtual void Deserialize(BinaryBuffer& stream) override;
+
+	// Primarily used for validating unit tests
+	bool operator == (const Network& rhs) const
+	{
+		return
+			(m_levels == rhs.m_levels) &&
+			(m_numInputs == rhs.m_numInputs) &&
+			(m_mutationSettings == rhs.m_mutationSettings);
 	}
 
 	std::vector<float> Evaluate(const std::vector<float>& inputs) const

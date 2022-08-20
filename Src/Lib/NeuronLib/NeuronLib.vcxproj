@@ -194,9 +194,11 @@
     <ClInclude Include="Training\AiControllerData.h" />
     <ClInclude Include="Training\AiPlayerTrainer.h" />
     <ClInclude Include="Util\Array.h" />
+    <ClInclude Include="Util\BinaryBuffer.h" />
     <ClInclude Include="Util\Constants.h" />
     <ClInclude Include="Util\Math.h" />
     <ClInclude Include="Util\Random.h" />
+    <ClInclude Include="Util\Serializable.h" />
     <ClInclude Include="Util\Shapes.h" />
     <ClInclude Include="Util\Vector.h" />
   </ItemGroup>
@@ -219,7 +221,9 @@
     </ClCompile>
     <ClCompile Include="Training\AiControllerData.cpp" />
     <ClCompile Include="Training\AiPlayerTrainer.cpp" />
+    <ClCompile Include="Util\BinaryBuffer.cpp" />
     <ClCompile Include="Util\Random.cpp" />
+    <ClCompile Include="Util\Serializable.cpp" />
     <ClCompile Include="Util\Shapes.cpp" />
     <ClCompile Include="Util\Vector.cpp" />
   </ItemGroup>

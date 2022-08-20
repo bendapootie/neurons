@@ -4,6 +4,32 @@
 #include "Util/Math.h"
 #include "Util/Random.h"
 
+//=============================================================================
+// Neuron
+//
+// ISerializable interface
+void Neuron::Serialize(BinaryBuffer& stream) const
+{
+	SerializeInt(stream, static_cast<int>(weights.size()));
+	for (const float& weight : weights)
+	{
+		SerializeFloat(stream, weight);
+	}
+	SerializeFloat(stream, bias);
+}
+
+void Neuron::Deserialize(BinaryBuffer& stream)
+{
+	int size;
+	DeserializeInt(stream, size);
+	weights.resize(size);
+	for (float& weight : weights)
+	{
+		DeserializeFloat(stream, weight);
+	}
+	DeserializeFloat(stream, bias);
+}
+
 void Neuron::RandomizeWeights()
 {
 	for (auto& weight : weights)
@@ -21,6 +47,62 @@ void Neuron::RandomizeBias()
 {
 	bias = Random::NextGaussian();
 }
+
+//=============================================================================
+// NetworkLevel
+//
+// ISerializable interface
+void NetworkLevel::Serialize(BinaryBuffer& stream) const
+{
+	SerializeInt(stream, static_cast<int>(neurons.size()));
+	for (const auto& neuron : neurons)
+	{
+		neuron.Serialize(stream);
+	}
+}
+
+void NetworkLevel::Deserialize(BinaryBuffer& stream)
+{
+	int size;
+	DeserializeInt(stream, size);
+	neurons.resize(size);
+	for (auto& neuron : neurons)
+	{
+		neuron.Deserialize(stream);
+	}
+}
+
+
+//=============================================================================
+
+void Network::Serialize(BinaryBuffer& stream) const
+{
+	{
+		SerializeInt(stream, static_cast<int>(m_levels.size()));
+		for (const auto& level : m_levels)
+		{
+			level.Serialize(stream);
+		}
+	}
+	SerializeInt(stream, m_numInputs);
+	SerializeSimpleObject(stream, m_mutationSettings);
+}
+
+void Network::Deserialize(BinaryBuffer& stream)
+{
+	{
+		int size;
+		DeserializeInt(stream, size);
+		m_levels.resize(size);
+		for (auto& level : m_levels)
+		{
+			level.Deserialize(stream);
+		}
+	}
+	DeserializeInt(stream, m_numInputs);
+	DeserializeSimpleObject(stream, m_mutationSettings);
+}
+
 
 void Network::InitializeFromParents(const Network& parent0, const Network& parent1)
 {

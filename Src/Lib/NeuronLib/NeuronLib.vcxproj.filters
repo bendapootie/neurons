@@ -79,6 +79,12 @@
     <ClInclude Include="App\PhysicsTest.h">
       <Filter>App</Filter>
     </ClInclude>
+    <ClInclude Include="Util\Serializable.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\BinaryBuffer.h">
+      <Filter>Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Util\Random.cpp">
@@ -126,6 +132,12 @@
     </ClCompile>
     <ClCompile Include="App\PhysicsTest.cpp">
       <Filter>App</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Serializable.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\BinaryBuffer.cpp">
+      <Filter>Util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

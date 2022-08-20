@@ -49,7 +49,7 @@ namespace Test
 		static constexpr double k_rangeTolerance = 0.01;
 		static constexpr double k_sampleTolerance = 0.0001;
 		static constexpr double k_avgTolerance = 0.001;
-		static constexpr double k_stdTolerance = 0.001;
+		static constexpr double k_stdTolerance = 0.002;
 
 		// Verify SequenceStats helper class correctly calculates average, count, and standard deviation
 		TEST_METHOD(SequenceStatsTest)
