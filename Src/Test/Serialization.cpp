@@ -23,7 +23,7 @@ namespace Test
 			Assert::IsTrue(network0 == network1);
 
 			// If one of the networks is randomized, they should no longer be equal
-			network0.Randomize();
+			network0.Randomize(s_rand);
 			Assert::IsFalse(network0 == network1);
 
 			// Assignment should restore equality
@@ -39,7 +39,7 @@ namespace Test
 
 			std::vector<int> neuronsPerLevel = { 8, 2, 4, 16, 3, 4 };
 			Network baseNetwork(neuronsPerLevel);
-			baseNetwork.Randomize();
+			baseNetwork.Randomize(s_rand);
 
 			baseNetwork.Serialize(buffer);
 

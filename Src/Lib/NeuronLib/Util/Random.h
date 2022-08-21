@@ -5,30 +5,36 @@
 class Random
 {
 public:
-	static int NextInt()
+	void Seed();
+	void Seed(int seed);
+
+	int NextInt()
 	{
 		std::uniform_int_distribution<int> distribution(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
-		return distribution(s_generator);
+		return distribution(m_generator);
 	}
-	static int NextInt(int minInclusive, int maxExclusive)
+	int NextInt(int minInclusive, int maxExclusive)
 	{
 		std::uniform_int_distribution<int> distribution(minInclusive, maxExclusive - 1);
-		return distribution(s_generator);
+		return distribution(m_generator);
 	}
-	static float NextFloat()
+	float NextFloat()
 	{
-		return s_uniformRealDistribution(s_generator);
+		return s_uniformRealDistribution(m_generator);
 	}
-	static float NextFloat(float minInclusive, float maxExclusive)
+	float NextFloat(float minInclusive, float maxExclusive)
 	{
-		return minInclusive + (maxExclusive * s_uniformRealDistribution(s_generator));
+		return minInclusive + (maxExclusive * s_uniformRealDistribution(m_generator));
 	}
-	static float NextGaussian()
+	float NextGaussian()
 	{
-		return s_gaussianDistribution(s_generator);
+		return s_gaussianDistribution(m_generator);
 	}
 private:
-	static std::default_random_engine s_generator;
+	std::default_random_engine m_generator;
 	static std::normal_distribution<float> s_gaussianDistribution;
 	static std::uniform_real_distribution<float> s_uniformRealDistribution;
 };
+
+// Globally shared random generator for convenience
+extern Random s_rand;

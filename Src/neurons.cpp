@@ -5,6 +5,8 @@
 
 void TrainForCircle(const int maxPopulation, const float topKeepPercent = 0.2f, const float randomKeepPercent = 0.1f)
 {
+	Random& rand = s_rand;
+
 	float bestScore = 0.0f;
 	int iterations = 0;
 
@@ -17,7 +19,7 @@ void TrainForCircle(const int maxPopulation, const float topKeepPercent = 0.2f, 
 	for (int i = 0; i < maxPopulation; i++)
 	{
 		population->emplace_back(Network({ 2, 1 }));
-		(*population)[population->size() - 1].Randomize();
+		(*population)[population->size() - 1].Randomize(rand);
 	}
 
 	std::vector<std::pair<int, float>> indexToScore;
@@ -60,7 +62,7 @@ void TrainForCircle(const int maxPopulation, const float topKeepPercent = 0.2f, 
 		int numRandomToKeep = (int)(indexToScore.size() * randomKeepPercent);
 		while (numRandomToKeep > 0)
 		{
-			const int randomIndexToKeep = Random::NextInt(maxIndexToKeep, (int)indexToScore.size());
+			const int randomIndexToKeep = rand.NextInt(maxIndexToKeep, (int)indexToScore.size());
 			indexToScore[maxIndexToKeep].swap(indexToScore[randomIndexToKeep]);
 			numRandomToKeep--;
 			maxIndexToKeep++;
@@ -77,7 +79,7 @@ void TrainForCircle(const int maxPopulation, const float topKeepPercent = 0.2f, 
 			// First copy of network is unchanged. All other descendants are mutated.
 			if (i >= indexToScore.size())
 			{
-				(*nextGeneration)[nextGeneration->size() - 1].Mutate();
+				(*nextGeneration)[nextGeneration->size() - 1].Mutate(rand);
 			}
 		}
 		std::swap(population, nextGeneration);

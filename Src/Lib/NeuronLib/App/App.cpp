@@ -22,11 +22,11 @@ enum class PlayMode
 constexpr PlayMode k_playMode = PlayMode::VsSavedAi;
 constexpr float k_gameDuration = 60.0f * 1.0f;
 
-constexpr int k_numControllers = 1024;
+constexpr int k_numControllers = 128;
 constexpr int m_numGameSeasons = 3;
 constexpr float m_percentControllersToKeepPerGeneration = 0.2f;
-constexpr int m_numGenerationsToRun = 20;
-const char* k_saveFileName = "NeuronGameAi.bin";
+constexpr int m_numGenerationsToRun = 1000;
+const char* k_saveFileName = "NeuronGameAi_128x1000gen.bin";
 
 // Disable vsync when training AI so the simulations can run as fast as possible
 constexpr bool k_vsyncEnabled = (k_playMode != PlayMode::TrainAiControllers);
@@ -111,8 +111,6 @@ void App::InitializeGame()
 
 	case PlayMode::VsSavedAi:
 	{
-		// TODO: Get this working!
-
 		// TODO: Figure out a better way of loading AI controllers without instantiating m_aiPlayerTrainer
 		AiPlayerTrainer::Config dummyConfig;
 		m_aiPlayerTrainer = new AiPlayerTrainer(dummyConfig);
@@ -121,6 +119,7 @@ void App::InitializeGame()
 		_ASSERT(m_testGame == nullptr);
 		m_testGame = new NeuronGame();
 		m_testGame->SetPlayerController(0, new HumanPlayerController(0));
+		//m_testGame->SetPlayerController(0, m_aiPlayerTrainer->GetBestAiController()->m_controller);
 		m_testGame->SetPlayerController(1, m_aiPlayerTrainer->GetBestAiController()->m_controller);
 		break;
 	}

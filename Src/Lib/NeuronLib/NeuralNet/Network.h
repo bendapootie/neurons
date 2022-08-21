@@ -3,6 +3,8 @@
 #include "Util/Serializable.h"
 #include <vector>
 
+class Random;
+
 enum class NetworkRange
 {
 	ZeroToOne,
@@ -63,15 +65,15 @@ public:
 		}
 	}
 
-	void RandomizeWeights();
-	void RandomizeSingleWeight(int weightIndex);
+	void RandomizeWeights(Random& rand);
+	void RandomizeSingleWeight(int weightIndex, Random& rand);
 
-	void RandomizeBias();
+	void RandomizeBias(Random& rand);
 
-	void RandomizeAll()
+	void RandomizeAll(Random& rand)
 	{
-		RandomizeWeights();
-		RandomizeBias();
+		RandomizeWeights(rand);
+		RandomizeBias(rand);
 	}
 
 public:
@@ -110,17 +112,17 @@ public:
 		}
 	}
 
-	void AddNeuron()
+	void AddNeuron(Random& rand)
 	{
 		neurons.emplace_back((int)neurons[0].weights.size());
-		neurons[neurons.size() - 1].RandomizeAll();
+		neurons[neurons.size() - 1].RandomizeAll(rand);
 	}
 
-	void Randomize()
+	void Randomize(Random& rand)
 	{
 		for (auto& neuron : neurons)
 		{
-			neuron.RandomizeAll();
+			neuron.RandomizeAll(rand);
 		}
 	}
 
@@ -224,18 +226,18 @@ public:
 		}
 	}
 
-	void Randomize()
+	void Randomize(Random& rand)
 	{
 		for (auto& level : m_levels)
 		{
-			level.Randomize();
+			level.Randomize(rand);
 		}
 	}
 
 	// Rebuild this network by merging the two provided parents
-	void InitializeFromParents(const Network& parent0, const Network& parent1);
+	void InitializeFromParents(const Network& parent0, const Network& parent1, Random& rand);
 
-	void Mutate();
+	void Mutate(Random& rand);
 
 	static float Sigmoid(const float x)
 	{
@@ -261,7 +263,7 @@ private:
 		return tanhf(x);
 	}
 
-	void AddRandomLevel();
+	void AddRandomLevel(Random& rand);
 
 private:
 	std::vector<NetworkLevel> m_levels;

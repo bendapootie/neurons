@@ -66,10 +66,11 @@ namespace Test
 
 		TEST_METHOD(RandomNextInt)
 		{
+			Random rand;
 			SequenceStats stats;
  			for (int i = 0; i < k_numSamples; i++)
  			{
-				stats.AddSample(Random::NextInt());
+				stats.AddSample(rand.NextInt());
  			}
 			const double expectedAverage = (static_cast<double>(Math::Int32Min) + static_cast<double>(Math::Int32Max)) * 0.5;
 			const double deltaFromAvg = Math::Abs(stats.GetAverage() - expectedAverage);
@@ -93,12 +94,13 @@ namespace Test
 
 		static void RandomNextIntRangeHelper(const int minInclusive, const int maxExclusive, const int numSamples = k_numSamples)
 		{
+			Random rand;
 			const double range = static_cast<double>(maxExclusive - 1.0) - static_cast<double>(minInclusive);
 
 			SequenceStats stats;
 			for (int i = 0; i < numSamples; i++)
 			{
-				stats.AddSample(Random::NextInt(minInclusive, maxExclusive));
+				stats.AddSample(rand.NextInt(minInclusive, maxExclusive));
 			}
 			double expectedAvg = (static_cast<double>(minInclusive) + static_cast<double>(maxExclusive - 1.0)) * 0.5;
 			Assert::IsTrue(Math::Equals(stats.GetAverage(), expectedAvg, range * k_avgTolerance));
@@ -132,10 +134,11 @@ namespace Test
 
 		TEST_METHOD(NextFloat)
 		{
+			Random rand;
 			SequenceStats stats;
 			for (int i = 0; i < k_numSamples; i++)
 			{
-				stats.AddSample(Random::NextFloat());
+				stats.AddSample(rand.NextFloat());
 			}
 			Assert::IsTrue(Math::Equals(stats.GetAverage(), 0.5, k_avgTolerance));
 

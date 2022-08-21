@@ -30,22 +30,22 @@ void Neuron::Deserialize(BinaryBuffer& stream)
 	DeserializeFloat(stream, bias);
 }
 
-void Neuron::RandomizeWeights()
+void Neuron::RandomizeWeights(Random& rand)
 {
 	for (auto& weight : weights)
 	{
-		weight = Random::NextGaussian();
+		weight = rand.NextGaussian();
 	}
 }
 
-void Neuron::RandomizeSingleWeight(int weightIndex)
+void Neuron::RandomizeSingleWeight(int weightIndex, Random& rand)
 {
-	weights[weightIndex] = Random::NextGaussian();
+	weights[weightIndex] = rand.NextGaussian();
 }
 
-void Neuron::RandomizeBias()
+void Neuron::RandomizeBias(Random& rand)
 {
-	bias = Random::NextGaussian();
+	bias = rand.NextGaussian();
 }
 
 //=============================================================================
@@ -104,7 +104,7 @@ void Network::Deserialize(BinaryBuffer& stream)
 }
 
 
-void Network::InitializeFromParents(const Network& parent0, const Network& parent1)
+void Network::InitializeFromParents(const Network& parent0, const Network& parent1, Random& rand)
 {
 	*this = parent0;
 
@@ -123,7 +123,7 @@ void Network::InitializeFromParents(const Network& parent0, const Network& paren
 		{
 			// 50/50 chance of copying neuron from parent1
 			// Note: If networks aren't the exact same shape, there's a chance the new neuron weights my be out of bounds
-			if (Random::NextInt(0, 2) == 0)
+			if (rand.NextInt(0, 2) == 0)
 			{
 				level.neurons[n] = p1Level.neurons[n];
 				const int originalNumWeights = static_cast<int>(level.neurons[n].weights.size());
@@ -132,40 +132,40 @@ void Network::InitializeFromParents(const Network& parent0, const Network& paren
 					level.neurons[n].weights.resize(targetNumWeights);
 					for (int w = originalNumWeights; w < targetNumWeights; w++)
 					{
-						level.neurons[n].RandomizeSingleWeight(w);
+						level.neurons[n].RandomizeSingleWeight(w, rand);
 					}
 				}
 			}
 		}
 	}
 
-	Mutate();
+	Mutate(rand);
 }
 
-void Network::Mutate()
+void Network::Mutate(Random& rand)
 {
 	// Chance per network of adding a level
-	if (Random::NextFloat() < m_mutationSettings.addLevel)
+	if (rand.NextFloat() < m_mutationSettings.addLevel)
 	{
-		AddRandomLevel();
+		AddRandomLevel(rand);
 	}
 
 	// Chance per level of adding a neuron
 	// Don't add neurons to input or output layers
 	for (int i = 1; i < (int)m_levels.size() - 1; i++)
 	{
-		if (Random::NextFloat() < m_mutationSettings.addNeuron)
+		if (rand.NextFloat() < m_mutationSettings.addNeuron)
 		{
 			// Add a new neuron to the target level
 			auto& level = m_levels[i];
-			level.AddNeuron();
+			level.AddNeuron(rand);
 			// Give each neuron on the next level an additional weight to account for the new neuron
 			for (auto& neuron : m_levels[i + 1].neurons)
 			{
-				neuron.weights.push_back(Random::NextGaussian());
+				neuron.weights.push_back(rand.NextGaussian());
 			}
 		}
-		if (Random::NextFloat() < m_mutationSettings.deleteNeuron)
+		if (rand.NextFloat() < m_mutationSettings.deleteNeuron)
 		{
 			// Remove a neuron from the target level
 			auto& level = m_levels[i];
@@ -178,13 +178,13 @@ void Network::Mutate()
 				for (auto& neuron : m_levels[i].neurons)
 				{
 					neuron.weights.resize(targetNumWeights);
-					neuron.RandomizeAll();
+					neuron.RandomizeAll(rand);
 				}
 				i--;
 			}
 			else
 			{
-				const int neuronIndexToDelete = Random::NextInt(0, (int)level.neurons.size());
+				const int neuronIndexToDelete = rand.NextInt(0, (int)level.neurons.size());
 				level.neurons.erase(level.neurons.begin() + neuronIndexToDelete);
 				// Remove the appropriate weight from each neuron in the next level
 				for (auto& neuron : m_levels[i + 1].neurons)
@@ -203,21 +203,21 @@ void Network::Mutate()
 	{
 		for (auto& neuron : m_levels[i].neurons)
 		{
-			if (Random::NextFloat() < m_mutationSettings.modifyWeights)
+			if (rand.NextFloat() < m_mutationSettings.modifyWeights)
 			{
-				neuron.RandomizeWeights();
+				neuron.RandomizeWeights(rand);
 			}
-			if (Random::NextFloat() < m_mutationSettings.modifyBias)
+			if (rand.NextFloat() < m_mutationSettings.modifyBias)
 			{
-				neuron.RandomizeBias();
+				neuron.RandomizeBias(rand);
 			}
 		}
 	}
 }
 
-void Network::AddRandomLevel()
+void Network::AddRandomLevel(Random& rand)
 {
-	int newIndex = Random::NextInt(1, (int)m_levels.size());
+	int newIndex = rand.NextInt(1, (int)m_levels.size());
 
 	const int neuronsinPreviousLevel = (int)m_levels[newIndex - 1].neurons.size();
 	NetworkLevel newLevel(neuronsinPreviousLevel, neuronsinPreviousLevel);
@@ -225,7 +225,7 @@ void Network::AddRandomLevel()
 	constexpr bool completelyRandomizeNewLevel = true;
 	if constexpr (completelyRandomizeNewLevel)
 	{
-		newLevel.Randomize();
+		newLevel.Randomize(rand);
 	}
 	else
 	{

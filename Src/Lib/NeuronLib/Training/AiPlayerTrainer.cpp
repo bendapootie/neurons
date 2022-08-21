@@ -159,10 +159,7 @@ void AiPlayerTrainer::PrepareNextGeneration()
 
 	// Output stats
 	char msg[64];
-	sprintf_s(msg, "Generation %d complete =====================================\n", m_generation);
-	OutputDebugStringA(msg);
-	sprintf_s(msg, "%d games played in %d seasons\n", static_cast<int>(m_season->m_gameStats.size()), m_config.m_numGameSeasons);
-	OutputDebugStringA(msg);
+	OutputDebugStringA("========================================================================\n");
 
 	for (int i = 0; i < m_controllers.size(); i++)
 	{
@@ -177,6 +174,11 @@ void AiPlayerTrainer::PrepareNextGeneration()
 		OutputDebugStringA(msg);
 	}
 
+	sprintf_s(msg, "%d games played in %d seasons\n", static_cast<int>(m_season->m_gameStats.size()), m_config.m_numGameSeasons);
+	OutputDebugStringA(msg);
+	sprintf_s(msg, "Generation %d complete =====================================\n", m_generation);
+	OutputDebugStringA(msg);
+
 	if (m_generation == m_config.m_numGenerations)
 	{
 		WriteControllersToFile(m_config.m_saveFile);
@@ -188,13 +190,14 @@ void AiPlayerTrainer::PrepareNextGeneration()
 		for (int i = numControllersToKeep; i < m_controllers.size(); i++)
 		{
 			// Note: There's a chance both parents will be the same. Should that be prevented?
-			const int parentIndex0 = Random::NextInt(0, numControllersToKeep);
-			const int parentIndex1 = Random::NextInt(0, numControllersToKeep);
+			const int parentIndex0 = m_rand.NextInt(0, numControllersToKeep);
+			const int parentIndex1 = m_rand.NextInt(0, numControllersToKeep);
 			const AiControllerData& parent0 = *m_controllers[parentIndex0];
 			const AiControllerData& parent1 = *m_controllers[parentIndex1];
 			m_controllers[i]->m_controller->Breed(
 				*parent0.m_controller,
-				*parent1.m_controller
+				*parent1.m_controller,
+				m_rand
 			);
 			m_controllers[i]->m_generation = Math::Max(parent0.m_generation, parent1.m_generation) + 1;
 		}
@@ -202,7 +205,7 @@ void AiPlayerTrainer::PrepareNextGeneration()
 		// Randomize seeding of controllers
 		for (int i = 0; i < m_controllers.size() - 1; i++)
 		{
-			const int swapIndex = Random::NextInt(i + 1, static_cast<int>(m_controllers.size()));
+			const int swapIndex = m_rand.NextInt(i + 1, static_cast<int>(m_controllers.size()));
 			std::swap(m_controllers[i], m_controllers[swapIndex]);
 		}
 

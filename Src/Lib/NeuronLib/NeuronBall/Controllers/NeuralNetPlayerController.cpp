@@ -6,6 +6,7 @@
 #include "NeuronBall/NeuronGame.h"
 #include "NeuronBall/NeuronBall.h"
 #include "Util/Array.h"
+#include "Util/Random.h"
 #include <vector>
 
 // TODO: Move to separate file?
@@ -95,9 +96,15 @@ private:
 		// - Scores (mine, theirs)
 		// - Time Remaining (sec)
 
-		for (int p = 0; p < m_game.GetNumPlayers(); p++)
+		// This dirty method of determining the player data order only works with two players
+		_ASSERT(k_numPlayers == 2);
+		Array<int, k_numPlayers> dataOrder;
+		dataOrder[0] = m_playerIndex;
+		dataOrder[1] = 1 - m_playerIndex;
+
+		for (int playerIndex : dataOrder)
 		{
-			const NeuronPlayer& player = m_game.GetPlayer(p);
+			const NeuronPlayer& player = m_game.GetPlayer(playerIndex);
 
 			WriteWorldPosition(player.GetPos());
 			WriteRelativeVector(player.GetVelocity());
@@ -114,9 +121,9 @@ private:
 		}
 		_ASSERT(m_nextInputToWrite == 18); // Ball adds 4 more
 
-		for (int p = 0; p < m_game.GetNumPlayers(); p++)
+		for (int playerIndex : dataOrder)
 		{
-			WriteFloat(static_cast<float>(m_game.GetPlayerScore(p)));
+			WriteFloat(static_cast<float>(m_game.GetPlayerScore(playerIndex)));
 		}
 		_ASSERT(m_nextInputToWrite == 20); // Scores add two
 
@@ -136,8 +143,12 @@ private:
 
 //=============================================================================
 
+NeuralNetPlayerController::NeuralNetPlayerController() :
+	NeuralNetPlayerController(s_rand)
+{
+}
 
-NeuralNetPlayerController::NeuralNetPlayerController()
+NeuralNetPlayerController::NeuralNetPlayerController(Random& rand)
 {
 	// Input level needs "k_numGameStateInputs" neurons
 	// Output level needs 3 neurons
@@ -150,7 +161,7 @@ NeuralNetPlayerController::NeuralNetPlayerController()
 	m_neuralNetwork = new Network(neuronsPerLevel);
 
 	// Start with some random values instead of all zeros to try and get things kick-started
-	m_neuralNetwork->Randomize();
+	m_neuralNetwork->Randomize(rand);
 }
 
 NeuralNetPlayerController::~NeuralNetPlayerController()
@@ -183,12 +194,18 @@ void NeuralNetPlayerController::GetInputFromGameState(NeuronPlayerInput& outPlay
 	outPlayerInput.m_boost = networkOutput[2];
 }
 
-void NeuralNetPlayerController::Breed(const NeuralNetPlayerController& parent0, const NeuralNetPlayerController& parent1)
+void NeuralNetPlayerController::Breed(const NeuralNetPlayerController& parent0, const NeuralNetPlayerController& parent1, Random& rand)
 {
-	m_neuralNetwork->InitializeFromParents(*parent0.m_neuralNetwork, *parent1.m_neuralNetwork);
+	m_neuralNetwork->InitializeFromParents(*parent0.m_neuralNetwork, *parent1.m_neuralNetwork, rand);
 }
 
 void NeuralNetPlayerController::Randomize()
 {
-	m_neuralNetwork->Randomize();
+	// Use the default, global random generator
+	Randomize(s_rand);
+}
+
+void NeuralNetPlayerController::Randomize(Random& rand)
+{
+	m_neuralNetwork->Randomize(rand);
 }

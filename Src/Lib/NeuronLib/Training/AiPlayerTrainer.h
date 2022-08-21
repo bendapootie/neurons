@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Util/Random.h"
 #include <vector>
 
 class AiControllerData;
@@ -45,6 +46,7 @@ private:
 
 private:
 	const Config m_config;
+	Random m_rand;
 
 	// Actively running game
 	// TODO: Make this a list of games and run them concurrently on different threads
