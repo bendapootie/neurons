@@ -8,13 +8,28 @@
 #include "NeuronBall/Controllers/NeuralNetPlayerController.h"
 #include "NeuronBall/NeuronGame.h"
 #include "NeuronBall/NeuronGameDisplay.h"
+#include "Training/AiControllerData.h"
 #include "Training/AiPlayerTrainer.h"
 #include <chrono>
 
-constexpr bool k_runAiPlayerTrainer = true;
+enum class PlayMode
+{
+	TrainAiControllers,
+	VsSavedAi,
+	PlayerVsPlayer
+};
+
+constexpr PlayMode k_playMode = PlayMode::VsSavedAi;
 constexpr float k_gameDuration = 60.0f * 1.0f;
 
-constexpr bool k_vsyncEnabled = false;
+constexpr int k_numControllers = 1024;
+constexpr int m_numGameSeasons = 3;
+constexpr float m_percentControllersToKeepPerGeneration = 0.2f;
+constexpr int m_numGenerationsToRun = 20;
+const char* k_saveFileName = "NeuronGameAi.bin";
+
+// Disable vsync when training AI so the simulations can run as fast as possible
+constexpr bool k_vsyncEnabled = (k_playMode != PlayMode::TrainAiControllers);
 constexpr float k_windowWidth = 640;	// 1280
 constexpr float k_aspectRatio = 16.0f / 9.0f;
 
@@ -77,29 +92,57 @@ int App::Run()
 
 void App::InitializeGame()
 {
-	if (k_runAiPlayerTrainer)
+	switch (k_playMode)
+	{
+	case PlayMode::TrainAiControllers:
 	{
 		AiPlayerTrainer::Config config;
-		config.m_numControllers = 1024;
-		config.m_numGameSeasons = 3;
+		config.m_numControllers = k_numControllers;
+		config.m_numGameSeasons = m_numGameSeasons;
 		config.m_gameDuration = k_gameDuration;
-		config.m_percentToKeep = 0.2f;
+		config.m_percentToKeep = m_percentControllersToKeepPerGeneration;
+		config.m_numGenerations = m_numGenerationsToRun;
+		config.m_saveFile = k_saveFileName;
 
 		_ASSERT(m_aiPlayerTrainer == nullptr);
 		m_aiPlayerTrainer = new AiPlayerTrainer(config);
+		break;
 	}
-	else
+
+	case PlayMode::VsSavedAi:
+	{
+		// TODO: Get this working!
+
+		// TODO: Figure out a better way of loading AI controllers without instantiating m_aiPlayerTrainer
+		AiPlayerTrainer::Config dummyConfig;
+		m_aiPlayerTrainer = new AiPlayerTrainer(dummyConfig);
+		m_aiPlayerTrainer->ReadControllersFromFile(k_saveFileName);
+
+		_ASSERT(m_testGame == nullptr);
+		m_testGame = new NeuronGame();
+		m_testGame->SetPlayerController(0, new HumanPlayerController(0));
+		m_testGame->SetPlayerController(1, m_aiPlayerTrainer->GetBestAiController()->m_controller);
+		break;
+	}
+	break;
+
+	case PlayMode::PlayerVsPlayer:
 	{
 		_ASSERT(m_testGame == nullptr);
 		m_testGame = new NeuronGame();
-		m_testGame->SetPlayerController(0, new NeuralNetPlayerController());
-		m_testGame->SetPlayerController(1, new NeuralNetPlayerController());
+		m_testGame->SetPlayerController(0, new HumanPlayerController(0));
+		m_testGame->SetPlayerController(1, new HumanPlayerController(1));
+		break;
+	}
+
+	default:
+		break;
 	}
 }
 
 void App::UpdateGame()
 {
-	if (k_runAiPlayerTrainer)
+	if (k_playMode == PlayMode::TrainAiControllers)
 	{
 		m_aiPlayerTrainer->Update();
 	}
@@ -112,7 +155,7 @@ void App::UpdateGame()
 void App::DrawGame()
 {
 	const NeuronGame* gameToDisplay = m_testGame;
-	if (k_runAiPlayerTrainer)
+	if (k_playMode == PlayMode::TrainAiControllers)
 	{
 		gameToDisplay = m_aiPlayerTrainer->GetGame(0);
 	}

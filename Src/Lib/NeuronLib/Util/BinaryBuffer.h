@@ -27,6 +27,12 @@ public:
 	};
 
 public:
+	ErrorStatus GetErrorStatus() const { return m_error; }
+
+	const char* GetPtr() const { return m_buffer; }
+	int GetBufferSize() const { return m_bufferSize; }
+	int GetCurrent() const { return m_current; }
+
 	void Seek(int pos);
 	void Seek(int offset, SeekBase base);
 
@@ -41,7 +47,7 @@ public:
 protected:
 	BinaryBuffer(char* buffer, int size) :
 		m_buffer(buffer),
-		m_size(size)
+		m_bufferSize(size)
 	{
 	}
 
@@ -50,19 +56,19 @@ protected:
 
 protected:
 	char* m_buffer = nullptr;
-	int m_size = 0;
+	int m_bufferSize = 0;
 	int m_current = 0;
 	BufferStatus m_status = BufferStatus::Unset;
 	ErrorStatus m_error = ErrorStatus::NoError;
 };
 
 //=============================================================================
-
+// Version of BinaryBuffer that allocates a statically-sized buffer on the stack
 template<int k_size>
-class StaticBuffer : public BinaryBuffer
+class StackBuffer : public BinaryBuffer
 {
 public:
-	StaticBuffer() :
+	StackBuffer() :
 		BinaryBuffer(m_staticBuffer, k_size)
 	{		
 	}
@@ -72,5 +78,24 @@ private:
 };
 
 //=============================================================================
+// Version of BinaryBuffer that allocates a statically-sized buffer on the heap
+class HeapBuffer : public BinaryBuffer
+{
+public:
+	HeapBuffer(int size) :
+		m_dynamicBuffer(new char[size]),
+		BinaryBuffer(m_dynamicBuffer, size)
+	{
+		m_buffer = m_dynamicBuffer;
+	}
+	~HeapBuffer()
+	{
+		_ASSERT(m_dynamicBuffer != nullptr);
+		delete m_dynamicBuffer;
+	}
+
+private:
+	char* m_dynamicBuffer = nullptr;
+};
 
 //=============================================================================

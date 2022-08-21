@@ -3,7 +3,7 @@
 
 void BinaryBuffer::Seek(int pos)
 {
-	_ASSERT(pos >= 0 && pos <= m_size);
+	_ASSERT(pos >= 0 && pos <= m_bufferSize);
 	m_current = pos;
 }
 
@@ -18,7 +18,7 @@ void BinaryBuffer::Seek(int offset, SeekBase base)
 		Seek(m_current + offset);
 		break;
 	case SeekBase::End:
-		Seek(m_size - offset);
+		Seek(m_bufferSize - offset);
 		break;
 	default:
 		_ASSERT(false);	// Shouldn't ever get here!
@@ -29,7 +29,7 @@ void BinaryBuffer::Seek(int offset, SeekBase base)
 
 bool BinaryBuffer::WriteBytes(const char* src, int bytes)
 {
-	if (m_current + bytes <= m_size)
+	if (m_current + bytes <= m_bufferSize)
 	{
 		memcpy(m_buffer + m_current, src, bytes);
 		m_current += bytes;
@@ -53,7 +53,7 @@ bool BinaryBuffer::WriteFloat(float value)
 
 bool BinaryBuffer::ReadBytes(char* dst, int bytes)
 {
-	if (m_current + bytes <= m_size)
+	if (m_current + bytes <= m_bufferSize)
 	{
 		memcpy(dst, m_buffer + m_current, bytes);
 		m_current += bytes;

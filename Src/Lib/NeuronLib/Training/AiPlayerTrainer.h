@@ -20,6 +20,9 @@ public:
 
 		float m_percentToKeep = 0.2f;
 		//float m_mutationRate = 0.01f;
+
+		int m_numGenerations = 10;
+		const char* m_saveFile = nullptr;
 	};
 
 	AiPlayerTrainer(const Config& config);
@@ -30,8 +33,15 @@ public:
 	int GetNumGames() const { return static_cast<int>(1); }
 	const NeuronGame* GetGame(const int index) { return m_currentGame; }
 
-public:
+	// TODO: Should this be public???
+	// TODO: The entire managment of saving and loading AIControllers should be rethought and refactored
+	void ReadControllersFromFile(const char* outputFileName);
+	AiControllerData* GetBestAiController();
+
+
+private:
 	void PrepareNextGeneration();
+	void WriteControllersToFile(const char* outputFileName) const;
 
 private:
 	const Config m_config;

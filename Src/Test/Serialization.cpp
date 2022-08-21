@@ -35,7 +35,7 @@ namespace Test
 		{
 			// 10k buffer is big enough for this test
 			constexpr int k_bufferSize = 1024 * 10;
-			StaticBuffer<k_bufferSize> buffer;
+			StackBuffer<k_bufferSize> buffer;
 
 			std::vector<int> neuronsPerLevel = { 8, 2, 4, 16, 3, 4 };
 			Network baseNetwork(neuronsPerLevel);
@@ -57,7 +57,7 @@ namespace Test
 			const int srcInt = 0xFA479009;
 			const float srcFloat = 3.1415926f;
 
-			StaticBuffer<64> buffer;
+			StackBuffer<64> buffer;
 			buffer.WriteBytes(srcStr, static_cast<int>(strlen(srcStr) + 1));
 			buffer.WriteInt(srcInt);
 			buffer.WriteFloat(srcFloat);

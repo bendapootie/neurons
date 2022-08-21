@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Util/Serializable.h"
+
 class NeuralNetPlayerController;
 
 constexpr int k_pointsForWin = 3;
@@ -27,13 +29,17 @@ public:
 	int m_ties = 0;
 };
 
-class AiControllerData
+class AiControllerData : public ISerializable
 {
 public:
 	AiControllerData();
 	~AiControllerData();
 
+	void Serialize(BinaryBuffer& stream) const override;
+	void Deserialize(BinaryBuffer& stream) override;
+
 public:
 	NeuralNetPlayerController* m_controller = nullptr;
 	WinLossRecord m_winLossRecord;
+	int m_generation = 0;
 };

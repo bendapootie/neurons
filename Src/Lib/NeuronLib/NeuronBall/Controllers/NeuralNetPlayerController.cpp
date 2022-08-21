@@ -161,6 +161,17 @@ NeuralNetPlayerController::~NeuralNetPlayerController()
 	}
 }
 
+void NeuralNetPlayerController::Serialize(BinaryBuffer& stream) const
+{
+	m_neuralNetwork->Serialize(stream);
+}
+
+void NeuralNetPlayerController::Deserialize(BinaryBuffer& stream)
+{
+	m_neuralNetwork->Deserialize(stream);
+}
+
+
 void NeuralNetPlayerController::GetInputFromGameState(NeuronPlayerInput& outPlayerInput, const NeuronGame& game, const int playerIndex)
 {
 	GameStateForNeuralNetInput networkInput(game, playerIndex);

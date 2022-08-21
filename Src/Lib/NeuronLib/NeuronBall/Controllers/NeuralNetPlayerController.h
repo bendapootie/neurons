@@ -1,14 +1,18 @@
 #pragma once
 
 #include "NeuronBall/NeuronPlayerController.h"
+#include "Util/Serializable.h"
 
 class Network;
 
-class NeuralNetPlayerController : public NeuronPlayerController
+class NeuralNetPlayerController : public NeuronPlayerController, ISerializable
 {
 public:
 	NeuralNetPlayerController();
 	~NeuralNetPlayerController();
+
+	void Serialize(BinaryBuffer& stream) const override;
+	void Deserialize(BinaryBuffer& stream) override;
 
 	virtual void GetInputFromGameState(NeuronPlayerInput& outPlayerInput, const NeuronGame& game, const int playerIndex) override;
 
