@@ -19,14 +19,15 @@ enum class PlayMode
 	PlayerVsPlayer
 };
 
-constexpr PlayMode k_playMode = PlayMode::VsSavedAi;
-constexpr float k_gameDuration = 60.0f * 1.0f;
+constexpr PlayMode k_playMode = PlayMode::TrainAiControllers;
+constexpr float k_gameDuration = 30.0f * 1.0f;
 
-constexpr int k_numControllers = 128;
+constexpr int k_numControllers = 1024;
 constexpr int m_numGameSeasons = 3;
-constexpr float m_percentControllersToKeepPerGeneration = 0.2f;
-constexpr int m_numGenerationsToRun = 1000;
-const char* k_saveFileName = "NeuronGameAi_128x1000gen.bin";
+constexpr float k_percentControllersToKeepPerGeneration = 0.2f;
+constexpr int k_saveEveryNGenerations = 100;
+constexpr int k_numGenerationsToRun = 1000 * 1000 * 1000;
+const char* k_saveFileName = "NeuronGameAi_16_%dgen.bin";
 
 // Disable vsync when training AI so the simulations can run as fast as possible
 constexpr bool k_vsyncEnabled = (k_playMode != PlayMode::TrainAiControllers);
@@ -100,8 +101,9 @@ void App::InitializeGame()
 		config.m_numControllers = k_numControllers;
 		config.m_numGameSeasons = m_numGameSeasons;
 		config.m_gameDuration = k_gameDuration;
-		config.m_percentToKeep = m_percentControllersToKeepPerGeneration;
-		config.m_numGenerations = m_numGenerationsToRun;
+		config.m_percentToKeep = k_percentControllersToKeepPerGeneration;
+		config.m_saveEveryNGenerations = k_saveEveryNGenerations;
+		config.m_numGenerations = k_numGenerationsToRun;
 		config.m_saveFile = k_saveFileName;
 
 		_ASSERT(m_aiPlayerTrainer == nullptr);

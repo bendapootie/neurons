@@ -179,11 +179,17 @@ void AiPlayerTrainer::PrepareNextGeneration()
 	sprintf_s(msg, "Generation %d complete =====================================\n", m_generation);
 	OutputDebugStringA(msg);
 
-	if (m_generation == m_config.m_numGenerations)
+	// Save controllers to disk
+	if ((m_generation % m_config.m_saveEveryNGenerations == 0) ||
+		(m_generation == m_config.m_numGenerations))
 	{
-		WriteControllersToFile(m_config.m_saveFile);
+		char filename[256];
+		sprintf_s(filename, m_config.m_saveFile, m_generation);
+		WriteControllersToFile(filename);
 	}
-	else
+
+	// Prepare next generation
+	if (m_generation != m_config.m_numGenerations)
 	{
 		// Replace "dead" controllers with new ones for the next generation
 		const int numControllersToKeep = static_cast<int>(m_controllers.size() * m_config.m_percentToKeep);

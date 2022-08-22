@@ -24,7 +24,9 @@ public:
 	float addLevel = 0.05f;			// Chance per network of adding a level
 	float addNeuron = 0.1f;			// Chance per level of adding a neuron
 	float deleteNeuron = 0.1f;		// Chance per level of deleting a neuron
-	float modifyWeights = 0.05f;	// Chance per neuron of modifying all its weights
+	// TODO: Come up with a better algorithm for determining which and how many individual weights to change
+	float modifyWeight = 0.1f;		// Percentage of weights to modify
+	float modifyWeights = 0.01f;	// Chance per neuron of modifying all its weights
 	float modifyBias = 0.05f;		// Chance per neuron of modifying bias
 };
 

@@ -23,6 +23,7 @@ public:
 		//float m_mutationRate = 0.01f;
 
 		int m_numGenerations = 10;
+		int m_saveEveryNGenerations = 100;
 		const char* m_saveFile = nullptr;
 	};
 

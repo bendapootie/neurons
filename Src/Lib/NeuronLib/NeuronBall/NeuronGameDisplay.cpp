@@ -13,7 +13,17 @@ namespace
 		if (s_font == nullptr)
 		{
 			s_font = new sf::Font();
-			bool success = s_font->loadFromFile("..\\Data\\Fonts\\Overpass-Regular.ttf");
+			bool success = false;
+			// TODO: Implement a better search path order, or embed the font in the executable
+			success = s_font->loadFromFile("Overpass-Regular.ttf");
+			if (!success)
+			{
+				success = s_font->loadFromFile("Fonts\\Overpass-Regular.ttf");
+			}
+			if (!success)
+			{
+				success = s_font->loadFromFile("..\\Data\\Fonts\\Overpass-Regular.ttf");
+			}
 		}
 		return *s_font;
 	}

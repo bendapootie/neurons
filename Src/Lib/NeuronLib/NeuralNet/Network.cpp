@@ -207,6 +207,18 @@ void Network::Mutate(Random& rand)
 			{
 				neuron.RandomizeWeights(rand);
 			}
+			else
+			{
+				// TODO: This way of determining how many and which weights to change isn't
+				//       statistically the same as checking each one.
+				int numWeightsToChange = static_cast<int>(neuron.weights.size() * m_mutationSettings.modifyWeight);
+				for (int w = 0; w < numWeightsToChange; w++)
+				{
+					int weightIndex = rand.NextInt(static_cast<int>(neuron.weights.size()));
+					neuron.RandomizeSingleWeight(weightIndex, rand);
+				}
+			}
+
 			if (rand.NextFloat() < m_mutationSettings.modifyBias)
 			{
 				neuron.RandomizeBias(rand);

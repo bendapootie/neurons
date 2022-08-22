@@ -13,6 +13,11 @@ public:
 		std::uniform_int_distribution<int> distribution(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
 		return distribution(m_generator);
 	}
+	int NextInt(int maxExclusive)
+	{
+		std::uniform_int_distribution<int> distribution(0, maxExclusive - 1);
+		return distribution(m_generator);
+	}
 	int NextInt(int minInclusive, int maxExclusive)
 	{
 		std::uniform_int_distribution<int> distribution(minInclusive, maxExclusive - 1);
