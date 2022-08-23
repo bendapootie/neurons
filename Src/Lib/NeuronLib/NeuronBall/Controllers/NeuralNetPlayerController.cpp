@@ -143,11 +143,6 @@ private:
 
 //=============================================================================
 
-NeuralNetPlayerController::NeuralNetPlayerController() :
-	NeuralNetPlayerController(s_rand)
-{
-}
-
 NeuralNetPlayerController::NeuralNetPlayerController(Random& rand)
 {
 	// Input level needs "k_numGameStateInputs" neurons
@@ -197,12 +192,6 @@ void NeuralNetPlayerController::GetInputFromGameState(NeuronPlayerInput& outPlay
 void NeuralNetPlayerController::Breed(const NeuralNetPlayerController& parent0, const NeuralNetPlayerController& parent1, Random& rand)
 {
 	m_neuralNetwork->InitializeFromParents(*parent0.m_neuralNetwork, *parent1.m_neuralNetwork, rand);
-}
-
-void NeuralNetPlayerController::Randomize()
-{
-	// Use the default, global random generator
-	Randomize(s_rand);
 }
 
 void NeuralNetPlayerController::Randomize(Random& rand)

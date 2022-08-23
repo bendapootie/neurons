@@ -16,6 +16,9 @@ namespace Test
 	public:
 		TEST_METHOD(NetworkComparison)
 		{
+			Random rand;
+			rand.Seed();
+
 			// Newly constructed networks with identical topology should be identical
 			std::vector<int> neuronsPerLevel = { 8, 2, 4, 16, 3, 4 };
 			Network network0(neuronsPerLevel);
@@ -23,7 +26,7 @@ namespace Test
 			Assert::IsTrue(network0 == network1);
 
 			// If one of the networks is randomized, they should no longer be equal
-			network0.Randomize(s_rand);
+			network0.Randomize(rand);
 			Assert::IsFalse(network0 == network1);
 
 			// Assignment should restore equality
@@ -33,13 +36,16 @@ namespace Test
 
 		TEST_METHOD(NetworkSerialization)
 		{
+			Random rand;
+			rand.Seed();
+
 			// 10k buffer is big enough for this test
 			constexpr int k_bufferSize = 1024 * 10;
 			StackBuffer<k_bufferSize> buffer;
 
 			std::vector<int> neuronsPerLevel = { 8, 2, 4, 16, 3, 4 };
 			Network baseNetwork(neuronsPerLevel);
-			baseNetwork.Randomize(s_rand);
+			baseNetwork.Randomize(rand);
 
 			baseNetwork.Serialize(buffer);
 

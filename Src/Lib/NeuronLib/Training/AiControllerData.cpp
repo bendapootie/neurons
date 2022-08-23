@@ -4,9 +4,9 @@
 #include "NeuronBall/Controllers/NeuralNetPlayerController.h"
 
 
-AiControllerData::AiControllerData()
+AiControllerData::AiControllerData(Random& rand)
 {
-	m_controller = new NeuralNetPlayerController();
+	m_controller = new NeuralNetPlayerController(rand);
 }
 
 AiControllerData::~AiControllerData()

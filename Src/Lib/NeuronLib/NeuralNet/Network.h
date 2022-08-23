@@ -11,7 +11,39 @@ enum class NetworkRange
 	NegativeOneToOne
 };
 
-constexpr NetworkRange k_networkRange = NetworkRange::ZeroToOne;
+enum class ActivationFunction
+{
+	// Identity: Useful when no output change is desired when adding neurons to a network
+	// otherwise, it can reduce an entire neural network to a simple linear equation
+	Identity,
+	// Hyperbolic Tangent: Outputs in range [-1..1]. Good for outputs centered around zero.
+	// f(x) = (e^x - e^-x) / (e^x + e^-x)
+	//
+	TanH,
+	// Sigmoid: Outputs in range [0..1]. Good for predicting probabilities.
+	// f(x) = 1 / (1 + e^-x)
+	Sigmoid
+};
+
+// TODO: Move these into Math or Neuron?
+static float Sigmoid(const float x)
+{
+	return 1.0f / (1.0f + expf(-x));
+}
+
+// Derivative of Sigmoid
+static float SigmoidDx(const float x)
+{
+	return Sigmoid(x) * (1.0f - Sigmoid(x));
+}
+
+// The inverse of the Sigmoid function is known as the "Logit" function
+static float SigmoidInverse(const float x)
+{
+	return logf(x) - logf(1.0f - x);
+}
+
+//=============================================================================
 
 class MutationSettings
 {
@@ -50,7 +82,8 @@ public:
 	{
 		return
 			(bias == rhs.bias) &&
-			(weights == rhs.weights);
+			(weights == rhs.weights) &&
+			(m_activationFunction == rhs.m_activationFunction);
 	}
 
 	void Print() const
@@ -67,6 +100,21 @@ public:
 		}
 	}
 
+	float Activation(const float x) const
+	{
+		switch (m_activationFunction)
+		{
+		case ActivationFunction::Identity:
+			return x;
+		case ActivationFunction::TanH:
+			return tanhf(x);
+		case ActivationFunction::Sigmoid:
+			return Sigmoid(x);
+		}
+		_ASSERT(false);	// Should never get here
+		return 0.0;
+	}
+
 	void RandomizeWeights(Random& rand);
 	void RandomizeSingleWeight(int weightIndex, Random& rand);
 
@@ -81,6 +129,7 @@ public:
 public:
 	std::vector<float> weights;
 	float bias = 0.0f;
+	ActivationFunction m_activationFunction = ActivationFunction::TanH;
 };
 
 //=============================================================================
@@ -104,15 +153,7 @@ public:
 		return neurons == rhs.neurons;
 	}
 
-	void Print() const
-	{
-		for (const auto& n : neurons)
-		{
-			printf("[");
-			n.Print();
-			printf("]");
-		}
-	}
+	void Print() const;
 
 	void AddNeuron(Random& rand)
 	{
@@ -120,13 +161,8 @@ public:
 		neurons[neurons.size() - 1].RandomizeAll(rand);
 	}
 
-	void Randomize(Random& rand)
-	{
-		for (auto& neuron : neurons)
-		{
-			neuron.RandomizeAll(rand);
-		}
-	}
+	void MakeIdentity();
+	void Randomize(Random& rand);
 
 public:
 	std::vector<Neuron> neurons;
@@ -155,6 +191,8 @@ public:
 	// ISerializable interface
 	virtual void Serialize(BinaryBuffer& stream) const override;
 	virtual void Deserialize(BinaryBuffer& stream) override;
+
+	int GetNumLevels() const { return static_cast<int>(m_levels.size()); }
 
 	// Primarily used for validating unit tests
 	bool operator == (const Network& rhs) const
@@ -191,7 +229,7 @@ public:
 				{
 					val += (*l1)[j] * level.neurons[i].weights[j];
 				}
-				(*l2)[i] = Activation(val);
+				(*l2)[i] = level.neurons[i].Activation(val);
 			}
 			// swap buffers
 			std::vector<float>* temp = l1;
@@ -241,31 +279,7 @@ public:
 
 	void Mutate(Random& rand);
 
-	static float Sigmoid(const float x)
-	{
-		return 1.0f / (1.0f + expf(-x));
-	}
-	static float SigmoidDx(const float x)
-	{
-		return Sigmoid(x) * (1.0f - Sigmoid(x));
-	}
-	static float SigmoidInverse(const float x)
-	{
-		// The inverse of the Sigmoid function is known as the "Logit" function
-		return logf(x) - logf(1.0f - x);
-	}
-
-private:
-	static float Activation(const float x)
-	{
-		// TODO: Is there a better activation function is use?
-		//       Maybe the activation function could be a parameter of the network
-		//       and susceptible to mutation?
-		//return Sigmoid(x);
-		return tanhf(x);
-	}
-
-	void AddRandomLevel(Random& rand);
+	void AddIdentityLevel(int levelIndex);
 
 private:
 	std::vector<NetworkLevel> m_levels;

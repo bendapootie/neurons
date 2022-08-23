@@ -70,6 +70,8 @@ void PhysicsTest::UpdatePhysicsTest()
 
 	constexpr float k_defaultDensity = 1.0f;
 
+	Random rand;
+
 	if (m_initialized == false)
 	{
 		m_shapes.Zero();
@@ -78,25 +80,25 @@ void PhysicsTest::UpdatePhysicsTest()
 		{
 			for (Shape*& shape : m_shapes)
 			{
-				if (s_rand.NextInt(0, 2) == 1)
+				if (rand.NextInt(0, 2) == 1)
 				{
 					Circle* newCircle = new Circle();
-					newCircle->m_pos = Vector2(s_rand.NextFloat(0.0f, k_fieldLength), s_rand.NextFloat(0.0f, k_fieldWidth));
-					newCircle->m_velocity = Vector2(s_rand.NextFloat(-k_maxSpeed, k_maxSpeed), s_rand.NextFloat(-k_maxSpeed, k_maxSpeed));
-					newCircle->m_facing = s_rand.NextFloat(0.0f, k_2pi);
-					newCircle->m_angularVelocity = s_rand.NextFloat(-k_maxCircleRotationalVelocity, k_maxCircleRotationalVelocity);
-					newCircle->m_radius = s_rand.NextFloat(k_minRadius, k_maxRadius);
+					newCircle->m_pos = Vector2(rand.NextFloat(0.0f, k_fieldLength), rand.NextFloat(0.0f, k_fieldWidth));
+					newCircle->m_velocity = Vector2(rand.NextFloat(-k_maxSpeed, k_maxSpeed), rand.NextFloat(-k_maxSpeed, k_maxSpeed));
+					newCircle->m_facing = rand.NextFloat(0.0f, k_2pi);
+					newCircle->m_angularVelocity = rand.NextFloat(-k_maxCircleRotationalVelocity, k_maxCircleRotationalVelocity);
+					newCircle->m_radius = rand.NextFloat(k_minRadius, k_maxRadius);
 					shape = newCircle;
 				}
 				else
 				{
 					Rectangle* newRectangle = new Rectangle();
-					newRectangle->m_pos = Vector2(s_rand.NextFloat(0.0f, k_fieldLength), s_rand.NextFloat(0.0f, k_fieldWidth));
-					newRectangle->m_velocity = Vector2(s_rand.NextFloat(-k_maxSpeed, k_maxSpeed), s_rand.NextFloat(-k_maxSpeed, k_maxSpeed));
-					newRectangle->m_facing = s_rand.NextFloat(0.0f, k_2pi);
-					newRectangle->m_angularVelocity = s_rand.NextFloat(-k_maxRectRotationalVelocity, k_maxRectRotationalVelocity);
-					newRectangle->m_halfLength = s_rand.NextFloat(k_minRadius, k_maxRadius);
-					newRectangle->m_halfWidth = s_rand.NextFloat(k_minRadius, k_maxRadius);
+					newRectangle->m_pos = Vector2(rand.NextFloat(0.0f, k_fieldLength), rand.NextFloat(0.0f, k_fieldWidth));
+					newRectangle->m_velocity = Vector2(rand.NextFloat(-k_maxSpeed, k_maxSpeed), rand.NextFloat(-k_maxSpeed, k_maxSpeed));
+					newRectangle->m_facing = rand.NextFloat(0.0f, k_2pi);
+					newRectangle->m_angularVelocity = rand.NextFloat(-k_maxRectRotationalVelocity, k_maxRectRotationalVelocity);
+					newRectangle->m_halfLength = rand.NextFloat(k_minRadius, k_maxRadius);
+					newRectangle->m_halfWidth = rand.NextFloat(k_minRadius, k_maxRadius);
 					shape = newRectangle;
 				}
 				// Compute mass and inertia based on area

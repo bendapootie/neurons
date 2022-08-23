@@ -3,6 +3,7 @@
 #include "Util/Serializable.h"
 
 class NeuralNetPlayerController;
+class Random;
 
 constexpr int k_pointsForWin = 3;
 constexpr int k_pointsForTie = 1;
@@ -32,7 +33,7 @@ public:
 class AiControllerData : public ISerializable
 {
 public:
-	AiControllerData();
+	AiControllerData(Random& rand);
 	~AiControllerData();
 
 	void Serialize(BinaryBuffer& stream) const override;

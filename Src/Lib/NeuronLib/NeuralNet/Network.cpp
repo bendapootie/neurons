@@ -16,6 +16,9 @@ void Neuron::Serialize(BinaryBuffer& stream) const
 		SerializeFloat(stream, weight);
 	}
 	SerializeFloat(stream, bias);
+
+	static_assert(sizeof(m_activationFunction) == sizeof(int));
+	SerializeInt(stream, static_cast<int>(m_activationFunction));
 }
 
 void Neuron::Deserialize(BinaryBuffer& stream)
@@ -28,6 +31,11 @@ void Neuron::Deserialize(BinaryBuffer& stream)
 		DeserializeFloat(stream, weight);
 	}
 	DeserializeFloat(stream, bias);
+
+	static_assert(sizeof(m_activationFunction) == sizeof(int));
+	int tempInt;
+	DeserializeInt(stream, tempInt);
+	m_activationFunction = static_cast<ActivationFunction>(tempInt);
 }
 
 void Neuron::RandomizeWeights(Random& rand)
@@ -69,6 +77,38 @@ void NetworkLevel::Deserialize(BinaryBuffer& stream)
 	for (auto& neuron : neurons)
 	{
 		neuron.Deserialize(stream);
+	}
+}
+
+void NetworkLevel::Print() const
+{
+	for (const auto& n : neurons)
+	{
+		printf("[");
+		n.Print();
+		printf("]");
+	}
+}
+
+void NetworkLevel::MakeIdentity()
+{
+	for (size_t n = 0; n < neurons.size(); n++)
+	{
+		Neuron& neuron = neurons[n];
+		for (size_t w = 0; w < neuron.weights.size(); w++)
+		{
+			neuron.weights[w] = (n == w) ? 1.0f : 0.0f;
+		}
+		neuron.bias = 0.0f;
+		neuron.m_activationFunction = ActivationFunction::Identity;
+	}
+}
+
+void NetworkLevel::Randomize(Random& rand)
+{
+	for (auto& neuron : neurons)
+	{
+		neuron.RandomizeAll(rand);
 	}
 }
 
@@ -147,7 +187,9 @@ void Network::Mutate(Random& rand)
 	// Chance per network of adding a level
 	if (rand.NextFloat() < m_mutationSettings.addLevel)
 	{
-		AddRandomLevel(rand);
+		// Since the new level is an Identity, it doesn't change the behavior of the network
+		int newIndex = rand.NextInt(1, (int)m_levels.size());
+		AddIdentityLevel(newIndex);
 	}
 
 	// Chance per level of adding a neuron
@@ -227,25 +269,19 @@ void Network::Mutate(Random& rand)
 	}
 }
 
-void Network::AddRandomLevel(Random& rand)
+void Network::AddIdentityLevel(int levelIndex)
 {
-	int newIndex = rand.NextInt(1, (int)m_levels.size());
+	if ((levelIndex <= 0) || (levelIndex >= static_cast<int>(m_levels.size())))
+	{
+		// TODO: Handle failue here better. Return false?
+		_ASSERT(false);	// Index out of range!
+		return;
+	}
 
-	const int neuronsinPreviousLevel = (int)m_levels[newIndex - 1].neurons.size();
+	const int neuronsinPreviousLevel = static_cast<int>(m_levels[levelIndex - 1].neurons.size());
 	NetworkLevel newLevel(neuronsinPreviousLevel, neuronsinPreviousLevel);
 
-	constexpr bool completelyRandomizeNewLevel = true;
-	if constexpr (completelyRandomizeNewLevel)
-	{
-		newLevel.Randomize(rand);
-	}
-	else
-	{
-		for (int i = 0; i < newLevel.neurons.size(); i++)
-		{
-			newLevel.neurons[i].weights[i] = 1.0f;
-		}
-	}
+	newLevel.MakeIdentity();
 
-	m_levels.insert(m_levels.begin() + newIndex, newLevel);
+	m_levels.insert(m_levels.begin() + levelIndex, newLevel);
 }

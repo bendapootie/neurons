@@ -5,7 +5,8 @@
 
 void TrainForCircle(const int maxPopulation, const float topKeepPercent = 0.2f, const float randomKeepPercent = 0.1f)
 {
-	Random& rand = s_rand;
+	Random rand;
+	rand.Seed();
 
 	float bestScore = 0.0f;
 	int iterations = 0;

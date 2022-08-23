@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "AiControllerData.h"
 #include <fstream>
+#include "NeuralNet/Network.h"
 #include "NeuronBall/NeuronGame.h"
 #include "NeuronBall/Controllers/NeuralNetPlayerController.h"
 #include "Util/Random.h"
@@ -12,8 +13,8 @@
 
 const char* k_fileMagicString = "pcAI";
 constexpr int k_fileMajorVersion = 0;		// Major versions are fundamental feature breaks where data migration could not save all data
-constexpr int k_fileMinorVersion = 0;		// Minor versions are not directly backward compatible, but data migration could be possible
-constexpr int k_fileRevisionNumber = 1;		// Newer revisions can read data from older revisions
+constexpr int k_fileMinorVersion = 1;		// Minor versions are not directly backward compatible, but data migration could be possible
+constexpr int k_fileRevisionNumber = 0;		// Newer revisions can read data from older revisions
 
 
 class GameStats
@@ -56,10 +57,13 @@ public:
 AiPlayerTrainer::AiPlayerTrainer(const Config& config) :
 	m_config(config)
 {
+	// Seed the random number generator from the clock
+	m_rand.Seed();
+
 	for (int i = 0; i < m_config.m_numControllers; i++)
 	{
-		AiControllerData* aiControllerData = new AiControllerData();
-		aiControllerData->m_controller->Randomize();
+		AiControllerData* aiControllerData = new AiControllerData(m_rand);
+		aiControllerData->m_controller->Randomize(m_rand);
 		m_controllers.push_back(aiControllerData);
 	}
 
@@ -155,7 +159,13 @@ void AiPlayerTrainer::PrepareNextGeneration()
 	// Sort controllers based on score.
 	sort(begin(m_controllers),
 		end(m_controllers),
-		[](AiControllerData* a, AiControllerData* b) {return a->m_winLossRecord.GetPoints() > b->m_winLossRecord.GetPoints(); });
+		[](AiControllerData* a, AiControllerData* b)
+		{
+			int pointsCmp = a->m_winLossRecord.GetPoints() - b->m_winLossRecord.GetPoints();
+			int levelsCmp = a->m_controller->DebugGetNetwork()->GetNumLevels() - b->m_controller->DebugGetNetwork()->GetNumLevels();
+			// More points is better. If points are equal, fewer levels is better.
+			return (pointsCmp > 0) || (pointsCmp == 0) && (levelsCmp < 0);
+		});
 
 	// Output stats
 	char msg[64];
@@ -184,13 +194,19 @@ void AiPlayerTrainer::PrepareNextGeneration()
 		(m_generation == m_config.m_numGenerations))
 	{
 		char filename[256];
-		sprintf_s(filename, m_config.m_saveFile, m_generation);
+		sprintf_s(filename, m_config.m_saveFile,
+			k_fileMajorVersion, k_fileMinorVersion, k_fileRevisionNumber,
+			m_generation
+		);
+
 		WriteControllersToFile(filename);
 	}
 
 	// Prepare next generation
 	if (m_generation != m_config.m_numGenerations)
 	{
+		// TODO: Keep some random other controllers too
+
 		// Replace "dead" controllers with new ones for the next generation
 		const int numControllersToKeep = static_cast<int>(m_controllers.size() * m_config.m_percentToKeep);
 		for (int i = numControllersToKeep; i < m_controllers.size(); i++)
@@ -286,11 +302,16 @@ void AiPlayerTrainer::ReadControllersFromFile(const char* inputFileName)
 	{
 		if (controller == nullptr)
 		{
-			controller = new AiControllerData();
+			controller = new AiControllerData(m_rand);
 		}
 		controller->Deserialize(buffer);
 	}
 	_ASSERT(buffer.GetErrorStatus() == BinaryBuffer::ErrorStatus::NoError);
+}
+
+AiControllerData* AiPlayerTrainer::GetAiController(int index)
+{
+	return m_controllers[index];
 }
 
 AiControllerData* AiPlayerTrainer::GetBestAiController()

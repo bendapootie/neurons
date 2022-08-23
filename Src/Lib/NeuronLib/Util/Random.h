@@ -40,6 +40,3 @@ private:
 	static std::normal_distribution<float> s_gaussianDistribution;
 	static std::uniform_real_distribution<float> s_uniformRealDistribution;
 };
-
-// Globally shared random generator for convenience
-extern Random s_rand;
