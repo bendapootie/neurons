@@ -22,7 +22,11 @@ enum class ActivationFunction
 	TanH,
 	// Sigmoid: Outputs in range [0..1]. Good for predicting probabilities.
 	// f(x) = 1 / (1 + e^-x)
-	Sigmoid
+	Sigmoid,
+
+
+	// For convienence...
+	Default = TanH
 };
 
 // TODO: Move these into Math or Neuron?
@@ -129,7 +133,7 @@ public:
 public:
 	std::vector<float> weights;
 	float bias = 0.0f;
-	ActivationFunction m_activationFunction = ActivationFunction::TanH;
+	ActivationFunction m_activationFunction = ActivationFunction::Default;
 };
 
 //=============================================================================
@@ -275,7 +279,7 @@ public:
 	}
 
 	// Rebuild this network by merging the two provided parents
-	void InitializeFromParents(const Network& parent0, const Network& parent1, Random& rand);
+	void InitializeFromParents(Random& rand, const Network* parent0 = nullptr, const Network* parent1 = nullptr);
 
 	void Mutate(Random& rand);
 

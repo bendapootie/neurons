@@ -44,16 +44,25 @@ void Neuron::RandomizeWeights(Random& rand)
 	{
 		weight = rand.NextGaussian();
 	}
+
+	// Reset the activation function in case it was Identity
+	m_activationFunction = ActivationFunction::Default;
 }
 
 void Neuron::RandomizeSingleWeight(int weightIndex, Random& rand)
 {
 	weights[weightIndex] = rand.NextGaussian();
+
+	// Reset the activation function in case it was Identity
+	m_activationFunction = ActivationFunction::Default;
 }
 
 void Neuron::RandomizeBias(Random& rand)
 {
 	bias = rand.NextGaussian();
+
+	// Reset the activation function in case it was Identity
+	m_activationFunction = ActivationFunction::Default;
 }
 
 //=============================================================================
@@ -144,41 +153,57 @@ void Network::Deserialize(BinaryBuffer& stream)
 }
 
 
-void Network::InitializeFromParents(const Network& parent0, const Network& parent1, Random& rand)
+void Network::InitializeFromParents(Random& rand, const Network* parent0, const Network* parent1)
 {
-	*this = parent0;
-
-	const int maxLevel = Math::Min(int(m_levels.size()), int(parent1.m_levels.size()));
-	for (int i = 0; i < maxLevel; i++)
+	if (parent0 == nullptr && parent1 == nullptr)
 	{
-		NetworkLevel& level = m_levels[i];
-		const NetworkLevel& p1Level = parent1.m_levels[i];
-		
-		const int targetNumWeights = (i > 0) ? static_cast<int>(m_levels[i - 1].neurons.size()) : 0;
-		const int maxNeuron = Math::Min(
-			static_cast<int>(level.neurons.size()),
-			static_cast<int>(p1Level.neurons.size())
-		);
-		for (int n = 0; n < maxNeuron; n++)
+		// Both parents are null, so randomize the network
+		Randomize(rand);
+	}
+	else if (parent0 != nullptr && parent1 != nullptr)
+	{
+		// Both parents are valid; Merge them together
+		// TODO: Figure out a better way to merge neural networks that maintains functionality
+		*this = *parent0;
+
+		const int maxLevel = Math::Min(int(m_levels.size()), int(parent1->m_levels.size()));
+		for (int i = 0; i < maxLevel; i++)
 		{
-			// 50/50 chance of copying neuron from parent1
-			// Note: If networks aren't the exact same shape, there's a chance the new neuron weights my be out of bounds
-			if (rand.NextInt(0, 2) == 0)
+			NetworkLevel& level = m_levels[i];
+			const NetworkLevel& p1Level = parent1->m_levels[i];
+
+			const int targetNumWeights = (i > 0) ? static_cast<int>(m_levels[i - 1].neurons.size()) : 0;
+			const int maxNeuron = Math::Min(
+				static_cast<int>(level.neurons.size()),
+				static_cast<int>(p1Level.neurons.size())
+			);
+			for (int n = 0; n < maxNeuron; n++)
 			{
-				level.neurons[n] = p1Level.neurons[n];
-				const int originalNumWeights = static_cast<int>(level.neurons[n].weights.size());
-				if (originalNumWeights != targetNumWeights)
+				// 50/50 chance of copying neuron from parent1
+				// Note: If networks aren't the exact same shape, there's a chance the new neuron weights my be out of bounds
+				if (rand.NextInt(0, 2) == 0)
 				{
-					level.neurons[n].weights.resize(targetNumWeights);
-					for (int w = originalNumWeights; w < targetNumWeights; w++)
+					level.neurons[n] = p1Level.neurons[n];
+					const int originalNumWeights = static_cast<int>(level.neurons[n].weights.size());
+					if (originalNumWeights != targetNumWeights)
 					{
-						level.neurons[n].RandomizeSingleWeight(w, rand);
+						level.neurons[n].weights.resize(targetNumWeights);
+						for (int w = originalNumWeights; w < targetNumWeights; w++)
+						{
+							level.neurons[n].RandomizeSingleWeight(w, rand);
+						}
 					}
 				}
 			}
 		}
 	}
+	else
+	{
+		// There is only one parent. Copy it.
+		*this = (parent0 != nullptr) ? *parent0 : *parent1;
+	}
 
+	// Mutations always happen regardless of how many parents are used
 	Mutate(rand);
 }
 

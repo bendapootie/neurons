@@ -189,9 +189,11 @@ void NeuralNetPlayerController::GetInputFromGameState(NeuronPlayerInput& outPlay
 	outPlayerInput.m_boost = networkOutput[2];
 }
 
-void NeuralNetPlayerController::Breed(const NeuralNetPlayerController& parent0, const NeuralNetPlayerController& parent1, Random& rand)
+void NeuralNetPlayerController::Breed(Random& rand, const NeuralNetPlayerController* parent0, const NeuralNetPlayerController* parent1)
 {
-	m_neuralNetwork->InitializeFromParents(*parent0.m_neuralNetwork, *parent1.m_neuralNetwork, rand);
+	const Network* n0 = (parent0 != nullptr) ? parent0->m_neuralNetwork : nullptr;
+	const Network* n1 = (parent1 != nullptr) ? parent1->m_neuralNetwork : nullptr;
+	m_neuralNetwork->InitializeFromParents(rand, n0, n1);
 }
 
 void NeuralNetPlayerController::Randomize(Random& rand)

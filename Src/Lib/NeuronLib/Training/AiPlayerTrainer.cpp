@@ -161,14 +161,16 @@ void AiPlayerTrainer::PrepareNextGeneration()
 		end(m_controllers),
 		[](AiControllerData* a, AiControllerData* b)
 		{
-			int pointsCmp = a->m_winLossRecord.GetPoints() - b->m_winLossRecord.GetPoints();
-			int levelsCmp = a->m_controller->DebugGetNetwork()->GetNumLevels() - b->m_controller->DebugGetNetwork()->GetNumLevels();
+			int pointsCmp = (a->m_winLossRecord.GetPoints() - b->m_winLossRecord.GetPoints());
+			// Divide levelsCmp by two to allow for easy growth by one level while still
+			// restricting unbounded growth.
+			int levelsCmp = (a->m_controller->DebugGetNetwork()->GetNumLevels() - b->m_controller->DebugGetNetwork()->GetNumLevels()) / 2;
 			// More points is better. If points are equal, fewer levels is better.
 			return (pointsCmp > 0) || (pointsCmp == 0) && (levelsCmp < 0);
 		});
 
 	// Output stats
-	char msg[64];
+	char msg[256];
 	OutputDebugStringA("========================================================================\n");
 
 	for (int i = 0; i < m_controllers.size(); i++)
@@ -211,17 +213,12 @@ void AiPlayerTrainer::PrepareNextGeneration()
 		const int numControllersToKeep = static_cast<int>(m_controllers.size() * m_config.m_percentToKeep);
 		for (int i = numControllersToKeep; i < m_controllers.size(); i++)
 		{
-			// Note: There's a chance both parents will be the same. Should that be prevented?
-			const int parentIndex0 = m_rand.NextInt(0, numControllersToKeep);
-			const int parentIndex1 = m_rand.NextInt(0, numControllersToKeep);
-			const AiControllerData& parent0 = *m_controllers[parentIndex0];
-			const AiControllerData& parent1 = *m_controllers[parentIndex1];
-			m_controllers[i]->m_controller->Breed(
-				*parent0.m_controller,
-				*parent1.m_controller,
-				m_rand
-			);
-			m_controllers[i]->m_generation = Math::Max(parent0.m_generation, parent1.m_generation) + 1;
+			// Using only asexual reproduction for now.
+			// TODO: Develop a more reliable way to get good results from merging multiple parents
+			const int parentIndex = m_rand.NextInt(0, numControllersToKeep);
+			const AiControllerData& parent = *m_controllers[parentIndex];
+			m_controllers[i]->m_controller->Breed(m_rand, parent.m_controller);
+			m_controllers[i]->m_generation = parent.m_generation + 1;
 		}
 
 		// Randomize seeding of controllers
@@ -268,7 +265,7 @@ void AiPlayerTrainer::WriteControllersToFile(const char* outputFileName) const
 	file.close();
 }
 
-void AiPlayerTrainer::ReadControllersFromFile(const char* inputFileName)
+void AiPlayerTrainer::ReadControllersFromFile(const char* inputFileName, int generationStride, int maxGeneration)
 {
 	if (inputFileName == nullptr)
 	{
@@ -278,6 +275,36 @@ void AiPlayerTrainer::ReadControllersFromFile(const char* inputFileName)
 	// Read entire file into a vector
 	// TODO: Read directly into Buffer
 	std::ifstream inFile(inputFileName, std::ios::binary);
+	if (inFile.fail())
+	{
+		// File does not exist
+		int generation = maxGeneration;
+		while (generation > 0)
+		{
+			char filename[256];
+			sprintf_s(filename, m_config.m_saveFile,
+				k_fileMajorVersion, k_fileMinorVersion, k_fileRevisionNumber,
+				generation
+			);
+			inFile = std::ifstream(filename, std::ios::binary);
+			if (inFile.fail())
+			{
+				generation -= generationStride;
+			}
+			else
+			{
+				// File was found, use it and set current generation
+				m_generation = generation;
+				break;
+			}
+		}
+	}
+	if (inFile.fail())
+	{
+		_ASSERT(false); // "No matching file found");
+		return;
+	}
+
 	std::vector<char> rawFileBytes(std::istreambuf_iterator<char>(inFile), {});
 	inFile.close();
 

@@ -26,9 +26,9 @@ constexpr int k_numControllers = 1024;
 constexpr int m_numGameSeasons = 4;
 constexpr float k_percentControllersToKeepPerGeneration = 0.2f;
 constexpr int k_saveEveryNGenerations = 100;
-constexpr int k_numGenerationsToRun = 1000 * 100;
+constexpr int k_numGenerationsToRun = 1000 * 1000;
 const char* k_saveFileName = "Ai_v%d_%d_%d_1024_%dgen.bin";
-const char* k_loadFileName = "NeuronGameAi_1024_10gen.bin";
+const char* k_loadFileName = "Ai_v0_1_0_1024_9000gen.bin";
 
 // Disable vsync when training AI so the simulations can run as fast as possible
 constexpr bool k_vsyncEnabled = (k_playMode != PlayMode::TrainAiControllers);
@@ -109,6 +109,8 @@ void App::InitializeGame()
 
 		_ASSERT(m_aiPlayerTrainer == nullptr);
 		m_aiPlayerTrainer = new AiPlayerTrainer(config);
+
+		m_aiPlayerTrainer->ReadControllersFromFile(k_saveFileName, k_saveEveryNGenerations, k_numGenerationsToRun);
 		break;
 	}
 
@@ -121,9 +123,9 @@ void App::InitializeGame()
 
 		_ASSERT(m_testGame == nullptr);
 		m_testGame = new NeuronGame();
-		m_testGame->SetPlayerController(0, new HumanPlayerController(0));
-//		m_testGame->SetPlayerController(0, m_aiPlayerTrainer->GetAiController(0)->m_controller);
-		m_testGame->SetPlayerController(1, m_aiPlayerTrainer->GetAiController(0)->m_controller);
+//		m_testGame->SetPlayerController(0, new HumanPlayerController(0));
+		m_testGame->SetPlayerController(0, m_aiPlayerTrainer->GetAiController(1)->m_controller);
+		m_testGame->SetPlayerController(1, m_aiPlayerTrainer->GetAiController(512)->m_controller);
 		break;
 	}
 	break;
