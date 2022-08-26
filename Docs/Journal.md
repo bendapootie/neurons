@@ -31,6 +31,14 @@
 - Group neurons into genes then randomly select those from each parent rather than individual neurons
 	- Try sexual reproduction with more than two parents
 - Reimplement in Cuda to increase number of simulations that can be run in parallel
+### Video Status
+Top AI from generation 9,000 vs middle of the road AI at same generation
+- Each has a  two level neural network
+![](videos/2022-08-25%20Neuron%20Ball%20-%20Gen%209000;%202%20Layers%20(1V500)-1.mp4)
+
+Top two AI from generation 9,000 playing against each other
+- They are both aggressive on the kickoff, but don't react well after
+![](videos/2022-08-25%20Neuron%20Ball%20-%20Gen%209000;%202%20Layers%20(1V2)-1.mp4)
 
 ## 8/08/2022
 ### Current Status
