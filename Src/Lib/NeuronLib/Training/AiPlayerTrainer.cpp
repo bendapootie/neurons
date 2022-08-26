@@ -166,7 +166,7 @@ void AiPlayerTrainer::PrepareNextGeneration()
 			// restricting unbounded growth.
 			int levelsCmp = (a->m_controller->DebugGetNetwork()->GetNumLevels() - b->m_controller->DebugGetNetwork()->GetNumLevels()) / 2;
 			// More points is better. If points are equal, fewer levels is better.
-			return (pointsCmp > 0) || (pointsCmp == 0) && (levelsCmp < 0);
+			return (pointsCmp > 0) || ((pointsCmp == 0) && (levelsCmp < 0));
 		});
 
 	// Output stats
@@ -265,11 +265,11 @@ void AiPlayerTrainer::WriteControllersToFile(const char* outputFileName) const
 	file.close();
 }
 
-void AiPlayerTrainer::ReadControllersFromFile(const char* inputFileName, int generationStride, int maxGeneration)
+bool AiPlayerTrainer::ReadControllersFromFile(const char* inputFileName, int generationStride, int maxGeneration)
 {
 	if (inputFileName == nullptr)
 	{
-		return;
+		return false;
 	}
 
 	// Read entire file into a vector
@@ -301,8 +301,7 @@ void AiPlayerTrainer::ReadControllersFromFile(const char* inputFileName, int gen
 	}
 	if (inFile.fail())
 	{
-		_ASSERT(false); // "No matching file found");
-		return;
+		return false; // "No matching file found");
 	}
 
 	std::vector<char> rawFileBytes(std::istreambuf_iterator<char>(inFile), {});
@@ -333,7 +332,11 @@ void AiPlayerTrainer::ReadControllersFromFile(const char* inputFileName, int gen
 		}
 		controller->Deserialize(buffer);
 	}
-	_ASSERT(buffer.GetErrorStatus() == BinaryBuffer::ErrorStatus::NoError);
+
+	const bool success = buffer.GetErrorStatus() == BinaryBuffer::ErrorStatus::NoError;
+	_ASSERT(success);
+
+	return success;
 }
 
 AiControllerData* AiPlayerTrainer::GetAiController(int index)

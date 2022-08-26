@@ -9,7 +9,6 @@ class Random;
 class NeuralNetPlayerController : public NeuronPlayerController, ISerializable
 {
 public:
-//	NeuralNetPlayerController();
 	NeuralNetPlayerController(Random& rand);
 	~NeuralNetPlayerController();
 

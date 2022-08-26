@@ -37,7 +37,7 @@ public:
 
 	// TODO: Should this be public???
 	// TODO: The entire managment of saving and loading AIControllers should be rethought and refactored
-	void ReadControllersFromFile(const char* outputFileName, int generationStride = 0, int maxGeneration = 0);
+	bool ReadControllersFromFile(const char* outputFileName, int generationStride = 0, int maxGeneration = 0);
 	AiControllerData* GetAiController(int index);
 	AiControllerData* GetBestAiController();
 

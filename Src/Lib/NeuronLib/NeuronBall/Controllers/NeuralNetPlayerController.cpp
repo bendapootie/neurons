@@ -90,7 +90,7 @@ private:
 
 		// Input values...
 		// - Player0 (Pos(x,y), Velocity(x,y), Forward(x,y), Boost)
-		// - Player1 (Pos(x,y), Velocity(x,y), Forward(x,y))
+		// - Player1 (Pos(x,y), Velocity(x,y), Forward(x,y), Boost)
 		// - Ball (Pos(x,y), Velocity(x,y))
 		// Optional
 		// - Scores (mine, theirs)
@@ -152,7 +152,7 @@ NeuralNetPlayerController::NeuralNetPlayerController(Random& rand)
 	static_assert(sizeof(NeuronPlayerInput) == 3 * sizeof(float), "Verify NeuronPlayerInput has exactly 3 values");
 
 	// Create a simple neural network to map inputs (game state) to outputs (player actions)
-	std::vector<int> neuronsPerLevel = { GameStateForNeuralNetInput::k_numGameStateInputs, 3 };
+	std::vector<int> neuronsPerLevel = { GameStateForNeuralNetInput::k_numGameStateInputs, 13, 8, 5, 3 };
 	m_neuralNetwork = new Network(neuronsPerLevel);
 
 	// Start with some random values instead of all zeros to try and get things kick-started
