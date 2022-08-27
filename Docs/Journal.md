@@ -1,3 +1,22 @@
+## 8/26/2022
+### Current Status
+Instead of starting initial networks with two levels, I started them with five, with 21, 13, 8, 5, and 3 neurons per level. They needed to go from 21 inputs to 3 outputs, so using Fibbonaci numbers seemed fitting. Since they have more neurons, they understandably took a bit longer to run, but I still got through 10,000 generations in one day.
+
+After ~10,000 generations, the deeper networks were still very focused on kickoffs, but they started to show additional useful behavior if the kickoff didn't score.
+
+### Takeaways
+- I saw evidence that deeper networks were created that can produce more complex and interesting behavior.
+- The fitness function I've been using is inadequate. Each agent plays against 8 random opponents and the results are scored with wins worth 3, ties 1, and losses 0. That is extremely little granularity considering there were hundreds of individual values in each of the initial networks.
+
+### Video Status
+10,000 generations with deeper networks (5-6 levels deep). Red is ranked #1, Blue is #1000.
+Red misses the first kickoff but Blue's pattern after that allows it to score at least once before Red dominates the remaining kickoffs.
+![](videos/2022-08-26%20Neuron%20Ball%20-%20Gen%2010000;%205-6%20Layers%20(1V1000).mp4)
+
+This is the #1 vs #2 agents in a much less interesting match
+![](videos/2022-08-26%20Neuron%20Ball%20-%20Gen%2010000;%205%20Layers%20(1V2).mp4)
+
+
 ## 8/25/2022
 ### Current Status
 - Game simulations have been decoupled from rendering and can be simulated very quickly
