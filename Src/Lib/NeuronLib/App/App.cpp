@@ -2,6 +2,8 @@
 #include "App.h"
 
 #include <SFML/Graphics.hpp>
+#include "imgui/imgui.h"
+#include "imgui-sfml/imgui-SFML.h"
 
 // TODO: These are just included for testing. Remove them when not needed anymore.
 #include "NeuronBall/Controllers/HumanPlayerController.h"
@@ -25,7 +27,7 @@ enum class PlayMode
 // GamesPerSeason = 4
 // Keep 20% per generation
 
-constexpr PlayMode k_playMode = PlayMode::TrainAiControllers;
+constexpr PlayMode k_playMode = PlayMode::VsSavedAi;
 constexpr float k_gameDuration = 15.0f * 1.0f;
 
 constexpr int k_numControllers = 1024;
@@ -34,14 +36,17 @@ constexpr float k_percentControllersToKeepPerGeneration = 0.2f;
 constexpr int k_saveEveryNGenerations = 100;
 constexpr int k_numGenerationsToRun = 1000 * 1000;
 const char* k_saveFileName = "Ai_v%d_%d_%d_deep_%dgen.bin";
-const char* k_loadFileName = "Ai_v0_1_0_1024_16700gen.bin";
+//const char* k_loadFileName = "Ai_v0_1_0_deep_14400gen.bin";
+const char* k_loadFileName = "Ai_v0_1_0_deep_10600gen.bin";
 
 // Disable vsync when training AI so the simulations can run as fast as possible
 constexpr bool k_vsyncEnabled = (k_playMode != PlayMode::TrainAiControllers);
-constexpr float k_windowWidth = 640;	// 1280
+constexpr float k_windowWidth = 1280;	// 1280
 constexpr float k_aspectRatio = 16.0f / 9.0f;
 
 constexpr int k_startupDelay = 60 * 0;
+
+constexpr bool k_imguiEnabled = true;
 
 App::~App()
 {
@@ -61,6 +66,13 @@ void App::Initialize()
 	m_window.create(sf::VideoMode(static_cast<int>(k_windowWidth), static_cast<int>(Math::Ceil(k_windowWidth / k_aspectRatio))), "Neurons");
 	m_window.setVerticalSyncEnabled(k_vsyncEnabled);
 
+	if constexpr(k_imguiEnabled == true)
+	{
+		ImGui::SFML::Init(m_window);
+		// Set to "true" to hide the OS's cursor and have ImGui draw its own
+		ImGui::GetIO().MouseDrawCursor = false;
+	}
+
 	InitializeGame();
 }
 
@@ -74,15 +86,28 @@ int App::Run()
 		{
 			while (m_window.pollEvent(event))
 			{
+				if constexpr(k_imguiEnabled)
+				{
+					ImGui::SFML::ProcessEvent(m_window, event);
+				}
 				if (event.type == sf::Event::Closed)
 				{
 					m_window.close();
+					if constexpr(k_imguiEnabled == true)
+					{
+						ImGui::SFML::Shutdown();
+					}
 				}
 			}
 		}
 
 		if (m_window.isOpen())
 		{
+			if constexpr (k_imguiEnabled == true)
+			{
+				// TODO: Pass in more accurate deltaTime value instead of assuming it's 60 fps
+				ImGui::SFML::Update(m_window, sf::seconds(static_cast<float>(1.0 / 60.0f)));
+			}
 			static int s_startupDelay = k_startupDelay;
 			if (s_startupDelay > 0)
 			{
@@ -133,9 +158,9 @@ void App::InitializeGame()
 
 		_ASSERT(m_testGame == nullptr);
 		m_testGame = new NeuronGame();
-//		m_testGame->SetPlayerController(0, new HumanPlayerController(0));
-		m_testGame->SetPlayerController(0, m_aiPlayerTrainer->GetAiController(0)->m_controller);
-		m_testGame->SetPlayerController(1, m_aiPlayerTrainer->GetAiController(12)->m_controller);
+		m_testGame->SetPlayerController(0, new HumanPlayerController(0));
+		m_testGame->SetPlayerController(1, m_aiPlayerTrainer->GetAiController(0)->m_controller);
+//		m_testGame->SetPlayerController(1, m_aiPlayerTrainer->GetAiController(1000)->m_controller);
 		break;
 	}
 	break;
@@ -199,6 +224,11 @@ void App::DrawGame()
 
 		NeuronGameDisplay gameDisplay(*gameToDisplay);
 		gameDisplay.Draw(m_window);
+
+		if constexpr (k_imguiEnabled == true)
+		{
+			ImGui::SFML::Render(m_window);
+		}
 
 		m_window.display();
 	}
