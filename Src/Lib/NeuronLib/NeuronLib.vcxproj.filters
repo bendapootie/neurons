@@ -19,6 +19,15 @@
     <Filter Include="Training">
       <UniqueIdentifier>{c0bee232-45f6-4542-883b-62a5a082c0d1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="External">
+      <UniqueIdentifier>{6c5fc6ba-aca2-4c7c-b23a-6c7135ea3b53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\imgui">
+      <UniqueIdentifier>{cdab7b6d-be8a-4e6e-9062-f8df81db7224}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\imgui-sfml">
+      <UniqueIdentifier>{0637dd92-e847-482d-855b-46491d28f975}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Util\Array.h">
@@ -85,6 +94,15 @@
     <ClInclude Include="Util\BinaryBuffer.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\External\imgui\imconfig.h">
+      <Filter>External\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\External\imgui\imgui.h">
+      <Filter>External\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\External\imgui-sfml\imgui-SFML.h">
+      <Filter>External\imgui-sfml</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Util\Random.cpp">
@@ -138,6 +156,24 @@
     </ClCompile>
     <ClCompile Include="Util\BinaryBuffer.cpp">
       <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\External\imgui\imgui.cpp">
+      <Filter>External\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\External\imgui\imgui_draw.cpp">
+      <Filter>External\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\External\imgui\imgui_tables.cpp">
+      <Filter>External\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\External\imgui\imgui_widgets.cpp">
+      <Filter>External\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\External\imgui-sfml\imgui-SFML.cpp">
+      <Filter>External\imgui-sfml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\External\imgui\imgui_demo.cpp">
+      <Filter>External\imgui</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
