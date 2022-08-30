@@ -21,12 +21,12 @@ private:
 
 private:
 	sf::RenderWindow m_window;
-	// Allows for throttling pollEvents. Prevents spamming this function when vsync is off.
-	bool m_skipPollEvent = false;
 
 	// Instance of AiPlayerTrainer for running game simulations and training NeuralNetPlayerController
 	AiPlayerTrainer* m_aiPlayerTrainer = nullptr;
 
 	// TEMP: Game instance for testing
 	NeuronGame* m_testGame = nullptr;
+
+	bool m_renderThisFrame = true;
 };

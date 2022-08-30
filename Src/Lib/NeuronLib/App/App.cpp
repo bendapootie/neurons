@@ -48,6 +48,12 @@ constexpr int k_startupDelay = 60 * 0;
 
 constexpr bool k_imguiEnabled = true;
 
+// TODO: Move these into somewhere nicer, probably a struct in App
+static bool s_vsyncEnabled = (k_playMode != PlayMode::TrainAiControllers);
+static int s_antialiasingValue = 0;
+// TODO: Make a nicer way to set antialiasing values, or at least hide it better
+const std::vector<int> k_antialiasingValueToLevel = { 0, 2, 4, 8, 16 };
+
 App::~App()
 {
 	if (m_aiPlayerTrainer != nullptr)
@@ -63,8 +69,15 @@ App::~App()
 
 void App::Initialize()
 {
-	m_window.create(sf::VideoMode(static_cast<int>(k_windowWidth), static_cast<int>(Math::Ceil(k_windowWidth / k_aspectRatio))), "Neurons");
-	m_window.setVerticalSyncEnabled(k_vsyncEnabled);
+	sf::ContextSettings settings;
+	settings.antialiasingLevel = k_antialiasingValueToLevel[s_antialiasingValue];
+	m_window.create(
+		sf::VideoMode(static_cast<int>(k_windowWidth), static_cast<int>(Math::Ceil(k_windowWidth / k_aspectRatio))),
+		"Neurons",
+		sf::Style::Default,
+		settings
+	);
+	m_window.setVerticalSyncEnabled(s_vsyncEnabled);
 
 	if constexpr(k_imguiEnabled == true)
 	{
@@ -81,8 +94,24 @@ int App::Run()
 	int returnCode = 0;
 	while (m_window.isOpen())
 	{
+		// Only update the display if vsync is on or enough time has passed
+		m_renderThisFrame = s_vsyncEnabled;
+		if (!s_vsyncEnabled)
+		{
+			auto now = std::chrono::high_resolution_clock::now();
+			static auto s_lastDisplayTime = now;
+			auto timeSinceUpdate = now - s_lastDisplayTime;
+			auto elapsedMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(timeSinceUpdate);
+			if (elapsedMilliseconds.count() >= 16)
+			{
+				m_renderThisFrame = true;
+				s_lastDisplayTime = now;
+			}
+		}
+
 		sf::Event event;
-		if (!m_skipPollEvent)
+		// Only poll for OS events if the display was updated. It wastes CPU to do it more often.
+		if (m_renderThisFrame)
 		{
 			while (m_window.pollEvent(event))
 			{
@@ -103,11 +132,15 @@ int App::Run()
 
 		if (m_window.isOpen())
 		{
-			if constexpr (k_imguiEnabled == true)
+			if (m_renderThisFrame)
 			{
-				// TODO: Pass in more accurate deltaTime value instead of assuming it's 60 fps
-				ImGui::SFML::Update(m_window, sf::seconds(static_cast<float>(1.0 / 60.0f)));
+				if constexpr (k_imguiEnabled == true)
+				{
+					// TODO: Pass in more accurate deltaTime value instead of assuming it's 60 fps
+					ImGui::SFML::Update(m_window, sf::seconds(static_cast<float>(1.0 / 60.0f)));
+				}
 			}
+
 			static int s_startupDelay = k_startupDelay;
 			if (s_startupDelay > 0)
 			{
@@ -117,7 +150,11 @@ int App::Run()
 			{
 				UpdateGame();
 			}
-			DrawGame();
+
+			if (m_renderThisFrame)
+			{
+				DrawGame();
+			}
 		}
 	}
 	return returnCode;
@@ -193,45 +230,68 @@ void App::UpdateGame()
 
 void App::DrawGame()
 {
+	_ASSERT(m_renderThisFrame);
+
 	const NeuronGame* gameToDisplay = m_testGame;
 	if (k_playMode == PlayMode::TrainAiControllers)
 	{
 		gameToDisplay = m_aiPlayerTrainer->GetGame(0);
 	}
 
-	// Only update the display if vsync is on or enough time has passed
-	bool updateDisplay = k_vsyncEnabled;
-	if (!k_vsyncEnabled)
+	const float length = gameToDisplay->GetFieldLength();
+	const float width = gameToDisplay->GetFieldWidth();
+	const float viewSize = length * 2.0f;
+	sf::View view(sf::Vector2f(length * 0.5f, width * 0.5f), sf::Vector2f(viewSize, viewSize / k_aspectRatio));
+	m_window.setView(view);
+	m_window.clear(sf::Color(0, 0, 32, 255));
+
+	NeuronGameDisplay gameDisplay(*gameToDisplay);
+	gameDisplay.Draw(m_window);
+
+	bool toggleVsync = false;
+	if constexpr (k_imguiEnabled == true)
 	{
-		auto now = std::chrono::high_resolution_clock::now();
-		static auto s_lastDisplayTime = now;
-		auto timeSinceUpdate = now - s_lastDisplayTime;
-		auto elapsedMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(timeSinceUpdate);
-		if (elapsedMilliseconds.count() >= 16)
+		ImGui::Begin("Menu");
 		{
-			updateDisplay = true;
-			s_lastDisplayTime = now;
+			if (ImGui::Checkbox("VSync", &s_vsyncEnabled))
+			{
+				m_window.setVerticalSyncEnabled(s_vsyncEnabled);
+			}
+
+			if (ImGui::SliderInt("Antialiasing", &s_antialiasingValue, 0, static_cast<int>(k_antialiasingValueToLevel.size() - 1)))
+			{
+				_ASSERT((s_antialiasingValue >= 0) && (s_antialiasingValue < k_antialiasingValueToLevel.size()));
+			}
+
+			if (ImGui::Button("Apply Changes"))
+			{
+				// Antialiasing can only be changed by recreating the render window
+				// TODO: Consider using render to texture so the entire window doesn't need to be recreated
+				int newAntialiasingLevel = k_antialiasingValueToLevel[s_antialiasingValue];
+
+				// TODO: Window creation code here is identical to initialization. It should be merged.
+				sf::ContextSettings settings;
+				settings.antialiasingLevel = newAntialiasingLevel;
+				m_window.create(
+					sf::VideoMode(static_cast<int>(k_windowWidth), static_cast<int>(Math::Ceil(k_windowWidth / k_aspectRatio))),
+					"Neurons",
+					sf::Style::Default,
+					settings
+				);
+				m_window.setVerticalSyncEnabled(s_vsyncEnabled);
+				
+				// Make sure the new setting is actually what we wanted.
+				// This may throw false positives if run on a device that doesn't support
+				// the expected AA levels I hard-coded in
+				_ASSERT(m_window.getSettings().antialiasingLevel == newAntialiasingLevel);
+			}
 		}
+		ImGui::End();
+
+		ImGui::ShowDemoWindow();
+
+		ImGui::SFML::Render(m_window);
 	}
-	if (updateDisplay)
-	{
-		const float length = gameToDisplay->GetFieldLength();
-		const float width = gameToDisplay->GetFieldWidth();
-		const float viewSize = length * 2.0f;
-		sf::View view(sf::Vector2f(length * 0.5f, width * 0.5f), sf::Vector2f(viewSize, viewSize / k_aspectRatio));
-		m_window.setView(view);
-		m_window.clear(sf::Color(0, 0, 32, 255));
 
-		NeuronGameDisplay gameDisplay(*gameToDisplay);
-		gameDisplay.Draw(m_window);
-
-		if constexpr (k_imguiEnabled == true)
-		{
-			ImGui::SFML::Render(m_window);
-		}
-
-		m_window.display();
-	}
-	// Only poll for OS events if the display was updated. It wastes CPU to do it more often.
-	m_skipPollEvent = !updateDisplay;
+	m_window.display();
 }

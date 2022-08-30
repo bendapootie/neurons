@@ -8,7 +8,7 @@
 
 constexpr float k_defaultGameDuration = 60.0f * 1.0f;
 constexpr float k_playerWidthOffsetPercent = 0.04f;
-constexpr int k_scoreToWin = 3;
+constexpr int k_scoreToWin = 5;
 
 constexpr float k_maxTurnRadiansPerSecond = DegToRad(270.0f);
 constexpr float k_turningDeadZone = 0.1f;
