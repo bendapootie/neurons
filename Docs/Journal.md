@@ -1,3 +1,20 @@
+## 8/29/2022
+### Current Status
+I'm stepping back a bit and rethinking things.
+
+I've accepted there's a fundamental problem with the training approach I'm using. My fitness function is too coarse. I've been playing games like World Cup qualifying, where each generation agents play 4-8 games. This ends up giving 1,000 agents integer scores between 0 and 24. With that sort of feedback, small incremental improvements are impossible to measure and encourage from one generation to the next. The result is a tremendous amount of training for very improvements.
+
+### Takeaways and Potential Next Steps
+- Use a more incremental approach for building the AI
+	- Start training in more focused scenarios that can be measured much more granularly. Examples...
+		- Shooting - How close player came to hitting ball + how close ball came to scoring
+		- Goalkeeping - How close player got to ball + how well it was cleared(?)
+	- Create "genes" from each of the training session networks
+		- Combine genes into full AI
+		- Train AI in full matches using the genes to guide sexual reproduction
+But first...
+- Step back and build some scaffolding, starting with UI to control things instead of recompiling to edit a parameter
+
 ## 8/26/2022
 ### Current Status
 Instead of starting initial networks with two levels, I started them with five, with 21, 13, 8, 5, and 3 neurons per level. They needed to go from 21 inputs to 3 outputs, so using Fibbonaci numbers seemed fitting. Since they have more neurons, they understandably took a bit longer to run, but I still got through 10,000 generations in one day.
