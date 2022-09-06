@@ -54,6 +54,9 @@ static int s_antialiasingValue = 0;
 // TODO: Make a nicer way to set antialiasing values, or at least hide it better
 const std::vector<int> k_antialiasingValueToLevel = { 0, 2, 4, 8, 16 };
 
+const int k_numSupportedJoysticks = 4;
+
+
 App::~App()
 {
 	if (m_aiPlayerTrainer != nullptr)
@@ -82,8 +85,12 @@ void App::Initialize()
 	if constexpr(k_imguiEnabled == true)
 	{
 		ImGui::SFML::Init(m_window);
+
+		ImGuiIO& io = ImGui::GetIO();
 		// Set to "true" to hide the OS's cursor and have ImGui draw its own
-		ImGui::GetIO().MouseDrawCursor = false;
+		io.MouseDrawCursor = false;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 	}
 
 	InitializeGame();
@@ -119,6 +126,7 @@ int App::Run()
 				{
 					ImGui::SFML::ProcessEvent(m_window, event);
 				}
+
 				if (event.type == sf::Event::Closed)
 				{
 					m_window.close();
@@ -248,10 +256,35 @@ void App::DrawGame()
 	NeuronGameDisplay gameDisplay(*gameToDisplay);
 	gameDisplay.Draw(m_window);
 
-	bool toggleVsync = false;
-	if constexpr (k_imguiEnabled == true)
+	UpdateDebugMenu();
+
+	if constexpr (k_imguiEnabled)
 	{
-		ImGui::Begin("Menu");
+		ImGui::SFML::Render(m_window);
+	}
+	m_window.display();
+}
+
+void App::UpdateDebugMenu()
+{
+	if (k_imguiEnabled == false)
+	{
+		return;
+	}
+
+	CheckForDebugMenuToggle();
+
+	if (m_menuOpen == false)
+	{
+		return;
+	}
+
+	// TODO: Add a debug key or controller button combination to open the menu
+	//       When the menu is open, all input should be handled by ImGui instead of the game
+
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("Display"))
 		{
 			if (ImGui::Checkbox("VSync", &s_vsyncEnabled))
 			{
@@ -263,35 +296,140 @@ void App::DrawGame()
 				_ASSERT((s_antialiasingValue >= 0) && (s_antialiasingValue < k_antialiasingValueToLevel.size()));
 			}
 
-			if (ImGui::Button("Apply Changes"))
+			// Only show "Apply Changes" option if the Antialiasing setting has changed
+			int newAntialiasingLevel = k_antialiasingValueToLevel[s_antialiasingValue];
+			if (m_window.getSettings().antialiasingLevel != newAntialiasingLevel)
 			{
-				// Antialiasing can only be changed by recreating the render window
-				// TODO: Consider using render to texture so the entire window doesn't need to be recreated
-				int newAntialiasingLevel = k_antialiasingValueToLevel[s_antialiasingValue];
+				if (ImGui::Button("Apply Changes"))
+				{
+					// Antialiasing can only be changed by recreating the render window
+					// TODO: Consider using render to texture so the entire window doesn't need to be recreated
 
-				// TODO: Window creation code here is identical to initialization. It should be merged.
-				sf::ContextSettings settings;
-				settings.antialiasingLevel = newAntialiasingLevel;
-				m_window.create(
-					sf::VideoMode(static_cast<int>(k_windowWidth), static_cast<int>(Math::Ceil(k_windowWidth / k_aspectRatio))),
-					"Neurons",
-					sf::Style::Default,
-					settings
-				);
-				m_window.setVerticalSyncEnabled(s_vsyncEnabled);
-				
-				// Make sure the new setting is actually what we wanted.
-				// This may throw false positives if run on a device that doesn't support
-				// the expected AA levels I hard-coded in
-				_ASSERT(m_window.getSettings().antialiasingLevel == newAntialiasingLevel);
+					// TODO: Window creation code here is identical to initialization. It should be merged.
+					sf::ContextSettings settings;
+					settings.antialiasingLevel = newAntialiasingLevel;
+					m_window.create(
+						sf::VideoMode(static_cast<int>(k_windowWidth), static_cast<int>(Math::Ceil(k_windowWidth / k_aspectRatio))),
+						"Neurons",
+						sf::Style::Default,
+						settings
+					);
+					m_window.setVerticalSyncEnabled(s_vsyncEnabled);
+
+					// Make sure the new setting is actually what we wanted.
+					// This may throw false positives if run on a device that doesn't support
+					// the expected AA levels I hard-coded in
+					_ASSERT(m_window.getSettings().antialiasingLevel == newAntialiasingLevel);
+				}
 			}
+
+			ImGui::EndMenu();
 		}
-		ImGui::End();
-
-		ImGui::ShowDemoWindow();
-
-		ImGui::SFML::Render(m_window);
+		if (ImGui::BeginMenu("Edit"))
+		{
+			if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
+			if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
+			ImGui::Separator();
+			if (ImGui::MenuItem("Cut", "CTRL+X")) {}
+			if (ImGui::MenuItem("Copy", "CTRL+C")) {}
+			if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
 	}
 
-	m_window.display();
+	// Debug display of contoller input
+	static bool s_joystickDisplayActive = false;
+	if (s_joystickDisplayActive)
+	{
+		ImGui::Begin("Controllers", &s_joystickDisplayActive);
+		ImGui::BeginTabBar("Controllers");
+		for (int joystickIndex = 0; joystickIndex < k_numSupportedJoysticks; joystickIndex++)
+		{
+			if (sf::Joystick::isConnected(joystickIndex))
+			{
+				sf::Joystick::Identification id = sf::Joystick::getIdentification(joystickIndex);
+				std::string joystickName = id.name.toAnsiString();
+
+				if (ImGui::BeginTabItem(joystickName.c_str()))
+				{
+					// Show button states
+					const int numButtons = sf::Joystick::getButtonCount(joystickIndex);
+					for (int buttonIndex = 0; buttonIndex < numButtons; buttonIndex++)
+					{
+						const bool pressed = sf::Joystick::isButtonPressed(joystickIndex, buttonIndex);
+						const ImVec4 pressedColor(1.0f, 1.0f, 1.0f, 1.0f);
+						const ImVec4 releasedColor(1.0f, 1.0f, 1.0f, 0.5f);
+						ImGui::TextColored(pressed ? pressedColor : releasedColor, "Button %d%s", buttonIndex, pressed ? " Pressed" : "");
+					}
+
+					// Show axes state
+					const int k_maxAxisIndex = static_cast<int>(sf::Joystick::Axis::PovY) + 1;
+					for (int axisIndex = 0; axisIndex < k_maxAxisIndex; axisIndex++)
+					{
+						sf::Joystick::Axis axis = static_cast<sf::Joystick::Axis>(axisIndex);
+						if (sf::Joystick::hasAxis(joystickIndex, axis))
+						{
+							char msg[64];
+							sprintf_s(msg, "Axis %d", axisIndex);
+							const float position = sf::Joystick::getAxisPosition(joystickIndex, axis);
+							const float percent = (position + 100.0f) / 200.0f;
+							ImGui::ProgressBar(percent, ImVec2(-1.0f, 0.f), msg);
+						}
+					}
+
+					ImGui::EndTabItem();
+				}
+			}
+		}
+		ImGui::EndTabBar();
+		ImGui::End();
+	}
+
+//	ImGui::ShowDemoWindow();
+}
+
+void App::CheckForDebugMenuToggle()
+{
+	bool toggleMenu = false;
+
+	// Check for keyboard shortcuts (Esc and F10)
+	const bool escPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Escape);
+	if (escPressed && !m_uiMenuToggleEscDownLastFrame)
+	{
+		toggleMenu = true;
+	}
+	m_uiMenuToggleEscDownLastFrame = escPressed;
+
+	const bool f10Pressed = sf::Keyboard::isKeyPressed(sf::Keyboard::F10);
+	if (f10Pressed && !m_uiMenuToggleF10DownLastFrame)
+	{
+		toggleMenu = true;
+	}
+	m_uiMenuToggleF10DownLastFrame = f10Pressed;
+
+	// Check for controller shortcuts (RB + LB + LS + RS)
+	bool allClawButtonsPressed = false;
+	for (int joystickIndex = 0; joystickIndex < k_numSupportedJoysticks; joystickIndex++)
+	{
+		if (sf::Joystick::isConnected(joystickIndex))
+		{
+			bool allButtonsPressed = true;
+			const std::vector<int> k_requiredButtons = { 4, 5, 8, 9 };
+			for (int buttonIndex : k_requiredButtons)
+			{
+				allButtonsPressed &= sf::Joystick::isButtonPressed(joystickIndex, buttonIndex);
+			}
+			// TODO: Handle each controller's input independently 
+			allClawButtonsPressed |= allButtonsPressed;
+		}
+	}
+	if (allClawButtonsPressed && !m_uiMenuToggleClawDownLastFrame)
+	{
+		toggleMenu = true;
+	}
+	m_uiMenuToggleClawDownLastFrame = allClawButtonsPressed;
+
+	// If 'toggleMenu' was set, toggle the menu
+	m_menuOpen = (toggleMenu != m_menuOpen);
 }

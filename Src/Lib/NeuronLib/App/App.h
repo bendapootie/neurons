@@ -19,6 +19,11 @@ private:
 	void UpdateGame();
 	void DrawGame();
 
+	// Draws and processes the debug ImGui menu
+	void UpdateDebugMenu();
+	// Checks keyboard and controller input to see if debug menu display should be toggled
+	void CheckForDebugMenuToggle();
+
 private:
 	sf::RenderWindow m_window;
 
@@ -29,4 +34,10 @@ private:
 	NeuronGame* m_testGame = nullptr;
 
 	bool m_renderThisFrame = true;
+
+	// TODO: Move UI state into separate class
+	bool m_menuOpen = false;
+	bool m_uiMenuToggleEscDownLastFrame = false;
+	bool m_uiMenuToggleF10DownLastFrame = false;
+	bool m_uiMenuToggleClawDownLastFrame = false;
 };

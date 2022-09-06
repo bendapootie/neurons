@@ -14,6 +14,7 @@ I've accepted there's a fundamental problem with the training approach I'm using
 		- Train AI in full matches using the genes to guide sexual reproduction
 But first...
 - Step back and build some scaffolding, starting with UI to control things instead of recompiling to edit a parameter
+	- This will likely require some rearchitecting. Until now, some things are nicely encapsulated, but a lot of the App code is one-off and not extensible or maintainable.
 
 ## 8/26/2022
 ### Current Status
