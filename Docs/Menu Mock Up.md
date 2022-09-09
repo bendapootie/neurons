@@ -1,14 +1,14 @@
 ### Toggle ImGui Menu
-When ImGui Menu is up, game ignores input
-- Kbd - Esc/F10
-- Controller - RB + LB + LS + RS
+- [x] Kbd - Esc/F10
+- [x] Controller - RB + LB + LS + RS
+- [x] When ImGui Menu is up, game ignores input
 
 ## Menu
 ### Settings
-- VSync
-- Antialiasing
-- Resolution
-- Full Screen / Borderless / Windowed
+- [x] VSync
+- [x] Antialiasing
+- [ ] Resolution
+- [ ] Full Screen / Borderless / Windowed
 ### Play Game
 - Player 1
 	- Input 0 (kbd or controller)
