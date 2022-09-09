@@ -186,6 +186,7 @@
     <ClInclude Include="App\PhysicsTest.h" />
     <ClInclude Include="NeuralNet\Network.h" />
     <ClInclude Include="NeuronBall\Controllers\HumanPlayerController.h" />
+    <ClInclude Include="NeuronBall\Controllers\InputProvider.h" />
     <ClInclude Include="NeuronBall\Controllers\NeuralNetPlayerController.h" />
     <ClInclude Include="NeuronBall\NeuronBall.h" />
     <ClInclude Include="NeuronBall\NeuronGame.h" />
@@ -201,6 +202,7 @@
     <ClInclude Include="Util\Constants.h" />
     <ClInclude Include="Util\Math.h" />
     <ClInclude Include="Util\Random.h" />
+    <ClInclude Include="Util\RefCount.h" />
     <ClInclude Include="Util\Serializable.h" />
     <ClInclude Include="Util\Shapes.h" />
     <ClInclude Include="Util\Vector.h" />
@@ -216,6 +218,7 @@
     <ClCompile Include="App\PhysicsTest.cpp" />
     <ClCompile Include="NeuralNet\Network.cpp" />
     <ClCompile Include="NeuronBall\Controllers\HumanPlayerController.cpp" />
+    <ClCompile Include="NeuronBall\Controllers\InputProvider.cpp" />
     <ClCompile Include="NeuronBall\Controllers\NeuralNetPlayerController.cpp" />
     <ClCompile Include="NeuronBall\NeuronBall.cpp" />
     <ClCompile Include="NeuronBall\NeuronGame.cpp" />

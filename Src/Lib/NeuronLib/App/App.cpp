@@ -27,7 +27,7 @@ enum class PlayMode
 // GamesPerSeason = 4
 // Keep 20% per generation
 
-constexpr PlayMode k_playMode = PlayMode::VsSavedAi;
+constexpr PlayMode k_playMode = PlayMode::PlayerVsPlayer;
 constexpr float k_gameDuration = 15.0f * 1.0f;
 
 constexpr int k_numControllers = 1024;
@@ -203,7 +203,7 @@ void App::InitializeGame()
 
 		_ASSERT(m_testGame == nullptr);
 		m_testGame = new NeuronGame();
-		m_testGame->SetPlayerController(0, new HumanPlayerController(0));
+		m_testGame->SetPlayerController(0, new HumanPlayerController(InputProvider(0, m_userInputBlocker)));
 		m_testGame->SetPlayerController(1, m_aiPlayerTrainer->GetAiController(0)->m_controller);
 //		m_testGame->SetPlayerController(1, m_aiPlayerTrainer->GetAiController(1000)->m_controller);
 		break;
@@ -214,8 +214,8 @@ void App::InitializeGame()
 	{
 		_ASSERT(m_testGame == nullptr);
 		m_testGame = new NeuronGame();
-		m_testGame->SetPlayerController(0, new HumanPlayerController(0));
-		m_testGame->SetPlayerController(1, new HumanPlayerController(1));
+		m_testGame->SetPlayerController(0, new HumanPlayerController(InputProvider(0, m_userInputBlocker)));
+		m_testGame->SetPlayerController(1, new HumanPlayerController(InputProvider(1, m_userInputBlocker)));
 		break;
 	}
 
@@ -431,5 +431,17 @@ void App::CheckForDebugMenuToggle()
 	m_uiMenuToggleClawDownLastFrame = allClawButtonsPressed;
 
 	// If 'toggleMenu' was set, toggle the menu
-	m_menuOpen = (toggleMenu != m_menuOpen);
+	if (toggleMenu)
+	{
+		if (m_menuOpen == false)
+		{
+			m_menuOpen = true;
+			m_userInputBlocker.AddRef();
+		}
+		else
+		{
+			m_menuOpen = false;
+			m_userInputBlocker.Release();
+		}
+	}
 }

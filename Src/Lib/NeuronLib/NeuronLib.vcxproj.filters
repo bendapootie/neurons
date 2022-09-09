@@ -103,6 +103,12 @@
     <ClInclude Include="..\..\External\imgui-sfml\imgui-SFML.h">
       <Filter>External\imgui-sfml</Filter>
     </ClInclude>
+    <ClInclude Include="NeuronBall\Controllers\InputProvider.h">
+      <Filter>NeuronBall\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\RefCount.h">
+      <Filter>Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Util\Random.cpp">
@@ -174,6 +180,9 @@
     </ClCompile>
     <ClCompile Include="..\..\External\imgui\imgui_demo.cpp">
       <Filter>External\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="NeuronBall\Controllers\InputProvider.cpp">
+      <Filter>NeuronBall\Controllers</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include "Util/RefCount.h"
 
 class AiPlayerTrainer;
 class NeuronGame;
@@ -36,6 +37,8 @@ private:
 	bool m_renderThisFrame = true;
 
 	// TODO: Move UI state into separate class
+	// RefCount object to track whether user input is allowed or not
+	RefCount m_userInputBlocker;
 	bool m_menuOpen = false;
 	bool m_uiMenuToggleEscDownLastFrame = false;
 	bool m_uiMenuToggleF10DownLastFrame = false;
