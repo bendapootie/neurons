@@ -284,57 +284,9 @@ void App::UpdateDebugMenu()
 
 	if (ImGui::BeginMainMenuBar())
 	{
-		if (ImGui::BeginMenu("Display"))
-		{
-			if (ImGui::Checkbox("VSync", &s_vsyncEnabled))
-			{
-				m_window.setVerticalSyncEnabled(s_vsyncEnabled);
-			}
+		DebugMenuHelper_UpdateDisplay();
+		DebugMenuHelper_UpdatePlayGame();
 
-			if (ImGui::SliderInt("Antialiasing", &s_antialiasingValue, 0, static_cast<int>(k_antialiasingValueToLevel.size() - 1)))
-			{
-				_ASSERT((s_antialiasingValue >= 0) && (s_antialiasingValue < k_antialiasingValueToLevel.size()));
-			}
-
-			// Only show "Apply Changes" option if the Antialiasing setting has changed
-			int newAntialiasingLevel = k_antialiasingValueToLevel[s_antialiasingValue];
-			if (m_window.getSettings().antialiasingLevel != newAntialiasingLevel)
-			{
-				if (ImGui::Button("Apply Changes"))
-				{
-					// Antialiasing can only be changed by recreating the render window
-					// TODO: Consider using render to texture so the entire window doesn't need to be recreated
-
-					// TODO: Window creation code here is identical to initialization. It should be merged.
-					sf::ContextSettings settings;
-					settings.antialiasingLevel = newAntialiasingLevel;
-					m_window.create(
-						sf::VideoMode(static_cast<int>(k_windowWidth), static_cast<int>(Math::Ceil(k_windowWidth / k_aspectRatio))),
-						"Neurons",
-						sf::Style::Default,
-						settings
-					);
-					m_window.setVerticalSyncEnabled(s_vsyncEnabled);
-
-					// Make sure the new setting is actually what we wanted.
-					// This may throw false positives if run on a device that doesn't support
-					// the expected AA levels I hard-coded in
-					_ASSERT(m_window.getSettings().antialiasingLevel == newAntialiasingLevel);
-				}
-			}
-
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Edit"))
-		{
-			if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
-			if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
-			ImGui::Separator();
-			if (ImGui::MenuItem("Cut", "CTRL+X")) {}
-			if (ImGui::MenuItem("Copy", "CTRL+C")) {}
-			if (ImGui::MenuItem("Paste", "CTRL+V")) {}
-			ImGui::EndMenu();
-		}
 		ImGui::EndMainMenuBar();
 	}
 
@@ -387,6 +339,91 @@ void App::UpdateDebugMenu()
 	}
 
 //	ImGui::ShowDemoWindow();
+}
+
+void App::DebugMenuHelper_UpdateDisplay()
+{
+	if (ImGui::BeginMenu("Display"))
+	{
+		if (ImGui::Checkbox("VSync", &s_vsyncEnabled))
+		{
+			m_window.setVerticalSyncEnabled(s_vsyncEnabled);
+		}
+
+		if (ImGui::SliderInt("Antialiasing", &s_antialiasingValue, 0, static_cast<int>(k_antialiasingValueToLevel.size() - 1)))
+		{
+			_ASSERT((s_antialiasingValue >= 0) && (s_antialiasingValue < k_antialiasingValueToLevel.size()));
+		}
+
+		// Only show "Apply Changes" option if the Antialiasing setting has changed
+		int newAntialiasingLevel = k_antialiasingValueToLevel[s_antialiasingValue];
+		if (m_window.getSettings().antialiasingLevel != newAntialiasingLevel)
+		{
+			if (ImGui::Button("Apply Changes"))
+			{
+				// Antialiasing can only be changed by recreating the render window
+				// TODO: Consider using render to texture so the entire window doesn't need to be recreated
+
+				// TODO: Window creation code here is identical to initialization. It should be merged.
+				sf::ContextSettings settings;
+				settings.antialiasingLevel = newAntialiasingLevel;
+				m_window.create(
+					sf::VideoMode(static_cast<int>(k_windowWidth), static_cast<int>(Math::Ceil(k_windowWidth / k_aspectRatio))),
+					"Neurons",
+					sf::Style::Default,
+					settings
+				);
+				m_window.setVerticalSyncEnabled(s_vsyncEnabled);
+
+				// Make sure the new setting is actually what we wanted.
+				// This may throw false positives if run on a device that doesn't support
+				// the expected AA levels I hard-coded in
+				_ASSERT(m_window.getSettings().antialiasingLevel == newAntialiasingLevel);
+			}
+		}
+
+		ImGui::EndMenu();
+	}
+}
+
+void App::DebugMenuHelper_UpdatePlayGame()
+{
+	if (ImGui::BeginMenu("Play Game"))
+	{
+		for (int playerIndex = 0; playerIndex < k_numPlayers; playerIndex++)
+		{
+			char str[64];
+			sprintf_s(str, "Player %d", playerIndex);
+			if (ImGui::BeginMenu(str))
+			{
+				// TODO: Track each player's selection separately
+				static int s_tempRadioValue = 0;
+				ImGui::RadioButton("Input 0", &s_tempRadioValue, 0);
+				ImGui::RadioButton("Input 1", &s_tempRadioValue, 1);
+				ImGui::RadioButton("AI", &s_tempRadioValue, 2);
+				ImGui::EndMenu();
+			}
+		}
+
+		if (ImGui::BeginMenu("Game Settings"))
+		{
+			// TODO: Don't use static variables for this!
+			static int s_gameDuration = 60;
+			ImGui::SliderInt("Game Duration", &s_gameDuration, 0, 300);
+
+			// TODO: Don't use static variables for this!
+			static int s_scoreToWin = 5;
+			ImGui::SliderInt("Score to Win slider", &s_scoreToWin, 1, 100);
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::Button("Start Game"))
+		{
+		}
+
+		ImGui::EndMenu();
+	}
 }
 
 void App::CheckForDebugMenuToggle()
