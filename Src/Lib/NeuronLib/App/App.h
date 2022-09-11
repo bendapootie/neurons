@@ -25,6 +25,7 @@ private:
 
 	void DebugMenuHelper_UpdateDisplay();
 	void DebugMenuHelper_UpdatePlayGame();
+	void DebugMenuHelper_UpdateTraining();
 	// Checks keyboard and controller input to see if debug menu display should be toggled
 	void CheckForDebugMenuToggle();
 

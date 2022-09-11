@@ -286,6 +286,7 @@ void App::UpdateDebugMenu()
 	{
 		DebugMenuHelper_UpdateDisplay();
 		DebugMenuHelper_UpdatePlayGame();
+		DebugMenuHelper_UpdateTraining();
 
 		ImGui::EndMainMenuBar();
 	}
@@ -388,7 +389,7 @@ void App::DebugMenuHelper_UpdateDisplay()
 
 void App::DebugMenuHelper_UpdatePlayGame()
 {
-	if (ImGui::BeginMenu("Play Game"))
+	if (ImGui::BeginMenu("Play"))
 	{
 		for (int playerIndex = 0; playerIndex < k_numPlayers; playerIndex++)
 		{
@@ -422,6 +423,63 @@ void App::DebugMenuHelper_UpdatePlayGame()
 		{
 		}
 
+		ImGui::EndMenu();
+	}
+}
+
+void App::DebugMenuHelper_UpdateTraining()
+{
+	if (ImGui::BeginMenu("Training"))
+	{
+		if (ImGui::BeginMenu("Agents"))
+		{
+			ImGui::Button("Load from File");
+			ImGui::Separator();
+			if (ImGui::BeginMenu("File: poop.bin"))
+			{
+				ImGui::Text("Agent 0; 6 neurons, score = 0.28, generation = 6");
+				ImGui::Text("Agent 1; 97 neurons, score = 0.27, generation = 6");
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("File: fart.bin"))
+			{
+				ImGui::Text("Agent 0; 53 neurons, score = 3.0, generation = 640");
+				ImGui::Text("Agent 1; 55 neurons, score = 2.87, generation = 640");
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Scenario"))
+		{
+			if (ImGui::BeginMenu("Full Game"))
+			{
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Shoot Training"))
+			{
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Defending"))
+			{
+				ImGui::EndMenu();
+			}
+
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Settings"))
+		{
+			static int s_numGenerations = 100;
+			ImGui::InputInt("Generations to Run", &s_numGenerations);
+			static float s_percentToKeep = 20.0f;
+			ImGui::SliderFloat("Percent to Keep", &s_percentToKeep, 0.0f, 100.0f, "%.0f%%", 1.0f);
+			static float s_mutationRate = 0.1f;
+			ImGui::SliderFloat("Mutation Rate", &s_mutationRate, 0.0f, 1.0f, "%0.2f", 1.0f);
+			static int s_gamesToDisplay = 1;
+			ImGui::SliderInt("Games to Display", &s_gamesToDisplay, 0, 4096, "%d");
+			ImGui::Button("Start Training");
+
+			ImGui::EndMenu();
+		}
 		ImGui::EndMenu();
 	}
 }
