@@ -109,6 +109,9 @@
     <ClInclude Include="Util\RefCount.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="Util\WindowsDialogs.h">
+      <Filter>Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Util\Random.cpp">
@@ -183,6 +186,9 @@
     </ClCompile>
     <ClCompile Include="NeuronBall\Controllers\InputProvider.cpp">
       <Filter>NeuronBall\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\WindowsDialogs.cpp">
+      <Filter>Util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

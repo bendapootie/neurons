@@ -1,18 +1,17 @@
 #include "pch.h"
 #include "App.h"
 
-#include <SFML/Graphics.hpp>
+#include <chrono>
 #include "imgui/imgui.h"
 #include "imgui-sfml/imgui-SFML.h"
-
-// TODO: These are just included for testing. Remove them when not needed anymore.
 #include "NeuronBall/Controllers/HumanPlayerController.h"
 #include "NeuronBall/Controllers/NeuralNetPlayerController.h"
 #include "NeuronBall/NeuronGame.h"
 #include "NeuronBall/NeuronGameDisplay.h"
+#include <SFML/Graphics.hpp>
 #include "Training/AiControllerData.h"
 #include "Training/AiPlayerTrainer.h"
-#include <chrono>
+#include "Util/WindowsDialogs.h"
 
 enum class PlayMode
 {
@@ -339,7 +338,7 @@ void App::UpdateDebugMenu()
 		ImGui::End();
 	}
 
-//	ImGui::ShowDemoWindow();
+	ImGui::ShowDemoWindow();
 }
 
 void App::DebugMenuHelper_UpdateDisplay()
@@ -433,7 +432,11 @@ void App::DebugMenuHelper_UpdateTraining()
 	{
 		if (ImGui::BeginMenu("Agents"))
 		{
-			ImGui::Button("Load from File");
+			if (ImGui::Button("Load from File"))
+			{
+				OpenFileDialog openFileDialog;
+				openFileDialog.Show();
+			}
 			ImGui::Separator();
 			if (ImGui::BeginMenu("File: poop.bin"))
 			{

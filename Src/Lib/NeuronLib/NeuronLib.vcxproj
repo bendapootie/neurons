@@ -206,6 +206,7 @@
     <ClInclude Include="Util\Serializable.h" />
     <ClInclude Include="Util\Shapes.h" />
     <ClInclude Include="Util\Vector.h" />
+    <ClInclude Include="Util\WindowsDialogs.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\External\imgui-sfml\imgui-SFML.cpp" />
@@ -238,6 +239,7 @@
     <ClCompile Include="Util\Serializable.cpp" />
     <ClCompile Include="Util\Shapes.cpp" />
     <ClCompile Include="Util\Vector.cpp" />
+    <ClCompile Include="Util\WindowsDialogs.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
