@@ -112,6 +112,9 @@
     <ClInclude Include="Util\WindowsDialogs.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="App\FileToControllerMap.h">
+      <Filter>App</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Util\Random.cpp">
@@ -189,6 +192,9 @@
     </ClCompile>
     <ClCompile Include="Util\WindowsDialogs.cpp">
       <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="App\FileToControllerMap.cpp">
+      <Filter>App</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

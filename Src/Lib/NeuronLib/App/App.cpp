@@ -55,7 +55,6 @@ const std::vector<int> k_antialiasingValueToLevel = { 0, 2, 4, 8, 16 };
 
 const int k_numSupportedJoysticks = 4;
 
-
 App::~App()
 {
 	if (m_aiPlayerTrainer != nullptr)
@@ -435,7 +434,12 @@ void App::DebugMenuHelper_UpdateTraining()
 			if (ImGui::Button("Load from File"))
 			{
 				OpenFileDialog openFileDialog;
-				openFileDialog.Show();
+				const bool success = openFileDialog.Show();
+				if (success)
+				{
+					std::string filePath = openFileDialog.GetFullPath();
+					m_controllerMap.LoadFromFile(filePath);
+				}
 			}
 			ImGui::Separator();
 			if (ImGui::BeginMenu("File: poop.bin"))

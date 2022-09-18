@@ -183,6 +183,7 @@
     <ClInclude Include="..\..\External\imgui\imconfig.h" />
     <ClInclude Include="..\..\External\imgui\imgui.h" />
     <ClInclude Include="App\App.h" />
+    <ClInclude Include="App\FileToControllerMap.h" />
     <ClInclude Include="App\PhysicsTest.h" />
     <ClInclude Include="NeuralNet\Network.h" />
     <ClInclude Include="NeuronBall\Controllers\HumanPlayerController.h" />
@@ -216,6 +217,7 @@
     <ClCompile Include="..\..\External\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\..\External\imgui\imgui_widgets.cpp" />
     <ClCompile Include="App\App.cpp" />
+    <ClCompile Include="App\FileToControllerMap.cpp" />
     <ClCompile Include="App\PhysicsTest.cpp" />
     <ClCompile Include="NeuralNet\Network.cpp" />
     <ClCompile Include="NeuronBall\Controllers\HumanPlayerController.cpp" />

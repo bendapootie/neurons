@@ -1,8 +1,10 @@
 #pragma once
 
+#include "FileToControllerMap.h"
 #include <SFML/Graphics.hpp>
 #include "Util/RefCount.h"
 
+class AiControllerData;
 class AiPlayerTrainer;
 class NeuronGame;
 
@@ -31,6 +33,8 @@ private:
 
 private:
 	sf::RenderWindow m_window;
+
+	FileToControllerMap m_controllerMap;
 
 	// Instance of AiPlayerTrainer for running game simulations and training NeuralNetPlayerController
 	AiPlayerTrainer* m_aiPlayerTrainer = nullptr;
