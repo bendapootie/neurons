@@ -445,7 +445,7 @@ void App::DebugMenuHelper_UpdateTraining()
 
 		std::vector<std::string> allFilenames = m_controllerMap.GetAllFiles();
 		char str[512];
-		sprintf_s(str, "Agents (%d loaded)", static_cast<int>(allFilenames.size()));
+		sprintf_s(str, "Agents (%d file)", static_cast<int>(allFilenames.size()));
 		if (ImGui::BeginMenu(str))
 		{
 			// Show all loaded files
@@ -501,11 +501,24 @@ void App::DebugMenuHelper_UpdateTraining()
 			ImGui::SliderFloat("Percent to Keep", &s_percentToKeep, 0.0f, 100.0f, "%.0f%%", 1.0f);
 			static float s_mutationRate = 0.1f;
 			ImGui::SliderFloat("Mutation Rate", &s_mutationRate, 0.0f, 1.0f, "%0.2f", 1.0f);
-			static int s_gamesToDisplay = 1;
-			ImGui::SliderInt("Games to Display", &s_gamesToDisplay, 0, 4096, "%d");
-			ImGui::Button("Start Training");
+
+			static int s_gamesToDisplayIndex = 0;
+			const char* elems_names[10] = { "1", "4", "9", "16", "25", "36", "49", "64", "81", "100" };
+			const char* elem_name = (s_gamesToDisplayIndex >= 0 && s_gamesToDisplayIndex < 10) ? elems_names[s_gamesToDisplayIndex] : "Unknown";
+			ImGui::SliderInt("Games to Display", &s_gamesToDisplayIndex, 1, 10 - 1, elem_name);
 
 			ImGui::EndMenu();
+		}
+
+		ImGui::Separator();
+
+		if (allFilenames.size() == 0)
+		{
+			ImGui::TextDisabled("Begin Training");
+		}
+		else if (ImGui::MenuItem("Begin Training"))
+		{
+			OutputDebugStringA("TODO: Start training!");
 		}
 		ImGui::EndMenu();
 	}
