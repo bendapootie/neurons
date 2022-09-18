@@ -12,6 +12,7 @@
 #include "Training/AiControllerData.h"
 #include "Training/AiPlayerTrainer.h"
 #include "Util/WindowsDialogs.h"
+#include "Windows.h"
 
 enum class PlayMode
 {
@@ -431,7 +432,7 @@ void App::DebugMenuHelper_UpdateTraining()
 	{
 		if (ImGui::BeginMenu("Agents"))
 		{
-			if (ImGui::Button("Load from File"))
+			if (ImGui::MenuItem("Load from File"))
 			{
 				OpenFileDialog openFileDialog;
 				const bool success = openFileDialog.Show();
@@ -441,18 +442,38 @@ void App::DebugMenuHelper_UpdateTraining()
 					m_controllerMap.LoadFromFile(filePath);
 				}
 			}
-			ImGui::Separator();
-			if (ImGui::BeginMenu("File: poop.bin"))
+			
+			// Show all loaded files
+			std::vector<std::string> allFilenames = m_controllerMap.GetAllFiles();
+			if (allFilenames.size() > 0)
 			{
-				ImGui::Text("Agent 0; 6 neurons, score = 0.28, generation = 6");
-				ImGui::Text("Agent 1; 97 neurons, score = 0.27, generation = 6");
-				ImGui::EndMenu();
+				ImGui::Separator();
 			}
-			if (ImGui::BeginMenu("File: fart.bin"))
+
+			for (const std::string& fullPath : allFilenames)
 			{
-				ImGui::Text("Agent 0; 53 neurons, score = 3.0, generation = 640");
-				ImGui::Text("Agent 1; 55 neurons, score = 2.87, generation = 640");
-				ImGui::EndMenu();
+				std::string fileName = fullPath.substr(fullPath.find_last_of("/\\") + 1);
+				if (ImGui::BeginMenu(fullPath.c_str()))
+				{
+					const AiControllerList* list = m_controllerMap.GetControllerList(fullPath);
+					if (list == nullptr)
+					{
+						ImGui::MenuItem("<empty>");
+					}
+					else
+					{
+						for (int i = 0; i < list->size(); i++)
+						{
+							char str[512];
+							sprintf_s(str, "%s[%d]", fileName.c_str(), i);
+							if (ImGui::MenuItem(str))
+							{
+								OutputDebugStringA(str);
+							}
+						}
+					}
+					ImGui::EndMenu();
+				}
 			}
 			ImGui::EndMenu();
 		}

@@ -93,7 +93,30 @@ static bool LoadControllersFromFile(AiControllerList& outControllers, const char
 
 
 
+std::vector<std::string> FileToControllerMap::GetAllFiles() const
+{
+	std::vector<std::string> allFiles;
 
+	for (auto it : m_fileToControllerList)
+	{
+		allFiles.push_back(it.first);
+	}
+
+	return allFiles;
+}
+
+const AiControllerList* FileToControllerMap::GetControllerList(const std::string& filename) const
+{
+	const AiControllerList* returnList = nullptr;
+
+	const auto it = m_fileToControllerList.find(filename);
+	if (it != m_fileToControllerList.end())
+	{
+		returnList = &it->second;
+	}
+
+	return returnList;
+}
 
 void FileToControllerMap::LoadFromFile(const std::string& filename)
 {

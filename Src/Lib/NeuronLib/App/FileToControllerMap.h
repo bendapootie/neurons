@@ -20,6 +20,9 @@ public:
 	// Newer revisions can read data from older revisions
 	static int GetFileRevisionNumber();
 
+	std::vector<std::string> GetAllFiles() const;
+	const AiControllerList* GetControllerList(const std::string& filename) const;
+
 	// Opens the given file and loads all the AiControllerData stored in it.
 	// If an entry for the file already exists, it will be replaced
 	void LoadFromFile(const std::string& filename);
