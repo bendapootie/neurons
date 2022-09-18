@@ -430,26 +430,25 @@ void App::DebugMenuHelper_UpdateTraining()
 {
 	if (ImGui::BeginMenu("Training"))
 	{
-		if (ImGui::BeginMenu("Agents"))
+		if (ImGui::MenuItem("Open File"))
 		{
-			if (ImGui::MenuItem("Load from File"))
+			OpenFileDialog openFileDialog;
+			const bool success = openFileDialog.Show();
+			if (success)
 			{
-				OpenFileDialog openFileDialog;
-				const bool success = openFileDialog.Show();
-				if (success)
-				{
-					std::string filePath = openFileDialog.GetFullPath();
-					m_controllerMap.LoadFromFile(filePath);
-				}
+				std::string filePath = openFileDialog.GetFullPath();
+				m_controllerMap.LoadFromFile(filePath);
 			}
-			
-			// Show all loaded files
-			std::vector<std::string> allFilenames = m_controllerMap.GetAllFiles();
-			if (allFilenames.size() > 0)
-			{
-				ImGui::Separator();
-			}
+		}
 
+		ImGui::Separator();
+
+		std::vector<std::string> allFilenames = m_controllerMap.GetAllFiles();
+		char str[512];
+		sprintf_s(str, "Agents (%d loaded)", static_cast<int>(allFilenames.size()));
+		if (ImGui::BeginMenu(str))
+		{
+			// Show all loaded files
 			for (const std::string& fullPath : allFilenames)
 			{
 				std::string fileName = fullPath.substr(fullPath.find_last_of("/\\") + 1);
