@@ -437,13 +437,13 @@ void App::DebugMenuHelper_UpdateTraining()
 			if (success)
 			{
 				std::string filePath = openFileDialog.GetFullPath();
-				m_controllerMap.LoadFromFile(filePath);
+				m_controllerManager.LoadFromFile(filePath);
 			}
 		}
 
 		ImGui::Separator();
 
-		std::vector<std::string> allFilenames = m_controllerMap.GetAllFiles();
+		std::vector<std::string> allFilenames = m_controllerManager.GetAllFiles();
 		char str[512];
 		sprintf_s(str, "Agents (%d file)", static_cast<int>(allFilenames.size()));
 		if (ImGui::BeginMenu(str))
@@ -454,7 +454,7 @@ void App::DebugMenuHelper_UpdateTraining()
 				std::string fileName = fullPath.substr(fullPath.find_last_of("/\\") + 1);
 				if (ImGui::BeginMenu(fullPath.c_str()))
 				{
-					const AiControllerList* list = m_controllerMap.GetControllerList(fullPath);
+					const AiControllerList* list = m_controllerManager.GetControllerList(fullPath);
 					if (list == nullptr)
 					{
 						ImGui::MenuItem("<empty>");

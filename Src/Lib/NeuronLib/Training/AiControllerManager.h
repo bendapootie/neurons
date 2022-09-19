@@ -8,7 +8,7 @@ class AiControllerData;
 
 typedef std::vector<AiControllerData*> AiControllerList;
 
-class FileToControllerMap
+class AiControllerManager
 {
 public:
 	// 4-byte string to identify file type

@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "FileToControllerMap.h"
+#include "AiControllerManager.h"
 
 
 #include <algorithm>
@@ -15,25 +15,25 @@ constexpr int k_fileMinorVersion = 1;
 constexpr int k_fileRevisionNumber = 0;
 
 //static
-const char* FileToControllerMap::GetFileMagicString()
+const char* AiControllerManager::GetFileMagicString()
 {
 	return k_fileMagicString;
 }
 
 //static
-int FileToControllerMap::GetFileMajorVersion()
+int AiControllerManager::GetFileMajorVersion()
 {
 	return k_fileMajorVersion;
 }
 
 // static
-int FileToControllerMap::GetFileMinorVersion()
+int AiControllerManager::GetFileMinorVersion()
 {
 	return k_fileMinorVersion;
 }
 
 //static
-int FileToControllerMap::GetFileRevisionNumber()
+int AiControllerManager::GetFileRevisionNumber()
 {
 	return k_fileRevisionNumber;
 }
@@ -66,7 +66,7 @@ static bool LoadControllersFromFile(AiControllerList& outControllers, const char
 	int fileMajorVersion = 0;
 	int fileMinorVersion = 0;
 	int fileRevisionNumber = 0;
-	buffer.ReadBytes(magicString, static_cast<int>(strlen(FileToControllerMap::GetFileMagicString())));
+	buffer.ReadBytes(magicString, static_cast<int>(strlen(AiControllerManager::GetFileMagicString())));
 	buffer.ReadInt(fileMajorVersion);
 	buffer.ReadInt(fileMinorVersion);
 	buffer.ReadInt(fileRevisionNumber);
@@ -93,7 +93,7 @@ static bool LoadControllersFromFile(AiControllerList& outControllers, const char
 
 
 
-std::vector<std::string> FileToControllerMap::GetAllFiles() const
+std::vector<std::string> AiControllerManager::GetAllFiles() const
 {
 	std::vector<std::string> allFiles;
 
@@ -105,7 +105,7 @@ std::vector<std::string> FileToControllerMap::GetAllFiles() const
 	return allFiles;
 }
 
-const AiControllerList* FileToControllerMap::GetControllerList(const std::string& filename) const
+const AiControllerList* AiControllerManager::GetControllerList(const std::string& filename) const
 {
 	const AiControllerList* returnList = nullptr;
 
@@ -118,7 +118,7 @@ const AiControllerList* FileToControllerMap::GetControllerList(const std::string
 	return returnList;
 }
 
-void FileToControllerMap::LoadFromFile(const std::string& filename)
+void AiControllerManager::LoadFromFile(const std::string& filename)
 {
 	AiControllerList& controllerList = m_fileToControllerList[filename];
 

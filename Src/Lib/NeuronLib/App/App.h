@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FileToControllerMap.h"
+#include "Training/AiControllerManager.h"
 #include <SFML/Graphics.hpp>
 #include "Util/RefCount.h"
 
@@ -34,7 +34,7 @@ private:
 private:
 	sf::RenderWindow m_window;
 
-	FileToControllerMap m_controllerMap;
+	AiControllerManager m_controllerManager;
 
 	// Instance of AiPlayerTrainer for running game simulations and training NeuralNetPlayerController
 	AiPlayerTrainer* m_aiPlayerTrainer = nullptr;

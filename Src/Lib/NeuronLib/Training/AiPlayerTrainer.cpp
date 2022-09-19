@@ -3,7 +3,7 @@
 
 #include <algorithm>
 #include "AiControllerData.h"
-#include "App/FileToControllerMap.h"
+#include "AiControllerManager.h"
 #include <fstream>
 #include "NeuralNet/Network.h"
 #include "NeuronBall/NeuronGame.h"
@@ -193,9 +193,9 @@ void AiPlayerTrainer::PrepareNextGeneration()
 	{
 		char filename[256];
 		sprintf_s(filename, m_config.m_saveFile,
-			FileToControllerMap::GetFileMajorVersion(),
-			FileToControllerMap::GetFileMinorVersion(),
-			FileToControllerMap::GetFileRevisionNumber(),
+			AiControllerManager::GetFileMajorVersion(),
+			AiControllerManager::GetFileMinorVersion(),
+			AiControllerManager::GetFileRevisionNumber(),
 			m_generation
 		);
 
@@ -247,11 +247,11 @@ void AiPlayerTrainer::WriteControllersToFile(const char* outputFileName) const
 	// TODO: Use a dynamically sized buffer or write each controller one at a time so
 	//       not as much memory is needed, or both
 	HeapBuffer buffer(1024 * 1024 * 16);	// allocate a buffer that's easily bigger than needed
-	const char* magicString = FileToControllerMap::GetFileMagicString();
+	const char* magicString = AiControllerManager::GetFileMagicString();
 	buffer.WriteBytes(magicString, static_cast<int>(strlen(magicString)));
-	buffer.WriteInt(FileToControllerMap::GetFileMajorVersion());
-	buffer.WriteInt(FileToControllerMap::GetFileMinorVersion());
-	buffer.WriteInt(FileToControllerMap::GetFileRevisionNumber());
+	buffer.WriteInt(AiControllerManager::GetFileMajorVersion());
+	buffer.WriteInt(AiControllerManager::GetFileMinorVersion());
+	buffer.WriteInt(AiControllerManager::GetFileRevisionNumber());
 
 	buffer.WriteInt(static_cast<int>(m_controllers.size()));
 	for (const AiControllerData* controller : m_controllers)
@@ -266,7 +266,7 @@ void AiPlayerTrainer::WriteControllersToFile(const char* outputFileName) const
 
 
 // TODO: REMOVE THIS FUNCTION!
-//       It's handled by FileToControllerMap now!
+//       It's handled by AiControllerManager now!
 bool AiPlayerTrainer::ReadControllersFromFile(const char* inputFileName, int generationStride, int maxGeneration)
 {
 	if (inputFileName == nullptr)
@@ -285,9 +285,9 @@ bool AiPlayerTrainer::ReadControllersFromFile(const char* inputFileName, int gen
 		{
 			char filename[256];
 			sprintf_s(filename, m_config.m_saveFile,
-				FileToControllerMap::GetFileMajorVersion(),
-				FileToControllerMap::GetFileMinorVersion(),
-				FileToControllerMap::GetFileRevisionNumber(),
+				AiControllerManager::GetFileMajorVersion(),
+				AiControllerManager::GetFileMinorVersion(),
+				AiControllerManager::GetFileRevisionNumber(),
 				generation
 			);
 			inFile = std::ifstream(filename, std::ios::binary);
@@ -320,7 +320,7 @@ bool AiPlayerTrainer::ReadControllersFromFile(const char* inputFileName, int gen
 	int fileMajorVersion = 0;
 	int fileMinorVersion = 0;
 	int fileRevisionNumber = 0;
-	buffer.ReadBytes(magicString, static_cast<int>(strlen(FileToControllerMap::GetFileMagicString())));
+	buffer.ReadBytes(magicString, static_cast<int>(strlen(AiControllerManager::GetFileMagicString())));
 	buffer.ReadInt(fileMajorVersion);
 	buffer.ReadInt(fileMinorVersion);
 	buffer.ReadInt(fileRevisionNumber);

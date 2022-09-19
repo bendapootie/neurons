@@ -112,8 +112,8 @@
     <ClInclude Include="Util\WindowsDialogs.h">
       <Filter>Util</Filter>
     </ClInclude>
-    <ClInclude Include="App\FileToControllerMap.h">
-      <Filter>App</Filter>
+    <ClInclude Include="Training\AiControllerManager.h">
+      <Filter>Training</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -193,8 +193,8 @@
     <ClCompile Include="Util\WindowsDialogs.cpp">
       <Filter>Util</Filter>
     </ClCompile>
-    <ClCompile Include="App\FileToControllerMap.cpp">
-      <Filter>App</Filter>
+    <ClCompile Include="Training\AiControllerManager.cpp">
+      <Filter>Training</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
